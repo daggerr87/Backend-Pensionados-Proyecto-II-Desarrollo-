@@ -1,6 +1,6 @@
 package com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,13 +8,14 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 
-@Schema(description = "Petición de login")
-public class LoginPeticion {
-    
+public class RegistroPeticion {
+
     String username;
-    //String email;
     String password;
+    //String email;
+    String nombre;
+    String apellido;
 }
