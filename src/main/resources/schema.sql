@@ -130,19 +130,12 @@ CREATE TABLE PERIODO (
 /* Table: SUCESOR                                               */
 /*==============================================================*/
 CREATE TABLE SUCESOR (
-   numeroIdPersona BIGINT NOT NULL,
-   tipoIdPersona VARCHAR(50) NOT NULL,
-   nombrePersona VARCHAR(50) NOT NULL,
-   apellidosPersona VARCHAR(50) NOT NULL,
-   fechaNacimientoPersona DATE NOT NULL,
-   fechaExpedicionDocumentoIdPersona DATE NOT NULL,
-   estadoPersona VARCHAR(50) NOT NULL,
-   generoPersona VARCHAR(50) NOT NULL,
-   numeroIdPensionado BIGINT NOT NULL,
-   fechaInicioSucesion DATE NOT NULL,
-   PRIMARY KEY (numeroIdPersona),
-   FOREIGN KEY (numeroIdPersona) REFERENCES PERSONA(numeroIdPersona),
-   FOREIGN KEY (numeroIdPensionado) REFERENCES PENSIONADO(numeroIdPersona)
+    numeroIdPersona BIGINT NOT NULL,
+    numeroIdPensionado BIGINT NOT NULL,
+    fechaInicioSucesion DATE NOT NULL,
+    PRIMARY KEY (numeroIdPersona),
+    FOREIGN KEY (numeroIdPersona) REFERENCES PERSONA(numeroIdPersona),
+    FOREIGN KEY (numeroIdPensionado) REFERENCES PENSIONADO(numeroIdPersona)
 );
 
 /*==============================================================*/
