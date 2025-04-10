@@ -46,4 +46,7 @@ public class Entidad {
     //relacion 1 a muchos pensionados que trabajaron en la entidad
     @OneToMany(mappedBy = "entidad")
     private List<Trabajo> trabajos;
+
+
 }
+
