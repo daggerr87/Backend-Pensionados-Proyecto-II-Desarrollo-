@@ -15,7 +15,6 @@ public class RegistroPeticion {
 
     String username;
     String password;
-    //String email;
     String nombre;
     String apellido;
 }
