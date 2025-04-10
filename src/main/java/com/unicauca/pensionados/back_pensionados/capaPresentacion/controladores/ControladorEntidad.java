@@ -18,7 +18,12 @@ public class ControladorEntidad {
         return entidadService.registrarEntidad(entidad);
     }
 
-    @GetMapping("/buscar")
+    @GetMapping("/buscarPorNit/{nit}")
+    public Entidad buscarPorNit(@PathVariable Long nit) {
+        return entidadService.buscarPorNit(nit);
+    }
+
+    @GetMapping("/buscarPorCriterio")
     public List<Entidad> buscarPorCriterio(@RequestParam(required = false) String query) {
         if (query == null || query.trim().isEmpty()) {
             return entidadService.listarTodos();
