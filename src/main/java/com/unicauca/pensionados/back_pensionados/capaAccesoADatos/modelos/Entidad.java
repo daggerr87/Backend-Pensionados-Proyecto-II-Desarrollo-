@@ -11,11 +11,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "ENTIDAD")
+@Table (name = "ENTIDAD")
 @Getter @Setter
 public class Entidad {
-    @Id
-    @Column (name = "nitEntidad")
+    @Id //llave primaria
+    @Column (name = "nitEntidad" , nullable = false, unique = true)
+
     private Long nitEntidad;
 
     @Column (name = "nombreEntidad", nullable = false, length = 100)
@@ -41,4 +42,6 @@ public class Entidad {
     @OneToMany(mappedBy = "entidad")
     private List<Trabajo> trabajos;
 
+
 }
+
