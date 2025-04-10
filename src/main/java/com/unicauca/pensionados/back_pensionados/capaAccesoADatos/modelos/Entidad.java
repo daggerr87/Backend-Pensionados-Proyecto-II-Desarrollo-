@@ -16,22 +16,27 @@ import lombok.Setter;
 public class Entidad {
     @Id //llave primaria
     @Column (name = "nitEntidad" , nullable = false, unique = true)
-
+    //NIT de la entidad, no puede ser nulo y debe ser unico
     private Long nitEntidad;
 
-    @Column (name = "nombreEntidad", nullable = false, length = 100)
+    @Column (name = "nombreEntidad", nullable = false, length = 100, unique = true)
+    //nombre de la entidad, no puede ser nulo y debe ser unico
     private String nombreEntidad;
 
     @Column (name ="direccionEntidad", nullable = false, length =100)
+    //direccion de la entidad, no puede ser nulo
     private String direccionEntidad;
 
     @Column (name = "emailEntidad", nullable =  false, length = 100)
+    //email de la entidad, no puede ser nulo
     private String emailEntidad;
 
     @Column (name = "telefonoEntidad", nullable = false)
+    //telefono de la entidad, no puede ser nulo
     private Long telefonoEntidad;    
 
     @Column (name = "estadoEntidad", nullable = false, length = 50)
+    //estado de la entidad, no puede ser nulo
     private String estadoEntidad;
 
     //relacion 1 a muchos Pensonados
