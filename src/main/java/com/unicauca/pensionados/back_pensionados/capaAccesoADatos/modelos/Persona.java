@@ -1,0 +1,47 @@
+package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
+
+import java.sql.Date;
+import jakarta.persistence.CascadeType;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table (name = "PERSONA")
+@Inheritance(strategy =InheritanceType.JOINED)
+@Getter @Setter @NoArgsConstructor
+public abstract class Persona {
+    @Id
+    @Column(name = "numeroIdPersona")
+    private Long numeroIdPersona;
+    
+    @Column (name =  "tipoIdPersona", nullable = false, length = 50)
+    private String tipoIdPersona;
+
+    @Column (name = "nombrePersona", nullable = false, length = 50)
+    private String nombrePersona;
+
+    @Column (name = "apellidosPersona", nullable = false, length = 50)
+    private String apellidosPersona;
+
+    @Column (name = "fechaNacimientoPersona", nullable = false)
+    private Date fechaNacimientoPersona;
+
+    @Column(name = "fechaExpedicionDocumentoIdPersona", nullable = false)
+    private Date fechaExpedicionDocumentoIdPersona;
+
+    @Column (name = "estadoPersona", nullable = false, length = 50)
+    private String estadoPersona;
+
+    @Column (name = "generoPersona", length = 50)
+    private String generoPersona;
+
+}
