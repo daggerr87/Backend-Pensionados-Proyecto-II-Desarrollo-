@@ -1,6 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.capaPresentacion.controladores;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
@@ -18,12 +19,7 @@ public class ControladorEntidad {
         return entidadService.registrarEntidad(entidad);
     }
 
-    @GetMapping("/buscarPorNit/{nit}")
-    public Entidad buscarPorNit(@PathVariable Long nit) {
-        return entidadService.buscarPorNit(nit);
-    }
-
-    @GetMapping("/buscarPorCriterio")
+    @GetMapping("/buscar")
     public List<Entidad> buscarPorCriterio(@RequestParam(required = false) String query) {
         if (query == null || query.trim().isEmpty()) {
             return entidadService.listarTodos();
@@ -40,5 +36,19 @@ public class ControladorEntidad {
     @PutMapping("/actualizar/{nid}")
     public Entidad actualizarEntidad(@PathVariable Long id, @RequestBody Entidad entidad) {
         return entidadService.actualizar(id, entidad);
+    }
+
+    @PutMapping("/activar/{nid}")
+    public ResponseEntity<Entidad> activarEntidad(@PathVariable Long nid) {
+        return entidadService.activarEntidad(nid)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/desactivar/{nid}")
+    public ResponseEntity<Entidad> desactivarEntidad(@PathVariable Long nid) {
+        return entidadService.desactivarEntidad(nid)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

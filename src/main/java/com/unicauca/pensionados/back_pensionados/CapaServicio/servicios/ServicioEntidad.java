@@ -95,4 +95,20 @@ public class ServicioEntidad {
         // eliminar duplicados si alguna coincidencia se repite
         return resultado.stream().distinct().toList();
     }
+   public Optional<Entidad> activarEntidad(Long nid) {
+        return entidadRepository.findById(nid)
+                .map(entidad -> {
+                    entidad.setEstadoEntidad("Activa");
+                    return entidadRepository.save(entidad);
+                });
+    }
+
+    public Optional<Entidad> desactivarEntidad(Long nid) {
+        return entidadRepository.findById(nid)
+                .map(entidad -> {
+                    entidad.setEstadoEntidad("No Activa");
+                    return entidadRepository.save(entidad);
+                });
+    }
 }
+
