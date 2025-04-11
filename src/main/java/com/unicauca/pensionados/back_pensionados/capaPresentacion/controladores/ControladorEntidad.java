@@ -19,12 +19,7 @@ public class ControladorEntidad {
         return entidadService.registrarEntidad(entidad);
     }
 
-    @GetMapping("/buscarPorNit/{nit}")
-    public Entidad buscarPorNit(@PathVariable Long nit) {
-        return entidadService.buscarPorNit(nit);
-    }
-
-    @GetMapping("/buscarPorCriterio")
+    @GetMapping("/buscar")
     public List<Entidad> buscarPorCriterio(@RequestParam(required = false) String query) {
         if (query == null || query.trim().isEmpty()) {
             return entidadService.listarTodos();
@@ -42,7 +37,7 @@ public class ControladorEntidad {
     public Entidad actualizarEntidad(@PathVariable Long id, @RequestBody Entidad entidad) {
         return entidadService.actualizar(id, entidad);
     }
-    
+
     @PutMapping("/activar/{nid}")
     public ResponseEntity<Entidad> activarEntidad(@PathVariable Long nid) {
         return entidadService.activarEntidad(nid)
@@ -57,3 +52,4 @@ public class ControladorEntidad {
                 .orElse(ResponseEntity.notFound().build());
     }
 }
+
