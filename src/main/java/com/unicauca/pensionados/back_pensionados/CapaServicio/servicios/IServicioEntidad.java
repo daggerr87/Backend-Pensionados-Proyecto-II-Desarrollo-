@@ -4,8 +4,8 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entida
 import java.util.List;
 
 public interface IServicioEntidad {
-    Entidad buscarPorCriterio(String query);
-    Entidad buscarPorNombre(String nombre);
+    List<Entidad> buscarEntidadesPorCriterio(String query);
+    List<Entidad> buscarEntidadPorNombre(String nombre);
     Entidad buscarPorNit(Long nit);
     List<Entidad> listarTodos();
     Entidad registrarEntidad(Entidad entidad);

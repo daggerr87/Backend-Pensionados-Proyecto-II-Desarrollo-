@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ServicioEntidad {
+public class ServicioEntidad implements IServicioEntidad {
     @Autowired
     private EntidadRepositorio entidadRepository;
 
@@ -111,5 +111,16 @@ public class ServicioEntidad {
                     entidad.setEstadoEntidad("No Activa");
                     return entidadRepository.save(entidad);
                 });
+    }
+    
+    /**
+     * * Busca una entidad por nombre. Si no encuentra nada, devuelve null.
+     * @param nombre el nombre de la entidad a buscar
+     * @return la entidad encontrada o null si no se encuentra
+     * @throws IllegalArgumentException si el nombre es null o vacío  
+     */
+    @Override
+    public List<Entidad> buscarEntidadPorNombre(String nombre) {
+        return entidadRepository.findByNombreEntidadContainingIgnoreCase(nombre);
     }
 }

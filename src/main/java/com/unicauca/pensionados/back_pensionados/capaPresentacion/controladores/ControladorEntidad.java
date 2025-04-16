@@ -27,6 +27,15 @@ public class ControladorEntidad {
         query = query.replace("\"", "").trim(); // elimina comillas
         return entidadService.buscarEntidadesPorCriterio(query);
     }
+    
+    @GetMapping("/buscarPorNombre")
+    public ResponseEntity<List<Entidad>> buscarPorNombre(@RequestParam String nombre) {
+    if (nombre == null || nombre.trim().isEmpty()) {
+        return ResponseEntity.badRequest().build(); // Devuelve un error 400 si el nombre está vacío
+    }
+    List<Entidad> entidades = entidadService.buscarEntidadPorNombre(nombre.trim());
+    return entidades.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(entidades);
+    }
 
     @GetMapping("/listar")
     public List<Entidad> listarTodos() {
