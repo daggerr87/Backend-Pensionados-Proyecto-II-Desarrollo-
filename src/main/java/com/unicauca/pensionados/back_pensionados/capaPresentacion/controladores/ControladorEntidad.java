@@ -5,14 +5,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
-import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.ServicioEntidad;
+import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IServicioEntidad;
+//import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.ServicioEntidad;
 import java.util.List;
 
 @RestController
 @RequestMapping("/entidad")
 public class ControladorEntidad {
     @Autowired
-    private ServicioEntidad entidadService;
+    private IServicioEntidad entidadService;
 
     @PostMapping("/registrar")
     public Entidad registrarEntidad(@RequestBody Entidad entidad) {
@@ -43,7 +44,7 @@ public class ControladorEntidad {
     }
 
     @PutMapping("/actualizar/{nid}")
-    public Entidad actualizarEntidad(@PathVariable Long id, @RequestBody Entidad entidad) {
+    public Entidad actualizarEntidad(@PathVariable("nid") Long id, @RequestBody Entidad entidad) {
         return entidadService.actualizar(id, entidad);
     }
 

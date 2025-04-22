@@ -97,6 +97,33 @@ public class ServicioEntidad implements IServicioEntidad {
         return resultado.stream().distinct().toList();
     }
     
+    /*public Optional<Entidad> activarEntidad(Long nid) {
+        return entidadRepository.findById(nid)
+                .map(entidad -> {
+                    entidad.setEstadoEntidad("Activa");
+                    return entidadRepository.save(entidad);
+                });
+    }
+
+    public Optional<Entidad> desactivarEntidad(Long nid) {
+        return entidadRepository.findById(nid)
+                .map(entidad -> {
+                    entidad.setEstadoEntidad("No Activa");
+                    return entidadRepository.save(entidad);
+                });
+    }*/
+
+    /**
+     * Activa una entidad cambiando su estado a "Activa".
+     * 
+     * Este método busca la entidad en la base de datos por su ID y, si la encuentra, actualiza su estado a "Activa".
+     * Luego, guarda la entidad con el nuevo estado y la retorna envuelta en un {@link Optional}. Si no se encuentra la
+     * entidad con el ID proporcionado, el {@link Optional} estará vacío.
+     *
+     * @param nid El ID de la entidad que se desea activar.
+     * @return Un {@link Optional} que contiene la entidad activada si fue encontrada y guardada correctamente,
+     *         o {@link Optional#empty()} si no se encontró la entidad con el ID proporcionado.
+     */
     public Optional<Entidad> activarEntidad(Long nid) {
         return entidadRepository.findById(nid)
                 .map(entidad -> {
@@ -105,6 +132,17 @@ public class ServicioEntidad implements IServicioEntidad {
                 });
     }
 
+    /**
+     * Desactiva una entidad cambiando su estado a "No Activa".
+     * 
+     * Este método busca la entidad en la base de datos por su ID y, si la encuentra, actualiza su estado a "No Activa".
+     * Luego, guarda la entidad con el nuevo estado y la retorna envuelta en un {@link Optional}. Si no se encuentra la
+     * entidad con el ID proporcionado, el {@link Optional} estará vacío.
+     *
+     * @param nid El ID de la entidad que se desea desactivar.
+     * @return Un {@link Optional} que contiene la entidad desactivada si fue encontrada y guardada correctamente,
+     *         o {@link Optional#empty()} si no se encontró la entidad con el ID proporcionado.
+     */
     public Optional<Entidad> desactivarEntidad(Long nid) {
         return entidadRepository.findById(nid)
                 .map(entidad -> {
