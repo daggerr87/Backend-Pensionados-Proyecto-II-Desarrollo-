@@ -40,7 +40,7 @@ public class ControladorAuth {
     @PostMapping("/login")
     public ResponseEntity<AuthRespuesta> login(@RequestBody LoginPeticion request) 
     {
-
+        
         return ResponseEntity.ok(authService.login(request));
     }
 

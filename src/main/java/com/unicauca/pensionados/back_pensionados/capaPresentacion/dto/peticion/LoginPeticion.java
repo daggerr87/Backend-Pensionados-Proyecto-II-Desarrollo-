@@ -15,6 +15,5 @@ import lombok.NoArgsConstructor;
 public class LoginPeticion {
     
     String username;
-    //String email;
     String password;
 }

@@ -3,10 +3,8 @@ package com.unicauca.pensionados.back_pensionados.capaPresentacion.controladores
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IServicioEntidad;
-//import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.ServicioEntidad;
 import java.util.List;
 
 @RestController

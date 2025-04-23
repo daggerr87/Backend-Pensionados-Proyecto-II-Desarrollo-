@@ -1,9 +1,12 @@
 package com.unicauca.pensionados.back_pensionados.CapaServicio.seguridad;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Rol;
@@ -26,7 +29,13 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthRespuesta login(LoginPeticion request){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        try{
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        }
+        catch (BadCredentialsException e) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario o contraseña incorrecta");
+        }
+        
         UserDetails usuario= usuarioRepositorio.findByUsername(request.getUsername()).orElseThrow();
         String token = jwtService.getToken(usuario);
         return AuthRespuesta.builder()
@@ -35,12 +44,14 @@ public class AuthService {
     }
 
     public AuthRespuesta register(RegistroPeticion request){
+
         Usuario usuario = Usuario.builder()
             .username(request.getUsername())
             .password(passwordEncoder.encode(request.getPassword()))
+            .email(request.getEmail())
             .nombre(request.getNombre())
             .apellido(request.getApellido())
-            .role(Rol.USER)
+            //.role(Rol.USER)
             .build();
 
             usuarioRepositorio.save(usuario);

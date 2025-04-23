@@ -15,6 +15,8 @@ public class RegistroPeticion {
 
     String username;
     String password;
+    String email;
     String nombre;
     String apellido;
+    //String rol;  //Agregamos el atributo para manejar el rol "USER"
 }
