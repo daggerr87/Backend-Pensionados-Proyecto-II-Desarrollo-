@@ -37,7 +37,7 @@ CREATE TABLE PERSONA (
    fechaNacimientoPersona DATE NOT NULL,
    fechaExpedicionDocumentoIdPersona DATE NOT NULL,
    estadoPersona VARCHAR(50) NOT NULL,
-   generoPersona VARCHAR(50) NOT NULL,
+   generoPersona VARCHAR(50),
    PRIMARY KEY (numeroIdPersona)
 );
 
@@ -86,7 +86,7 @@ CREATE TABLE ENTIDADCUOTAPARTE (
 CREATE TABLE PENSIONADO (
    numeroIdPersona BIGINT NOT NULL,
    nitEntidad BIGINT NOT NULL,
-   fechaInicioPension DATE NOT NULL,
+   fechaInicioPension DATE,
    valorPension DOUBLE NOT NULL,
    resolucionPension  VARCHAR(200) NOT NULL,
    totalDiasTrabajo BIGINT,

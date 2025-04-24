@@ -1,7 +1,6 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.io.Serializable;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
@@ -15,8 +14,10 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "TRABAJO")
-@Getter @Setter
+@Getter
+@Setter
 public class Trabajo {
+
     @EmbeddedId
     private TrabajoId id;
 
@@ -25,18 +26,35 @@ public class Trabajo {
 
     @ManyToOne
     @MapsId("numeroIdPersona")
-    @JoinColumn (name = "numeroIdPersona")
+    @JoinColumn(name = "numeroIdPersona", referencedColumnName = "numeroIdPersona")
     private Pensionado pensionado;
 
     @ManyToOne
-    @MapsId ("nitEntidad")
-    @JoinColumn (name = "nitEntidad")
+    @MapsId("nitEntidad")
+    @JoinColumn(name = "nitEntidad", referencedColumnName = "nitEntidad")
     private Entidad entidad;
-}
 
-@Embeddable
-@Getter @Setter
-class TrabajoId implements Serializable{
-    private Long nitEntidad;
-    private Long numeroIdPersona;
+    public Trabajo() {}
+
+    public Trabajo(TrabajoId id, Long diasDeServicio, Pensionado pensionado, Entidad entidad) {
+        this.id = id;
+        this.diasDeServicio = diasDeServicio;
+        this.pensionado = pensionado;
+        this.entidad = entidad;
+    }
+
+    @Embeddable
+    @Getter
+    @Setter
+    public static class TrabajoId implements Serializable {
+        private Long nitEntidad;
+        private Long numeroIdPersona;
+
+        public TrabajoId() {}
+
+        public TrabajoId(Long nitEntidad, Long numeroIdPersona) {
+            this.nitEntidad = nitEntidad;
+            this.numeroIdPersona = numeroIdPersona;
+        }
+    }
 }
