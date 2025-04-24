@@ -41,7 +41,7 @@ public abstract class Persona {
     @Column (name = "estadoPersona", nullable = false, length = 50)
     private String estadoPersona;
 
-    @Column (name = "generoPersona", length = 50)
+    @Column (name = "generoPersona", length = 50, nullable = true)
     private String generoPersona;
 
 }
