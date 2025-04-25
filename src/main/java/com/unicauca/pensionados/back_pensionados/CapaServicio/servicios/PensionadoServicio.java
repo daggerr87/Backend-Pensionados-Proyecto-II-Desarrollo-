@@ -74,4 +74,31 @@ public class PensionadoServicio implements IPensionadoServicio {
 
         trabajoRepositorio.save(trabajo);
     }
+
+    /**
+     * Actualizar pensionado en la base de datos.
+     * @param nid el NIT de la entidad a actualizar
+     * @param pensionado los nuevos datos de la entidad
+     * @return mensaje de éxito
+     * @throws RuntimeException si no se encuentra la entidad
+     * @throws Exception si ocurre un error al actualizar la entidad
+     */
+    @Transactional
+    @Override
+    public void actualizarPensionado(Long numeroIdPersona, RegistroPensionadoPeticion pensionado) {
+        // Buscar la entidad por su NIT
+        Pensionado pensionadoExistente = pensionadoRepositorio.findById(numeroIdPersona)
+                .orElseThrow(() -> new RuntimeException("No se encontró la persona con este numero de identidad: " + numeroIdPersona));
+
+        // Actualizar los campos de la entidad
+        pensionadoExistente.setNombrePersona(pensionado.getNombrePersona());
+        pensionadoExistente.setApellidosPersona(pensionado.getApellidosPersona());
+        pensionadoExistente.setFechaNacimientoPersona(pensionado.getFechaNacimientoPersona());
+        pensionadoExistente.setFechaExpedicionDocumentoIdPersona(pensionado.getFechaExpedicionDocumentoIdPersona());
+        pensionadoExistente.setEstadoPersona(pensionado.getEstadoPersona());
+        pensionadoExistente.setGeneroPersona(pensionado.getGeneroPersona());
+
+        // Guardar la entidad actualizada
+        pensionadoRepositorio.save(pensionadoExistente);
+    }
 }

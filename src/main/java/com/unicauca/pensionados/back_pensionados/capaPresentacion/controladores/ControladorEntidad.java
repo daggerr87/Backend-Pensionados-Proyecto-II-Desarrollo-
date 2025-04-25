@@ -3,8 +3,9 @@ package com.unicauca.pensionados.back_pensionados.capaPresentacion.controladores
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IServicioEntidad;
+
 import java.util.List;
 
 @RestController
@@ -14,12 +15,19 @@ public class ControladorEntidad {
     private IServicioEntidad entidadService;
 
     @PostMapping("/registrar")
-    public Entidad registrarEntidad(@RequestBody Entidad entidad) {
-        return entidadService.registrarEntidad(entidad);
+    public ResponseEntity<?> registrarEntidad(@RequestBody RegistroEntidadPeticion entidad) {
+        try{
+            entidadService.registrarEntidad(entidad);
+            return ResponseEntity.ok("Entidad registrada exitosamente");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body("Error al registrar entidad: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body("Error interno del servidor: " + ex.getMessage());
+        }
     }
 
     @GetMapping("/buscar")
-    public List<Entidad> buscarPorCriterio(@RequestParam(required = false) String query) {
+    public List<RegistroEntidadPeticion> buscarPorCriterio(@RequestParam(required = false) String query) {
         if (query == null || query.trim().isEmpty()) {
             return entidadService.listarTodos();
         }
@@ -28,33 +36,46 @@ public class ControladorEntidad {
     }
     
     @GetMapping("/buscarPorNombre")
-    public ResponseEntity<List<Entidad>> buscarPorNombre(@RequestParam String nombre) {
+    public ResponseEntity<List<RegistroEntidadPeticion>> buscarPorNombre(@RequestParam String nombre) {
     if (nombre == null || nombre.trim().isEmpty()) {
         return ResponseEntity.badRequest().build(); // Devuelve un error 400 si el nombre está vacío
     }
-    List<Entidad> entidades = entidadService.buscarEntidadPorNombre(nombre.trim());
+    List<RegistroEntidadPeticion> entidades = entidadService.buscarEntidadPorNombre(nombre.trim());
     return entidades.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(entidades);
     }
 
     @GetMapping("/listar")
-    public List<Entidad> listarTodos() {
-        return entidadService.listarTodos();
+    public List<RegistroEntidadPeticion> listarTodos() {
+        try {
+            return entidadService.listarTodos();
+        } catch (RuntimeException ex) {
+            throw new RuntimeException("Error al listar entidades: " + ex.getMessage());
+        } catch (Exception ex) {
+            throw new RuntimeException("Error interno del servidor: " + ex.getMessage());
+        }
     }
 
     @PutMapping("/actualizar/{nid}")
-    public Entidad actualizarEntidad(@PathVariable("nid") Long id, @RequestBody Entidad entidad) {
-        return entidadService.actualizar(id, entidad);
+    public ResponseEntity<?> actualizarEntidad(@PathVariable("nid") Long id, @RequestBody RegistroEntidadPeticion entidad) {
+        try {
+            entidadService.actualizar(id, entidad);
+            return ResponseEntity.ok("Entidad actualizada exitosamente");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body("Error al actualizar entidad: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body("Error interno del servidor: " + ex.getMessage());
+        }
     }
 
     @PutMapping("/activar/{nid}")
-    public ResponseEntity<Entidad> activarEntidad(@PathVariable Long nid) {
+    public ResponseEntity<RegistroEntidadPeticion> activarEntidad(@PathVariable Long nid) {
         return entidadService.activarEntidad(nid)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/desactivar/{nid}")
-    public ResponseEntity<Entidad> desactivarEntidad(@PathVariable Long nid) {
+    public ResponseEntity<RegistroEntidadPeticion> desactivarEntidad(@PathVariable Long nid) {
         return entidadService.desactivarEntidad(nid)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
