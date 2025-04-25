@@ -1,16 +1,20 @@
 package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
 
-import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
+
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public interface IServicioEntidad {
-    List<Entidad> buscarEntidadesPorCriterio(String query);
-    List<Entidad> buscarEntidadPorNombre(String nombre);
-    Entidad buscarPorNit(Long nit);
-    List<Entidad> listarTodos();
-    Entidad registrarEntidad(Entidad entidad);
-    Entidad actualizar(Long nid, Entidad entidad);
-    Optional<Entidad> activarEntidad(Long nid);
-    Optional<Entidad> desactivarEntidad(Long nid);
+    List<RegistroEntidadPeticion> buscarEntidadesPorCriterio(String query);
+    List<RegistroEntidadPeticion> buscarEntidadPorNombre(String nombre);
+    RegistroEntidadPeticion buscarPorNit(Long nit);
+    List<RegistroEntidadPeticion> listarTodos();
+    void registrarEntidad(RegistroEntidadPeticion request);
+    void actualizar(Long nid, RegistroEntidadPeticion entidad);
+    Optional<RegistroEntidadPeticion> activarEntidad(Long nid);
+    Optional<RegistroEntidadPeticion> desactivarEntidad(Long nid);
 }

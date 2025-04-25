@@ -36,5 +36,20 @@ public class PensionadoControlador {
         }
         
     }
+
+    @PostMapping("/actualizar/{id}")
+    public ResponseEntity<?> actualizarPensionado(@RequestBody RegistroPensionadoPeticion peticion) {
+        try{
+            pensionadoServicio.actualizarPensionado(peticion.getNumeroIdPersona(), peticion);
+            return ResponseEntity.ok("Pensionado actualizado exitosamente");
+        } catch (RuntimeException ex) {
+            
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al actualzar pensionado: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error interno del servidor: " + ex.getMessage());
+        }
+    }
     
 }
