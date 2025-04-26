@@ -16,13 +16,14 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table (name ="PENSIONADO")
 @PrimaryKeyJoinColumn (name = "numeroIdPersona") //tiene la misma PK que Persona
 @Setter @Getter
 public class Pensionado extends Persona{
-    @Column (name = "fechaInicioPension", nullable = false)
+    @Column (name = "fechaInicioPension", nullable = true)
     @Temporal(TemporalType.DATE)
     private Date fechaInicioPension;
     
@@ -32,10 +33,11 @@ public class Pensionado extends Persona{
     @Column (name = "resolucionPension", nullable =false , length = 50)
     private String resolucionPension;
     
-    @Column (name = "totalDiasTrabajo", nullable = false)
+    @Column (name = "totalDiasTrabajo", nullable = true)
     private Long totalDiasTrabajo;
 
     //relacion entidad de Jubilacion
+    @JsonBackReference //rompe el ciclo infinito de serializacion al mostrar el JSON
     @ManyToOne
     @JoinColumn(name = "nitEntidad", nullable = false)
     private Entidad entidadJubilacion; 

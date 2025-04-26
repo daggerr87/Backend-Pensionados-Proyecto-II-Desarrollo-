@@ -4,81 +4,142 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.EntidadRepositorio;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PensionadoRepositorio;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.TrabajoRepositorio;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ServicioEntidad implements IServicioEntidad {
+
     @Autowired
     private EntidadRepositorio entidadRepository;
+    @Autowired
+    private PensionadoRepositorio pensionadoRepositorio;
+    @Autowired
+    private TrabajoRepositorio trabajoRepositorio;
 
     /**
-     * Registra una nueva entidad en la base de datos. Si ya existe una entidad con el mismo NIT o nombre, devuelve null.
-     * @param entidad la entidad a registrar
-     * @return la entidad registrada o null si ya existe
+     * Registra una nueva entidad en la base de datos junto con sus pensionados y trabajos asociados.
+     * 
+     * @param request los datos de la entidad, pensionados y trabajos a registrar
+     * @throws RuntimeException si ya existe una entidad con el mismo NIT o nombre
+     * @throws Exception si ocurre un error al registrar la entidad
      */
-    public Entidad registrarEntidad(Entidad entidad) {
-        if (entidadRepository.existsByNitEntidad(entidad.getNitEntidad())) {
-            // ya existe la entidad mostrar mensaje en consola
-            System.out.println("Ya existe una entidad con el NIT: " + entidad.getNitEntidad() + ".");
-            return null; // ya existe la entidad
-        }
-        if(entidadRepository.existsByNombreEntidad(entidad.getNombreEntidad())){
-            // ya existe la entidad mostrar mensaje en consola
-            System.out.println("Ya existe una entidad con el nombre: " + entidad.getNombreEntidad() + ".");
-            return null; // ya existe la entidad
+    @Transactional
+    @Override
+    public void registrarEntidad(RegistroEntidadPeticion request) {
+        // Validar si ya existe una entidad con el mismo NIT
+        if (entidadRepository.existsByNitEntidad(request.getNitEntidad())) {
+            throw new RuntimeException("Ya existe una entidad con el NIT: " + request.getNitEntidad());
         }
 
-        // si no existe la entidad, se guarda
-        return entidadRepository.save(entidad);
+        // Validar si ya existe una entidad con el mismo nombre
+        if (entidadRepository.existsByNombreEntidad(request.getNombreEntidad())) {
+            throw new RuntimeException("Ya existe una entidad con el nombre: " + request.getNombreEntidad());
+        }
+
+        // Crear la entidad
+        Entidad entidad = new Entidad();
+        entidad.setNitEntidad(request.getNitEntidad());
+        entidad.setNombreEntidad(request.getNombreEntidad());
+        entidad.setDireccionEntidad(request.getDireccionEntidad());
+        entidad.setTelefonoEntidad(request.getTelefonoEntidad());
+        entidad.setEmailEntidad(request.getEmailEntidad());
+        entidad.setEstadoEntidad(request.getEstadoEntidad());
+
+        // Inisializar la lista de trabajos si esta vacia
+        if (entidad.getTrabajos() == null) {
+            entidad.setTrabajos(new ArrayList<>());
+        }
+        entidadRepository.save(entidad);
+
+        //Verificar si en la peticion se enviaron pensionados que trabajaron en la entidad
+        if (request.getTrabajos() != null && !request.getTrabajos().isEmpty()) {
+            for (RegistroTrabajoPeticion registroTrabajoPeticion : request.getTrabajos()) {
+                Pensionado pensionado = pensionadoRepositorio.findById(registroTrabajoPeticion.getNumeroIdPersona())
+                    .orElseThrow(() -> new RuntimeException(
+                        "El pensionado con ID: " + registroTrabajoPeticion.getNumeroIdPersona() + " no está registrado"));
+
+                Trabajo trabajo = new Trabajo();
+                Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), pensionado.getNumeroIdPersona());
+
+                trabajo.setId(trabajoId);
+                trabajo.setDiasDeServicio(registroTrabajoPeticion.getDiasDeServicio());
+                trabajo.setEntidad(entidad);
+                trabajo.setPensionado(pensionado);
+                trabajoRepositorio.save(trabajo);
+                entidad.getTrabajos().add(trabajo);
+            }
+        }
+    }
+
+
+    /**
+     * Actualiza una entidad existente en la base de datos.
+     * 
+     * @param nid el NIT de la entidad a actualizar
+     * @param entidad los nuevos datos de la entidad
+     * @throws RuntimeException si no se encuentra la entidad
+     * @throws Exception si ocurre un error al actualizar la entidad
+     */
+    @Transactional
+    @Override
+    public void actualizar(Long nid, RegistroEntidadPeticion entidad) {
+        // Buscar la entidad por su NIT
+        Entidad entidadExistente = entidadRepository.findById(nid)
+                .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nid));
+
+        // Actualizar los campos de la entidad
+        entidadExistente.setNombreEntidad(entidad.getNombreEntidad());
+        entidadExistente.setDireccionEntidad(entidad.getDireccionEntidad());
+        entidadExistente.setTelefonoEntidad(entidad.getTelefonoEntidad());
+        entidadExistente.setEmailEntidad(entidad.getEmailEntidad());
+        entidadExistente.setEstadoEntidad(entidad.getEstadoEntidad());
+
+        // Guardar la entidad actualizada
+        entidadRepository.save(entidadExistente);
     }
 
     /**
      * Lista todas las entidades ordenadas por NIT ascendente.
-     * @return una lista de entidades
-     * @throws IllegalArgumentException si la lista está vacía
+     * 
+     * @return una lista de objetos Entidad
      */
+    @Override
     public List<Entidad> listarTodos() {
         return entidadRepository.findAllByOrderByNitEntidadAsc();
     }
 
     /**
-     * Actualiza una entidad existente. Si no existe, devuelve null.
-     * @param nid el NIT de la entidad a actualizar
-     * @param entidad la entidad con los nuevos datos
-     * @return la entidad actualizada o null si no se encuentra
-     * @throws IllegalArgumentException si el nid es null o negativo
+     * Busca una entidad por su NIT.
+     * 
+     * @param nit el NIT de la entidad a buscar
+     * @return un objeto Entidad
+     * @throws RuntimeException si no se encuentra la entidad
      */
-    public Entidad actualizar(Long nid, Entidad entidad) {
-        if (entidadRepository.existsByNitEntidad(nid)) {
-            entidad.setNitEntidad(nid);
-            return entidadRepository.save(entidad);
-        }
-        // ya existe la entidad mostrar mensaje en consola
-        System.out.println("No existe una entidad con el NIT: " + nid + ".");
-        return null;
-    }
-
-    /**
-     * Busca una entidad por nit. Si no encuentra nada, devuelve null.
-     * @param nit el nit de la entidad a buscar
-     * @return la entidad encontrada o null si no se encuentra
-     * @throws IllegalArgumentException si el nit es null o negativo
-     */
-
+    @Override
     public Entidad buscarPorNit(Long nit) {
-        return entidadRepository.findById(nit).orElse(null);
+        return entidadRepository.findById(nit)
+                .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nit));
     }
 
     /**
-     * Busca una entidad por nombre, nit o dirección. Si no encuentra nada,
-     * devuelve null.
-     * @param query el nombre, nit o dirección de la entidad a buscar
-     * @return la entidad encontrada o null si no se encuentra
+     * Busca entidades por nombre, NIT o dirección.
+     * 
+     * @param query el criterio de búsqueda (nombre, NIT o dirección)
+     * @return una lista de objetos Entidad
      */
+    @Override
     public List<Entidad> buscarEntidadesPorCriterio(String query) {
         List<Entidad> resultado = new ArrayList<>();
 
@@ -86,79 +147,67 @@ public class ServicioEntidad implements IServicioEntidad {
             Long nit = Long.parseLong(query);
             resultado.addAll(entidadRepository.findByNitEntidadIs(nit));
         } catch (NumberFormatException e) {
-            // no es un número, se ignora para búsqueda por NIT
+            // Ignorar errores de formato para búsqueda por NIT
         }
 
         resultado.addAll(entidadRepository.findByNombreEntidadContainingIgnoreCase(query));
         resultado.addAll(entidadRepository.findByDireccionEntidadContainingIgnoreCase(query));
         resultado.addAll(entidadRepository.findByEmailEntidadContainingIgnoreCase(query));
 
-        // eliminar duplicados si alguna coincidencia se repite
-        return resultado.stream().distinct().toList();
+        // Eliminar duplicados
+        return resultado.stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
-    
-    /*public Optional<Entidad> activarEntidad(Long nid) {
-        return entidadRepository.findById(nid)
-                .map(entidad -> {
-                    entidad.setEstadoEntidad("Activa");
-                    return entidadRepository.save(entidad);
-                });
-    }
-
-    public Optional<Entidad> desactivarEntidad(Long nid) {
-        return entidadRepository.findById(nid)
-                .map(entidad -> {
-                    entidad.setEstadoEntidad("No Activa");
-                    return entidadRepository.save(entidad);
-                });
-    }*/
 
     /**
      * Activa una entidad cambiando su estado a "Activa".
      * 
-     * Este método busca la entidad en la base de datos por su ID y, si la encuentra, actualiza su estado a "Activa".
-     * Luego, guarda la entidad con el nuevo estado y la retorna envuelta en un {@link Optional}. Si no se encuentra la
-     * entidad con el ID proporcionado, el {@link Optional} estará vacío.
-     *
-     * @param nid El ID de la entidad que se desea activar.
-     * @return Un {@link Optional} que contiene la entidad activada si fue encontrada y guardada correctamente,
-     *         o {@link Optional#empty()} si no se encontró la entidad con el ID proporcionado.
+     * @param nid el NIT de la entidad a activar
+     * @return true si la entidad fue activada, false si no existe
      */
-    public Optional<Entidad> activarEntidad(Long nid) {
-        return entidadRepository.findById(nid)
-                .map(entidad -> {
-                    entidad.setEstadoEntidad("Activa");
-                    return entidadRepository.save(entidad);
-                });
+    @Override
+    public boolean activarEntidad(Long nid) {
+        Optional<Entidad> entidadOptional = entidadRepository.findById(nid);
+
+        if (entidadOptional.isPresent()) {
+            Entidad entidad = entidadOptional.get();
+            entidad.setEstadoEntidad("Activa");
+            entidadRepository.save(entidad);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * Desactiva una entidad cambiando su estado a "No Activa".
      * 
-     * Este método busca la entidad en la base de datos por su ID y, si la encuentra, actualiza su estado a "No Activa".
-     * Luego, guarda la entidad con el nuevo estado y la retorna envuelta en un {@link Optional}. Si no se encuentra la
-     * entidad con el ID proporcionado, el {@link Optional} estará vacío.
-     *
-     * @param nid El ID de la entidad que se desea desactivar.
-     * @return Un {@link Optional} que contiene la entidad desactivada si fue encontrada y guardada correctamente,
-     *         o {@link Optional#empty()} si no se encontró la entidad con el ID proporcionado.
+     * @param nid el NIT de la entidad a desactivar
+     * @return true si la entidad fue desactivada, false si no existe
      */
-    public Optional<Entidad> desactivarEntidad(Long nid) {
-        return entidadRepository.findById(nid)
-                .map(entidad -> {
-                    entidad.setEstadoEntidad("No Activa");
-                    return entidadRepository.save(entidad);
-                });
+    @Override
+    public boolean desactivarEntidad(Long nid) {
+        Optional<Entidad> entidadOptional = entidadRepository.findById(nid);
+
+        if (entidadOptional.isPresent()) {
+            Entidad entidad = entidadOptional.get();
+            entidad.setEstadoEntidad("No Activa");
+            entidadRepository.save(entidad);
+            return true;
+        } else {
+            return false;
+        }
     }
-    
+
     /**
-     * * Busca una entidad por nombre. Si no encuentra nada, devuelve null.
+     * Busca entidades por nombre.
+     * 
      * @param nombre el nombre de la entidad a buscar
-     * @return la entidad encontrada o null si no se encuentra
-     * @throws IllegalArgumentException si el nombre es null o vacío  
+     * @return una lista de objetos Entidad
      */
     @Override
     public List<Entidad> buscarEntidadPorNombre(String nombre) {
         return entidadRepository.findByNombreEntidadContainingIgnoreCase(nombre);
-    }
+    }    
 }

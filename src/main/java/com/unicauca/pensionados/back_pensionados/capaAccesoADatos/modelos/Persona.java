@@ -1,7 +1,6 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.sql.Date;
-import jakarta.persistence.CascadeType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,7 +40,7 @@ public abstract class Persona {
     @Column (name = "estadoPersona", nullable = false, length = 50)
     private String estadoPersona;
 
-    @Column (name = "generoPersona", length = 50)
+    @Column (name = "generoPersona", length = 50, nullable = true)
     private String generoPersona;
 
 }

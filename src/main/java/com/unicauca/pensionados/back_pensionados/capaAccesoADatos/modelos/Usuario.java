@@ -33,15 +33,14 @@ public class Usuario implements UserDetails{
 
     @Column(nullable = false)
     String username;
-    //String email;
     String password;
+    String email;
     String nombre;
     String apellido;
-    Rol role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of();
     }
 
     @Override

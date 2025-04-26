@@ -1,7 +1,9 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -9,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table (name = "ENTIDAD")
@@ -40,12 +43,14 @@ public class Entidad {
     private String estadoEntidad;
 
     //relacion 1 a muchos Pensonados
+    @JsonManagedReference //rompe el ciclo infinito de serializacion al mostrar el JSON
     @OneToMany(mappedBy = "entidadJubilacion")
     private List<Pensionado> pensionados;
 
     //relacion 1 a muchos pensionados que trabajaron en la entidad
-    @OneToMany(mappedBy = "entidad")
-    private List<Trabajo> trabajos;
+    @OneToMany(mappedBy = "entidad", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Trabajo> trabajos = new ArrayList<>();
+
 
 
 }
