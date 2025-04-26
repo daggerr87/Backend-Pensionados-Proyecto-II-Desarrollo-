@@ -12,4 +12,5 @@ public interface IPensionadoServicio {
     List<Pensionado> buscarPensionadosPorNombre(String nombre);
     List<Pensionado> buscarPensionadosPorApellido(String apellido);
     List<Pensionado> buscarPensionadosPorCriterio(String query);
+    void desactivarPensionado(Long id);
 }

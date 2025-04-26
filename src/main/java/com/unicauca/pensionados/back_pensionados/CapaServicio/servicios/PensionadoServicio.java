@@ -162,15 +162,30 @@ public class PensionadoServicio implements IPensionadoServicio {
         
         query = query.trim();
         
-        // Búsqueda por ID (solo si query es numérico)
         if (query.matches("\\d+")) {
             Long id = Long.parseLong(query);
             return pensionadoRepositorio.findById(id)
                     .map(List::of)
                     .orElseGet(ArrayList::new);
         }
-        
+
         // Búsqueda por nombre o apellido
         return pensionadoRepositorio.findByNombrePersonaContainingIgnoreCaseOrApellidosPersonaContainingIgnoreCase(query, query);
+    }
+
+    /**
+     * Desactiva un pensionado por su ID.
+     * 
+     * @param id el ID del pensionado a desactivar
+     * @throws RuntimeException si no se encuentra el pensionado
+     */
+    @Transactional
+    @Override
+    public void desactivarPensionado(Long id) {
+        Pensionado pensionado = pensionadoRepositorio.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pensionado no encontrado con ID: " + id));
+        
+        pensionado.setEstadoPersona("Inactivo");
+        pensionadoRepositorio.save(pensionado);
     }
 }
