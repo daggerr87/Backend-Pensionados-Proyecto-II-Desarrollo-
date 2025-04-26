@@ -2,8 +2,6 @@ package com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion;
 
 import java.util.List;
 
-import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo.TrabajoId;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +19,6 @@ public class RegistroEntidadPeticion {
     private String emailEntidad;
     private String estadoEntidad;
     
-    private List<Long> pensionados; // Lista de pensionados asociados a la entidad
-    private List<TrabajoId> trabajos; // Lista de trabajos asociados a la entidad
+    // Lista de trabajos asociados a la entidad
+    private List<RegistroTrabajoPeticion> trabajos; 
 }

@@ -4,8 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.EntidadRepositorio;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PensionadoRepositorio;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.TrabajoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +23,10 @@ public class ServicioEntidad implements IServicioEntidad {
 
     @Autowired
     private EntidadRepositorio entidadRepository;
+    @Autowired
+    private PensionadoRepositorio pensionadoRepositorio;
+    @Autowired
+    private TrabajoRepositorio trabajoRepositorio;
 
     /**
      * Registra una nueva entidad en la base de datos junto con sus pensionados y trabajos asociados.
@@ -48,9 +57,32 @@ public class ServicioEntidad implements IServicioEntidad {
         entidad.setEmailEntidad(request.getEmailEntidad());
         entidad.setEstadoEntidad(request.getEstadoEntidad());
 
-        // Guardar la entidad
+        // Inisializar la lista de trabajos si esta vacia
+        if (entidad.getTrabajos() == null) {
+            entidad.setTrabajos(new ArrayList<>());
+        }
         entidadRepository.save(entidad);
+
+        //Verificar si en la peticion se enviaron pensionados que trabajaron en la entidad
+        if (request.getTrabajos() != null && !request.getTrabajos().isEmpty()) {
+            for (RegistroTrabajoPeticion registroTrabajoPeticion : request.getTrabajos()) {
+                Pensionado pensionado = pensionadoRepositorio.findById(registroTrabajoPeticion.getNumeroIdPersona())
+                    .orElseThrow(() -> new RuntimeException(
+                        "El pensionado con ID: " + registroTrabajoPeticion.getNumeroIdPersona() + " no está registrado"));
+
+                Trabajo trabajo = new Trabajo();
+                Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), pensionado.getNumeroIdPersona());
+
+                trabajo.setId(trabajoId);
+                trabajo.setDiasDeServicio(registroTrabajoPeticion.getDiasDeServicio());
+                trabajo.setEntidad(entidad);
+                trabajo.setPensionado(pensionado);
+                trabajoRepositorio.save(trabajo);
+                entidad.getTrabajos().add(trabajo);
+            }
+        }
     }
+
 
     /**
      * Actualiza una entidad existente en la base de datos.
