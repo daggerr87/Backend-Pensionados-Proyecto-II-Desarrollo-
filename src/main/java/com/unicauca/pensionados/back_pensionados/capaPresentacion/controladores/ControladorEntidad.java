@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IServicioEntidad;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
 
 import java.util.List;
 
@@ -110,6 +111,18 @@ public class ControladorEntidad {
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al desactivar la entidad: " + ex.getMessage());
+        }
+    }
+
+    @PutMapping("/editarPensionados/{nitEntidad}")
+    public ResponseEntity<?> editarPensionadosDeEntidad(@PathVariable Long nitEntidad, @RequestBody List<RegistroTrabajoPeticion> trabajosActualizados) {
+        try {
+            entidadService.editarPensionadosDeEntidad(nitEntidad, trabajosActualizados);
+            return ResponseEntity.ok("Pensionados de la entidad actualizados exitosamente");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body("Error al actualizar pensionados: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor: " + ex.getMessage());
         }
     }
 }

@@ -15,6 +15,7 @@ import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.R
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 import jakarta.transaction.Transactional;
 
@@ -108,6 +109,71 @@ public class ServicioEntidad implements IServicioEntidad {
 
         // Guardar la entidad actualizada
         entidadRepository.save(entidadExistente);
+    }
+
+    /**
+     * Edita la lista de pensionados asociados a una entidad.
+     * Permite agregar nuevos pensionados, eliminar pensionados existentes o modificar los días de servicio.
+     *
+     * @param nitEntidad El NIT de la entidad a editar.
+     * @param trabajosActualizados La lista actualizada de trabajos con los pensionados y sus días de servicio.
+     * @throws RuntimeException Si la entidad no existe o si algún pensionado no está registrado.
+     */
+    @Transactional
+    @Override
+    public void editarPensionadosDeEntidad(Long nitEntidad, List<RegistroTrabajoPeticion> trabajosActualizados) {
+        // Buscar la entidad por su NIT
+        Entidad entidad = entidadRepository.findById(nitEntidad)
+                .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nitEntidad));
+
+        // Obtener los trabajos actuales de la entidad
+        List<Trabajo> trabajosActuales = trabajoRepositorio.findByEntidadNitEntidad(nitEntidad);
+
+        // Crear un mapa para acceder rápidamente a los trabajos actuales por ID del pensionado
+        Map<Long, Trabajo> mapaTrabajosActuales = trabajosActuales.stream()
+                .collect(Collectors.toMap(trabajo -> trabajo.getPensionado().getNumeroIdPersona(), trabajo -> trabajo));
+
+        // Procesar la lista de trabajos actualizada
+        for (RegistroTrabajoPeticion trabajoPeticion : trabajosActualizados) {
+            Long numeroIdPersona = trabajoPeticion.getNumeroIdPersona();
+
+            // Verificar si el pensionado existe
+            Pensionado pensionado = pensionadoRepositorio.findById(numeroIdPersona)
+                    .orElseThrow(() -> new RuntimeException(
+                            "El pensionado con ID: " + numeroIdPersona + " no está registrado"));
+
+            // Verificar si el trabajo ya existe
+            if (mapaTrabajosActuales.containsKey(numeroIdPersona)) {
+                // Actualizar los días de servicio si el trabajo ya existe
+                Trabajo trabajoExistente = mapaTrabajosActuales.get(numeroIdPersona);
+                trabajoExistente.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
+                trabajoRepositorio.save(trabajoExistente);
+
+                // Remover el trabajo del mapa para identificar los que no están en la lista actualizada
+                mapaTrabajosActuales.remove(numeroIdPersona);
+            } else {
+                // Crear un nuevo trabajo si no existe
+                Trabajo nuevoTrabajo = new Trabajo();
+                Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), numeroIdPersona);
+
+                nuevoTrabajo.setId(trabajoId);
+                nuevoTrabajo.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
+                nuevoTrabajo.setEntidad(entidad);
+                nuevoTrabajo.setPensionado(pensionado);
+
+                trabajoRepositorio.save(nuevoTrabajo);
+                entidad.getTrabajos().add(nuevoTrabajo);
+            }
+        }
+
+        // Eliminar los trabajos que no están en la lista actualizada
+        for (Trabajo trabajoAEliminar : mapaTrabajosActuales.values()) {
+            trabajoRepositorio.delete(trabajoAEliminar);
+            entidad.getTrabajos().remove(trabajoAEliminar);
+        }
+
+        // Guardar la entidad actualizada
+        entidadRepository.save(entidad);
     }
 
     /**
