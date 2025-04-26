@@ -1,10 +1,12 @@
 package com.unicauca.pensionados.back_pensionados.capaPresentacion.controladores;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IServicioEntidad;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class ControladorEntidad {
     }
 
     @GetMapping("/buscar")
-    public List<RegistroEntidadPeticion> buscarPorCriterio(@RequestParam(required = false) String query) {
+    public List<Entidad> buscarPorCriterio(@RequestParam(required = false) String query) {
         if (query == null || query.trim().isEmpty()) {
             return entidadService.listarTodos();
         }
@@ -36,16 +38,28 @@ public class ControladorEntidad {
     }
     
     @GetMapping("/buscarPorNombre")
-    public ResponseEntity<List<RegistroEntidadPeticion>> buscarPorNombre(@RequestParam String nombre) {
-    if (nombre == null || nombre.trim().isEmpty()) {
-        return ResponseEntity.badRequest().build(); // Devuelve un error 400 si el nombre está vacío
+    public ResponseEntity<List<Entidad>> buscarPorNombre(@RequestParam String nombre) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build(); // Devuelve un error 400 si el nombre está vacío
+        }
+        List<Entidad> entidades = entidadService.buscarEntidadPorNombre(nombre.trim());
+        return entidades.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(entidades);
     }
-    List<RegistroEntidadPeticion> entidades = entidadService.buscarEntidadPorNombre(nombre.trim());
-    return entidades.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(entidades);
+
+    @GetMapping("/buscarPorNit/{nit}")
+    public ResponseEntity<Entidad> buscarPorNit(@PathVariable Long nit) {
+        try {
+            Entidad entidad = entidadService.buscarPorNit(nit);
+            return ResponseEntity.ok(entidad);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @GetMapping("/listar")
-    public List<RegistroEntidadPeticion> listarTodos() {
+    public List<Entidad> listarTodos() {
         try {
             return entidadService.listarTodos();
         } catch (RuntimeException ex) {
@@ -68,17 +82,35 @@ public class ControladorEntidad {
     }
 
     @PutMapping("/activar/{nid}")
-    public ResponseEntity<RegistroEntidadPeticion> activarEntidad(@PathVariable Long nid) {
-        return entidadService.activarEntidad(nid)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> activarEntidad(@PathVariable Long nid) {
+        try {
+            boolean resultado = entidadService.activarEntidad(nid);
+            if (resultado) {
+                return ResponseEntity.ok("Entidad activada exitosamente");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No se encontró la entidad con NIT: " + nid);
+            }
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al activar la entidad: " + ex.getMessage());
+        }
     }
 
     @PutMapping("/desactivar/{nid}")
-    public ResponseEntity<RegistroEntidadPeticion> desactivarEntidad(@PathVariable Long nid) {
-        return entidadService.desactivarEntidad(nid)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> desactivarEntidad(@PathVariable Long nid) {
+        try {
+            boolean resultado = entidadService.desactivarEntidad(nid);
+            if (resultado) {
+                return ResponseEntity.ok("Entidad desactivada exitosamente");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No se encontró la entidad con NIT: " + nid);
+            }
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al desactivar la entidad: " + ex.getMessage());
+        }
     }
 }
 

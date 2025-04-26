@@ -23,7 +23,6 @@ public class ServicioEntidad implements IServicioEntidad {
      * Registra una nueva entidad en la base de datos junto con sus pensionados y trabajos asociados.
      * 
      * @param request los datos de la entidad, pensionados y trabajos a registrar
-     * @return mensaje de éxito
      * @throws RuntimeException si ya existe una entidad con el mismo NIT o nombre
      * @throws Exception si ocurre un error al registrar la entidad
      */
@@ -58,7 +57,6 @@ public class ServicioEntidad implements IServicioEntidad {
      * 
      * @param nid el NIT de la entidad a actualizar
      * @param entidad los nuevos datos de la entidad
-     * @return mensaje de éxito
      * @throws RuntimeException si no se encuentra la entidad
      * @throws Exception si ocurre un error al actualizar la entidad
      */
@@ -81,39 +79,36 @@ public class ServicioEntidad implements IServicioEntidad {
     }
 
     /**
-     * Lista todas las entidades ordenadas por NIT ascendente, incluyendo sus relaciones con pensionados y trabajos.
+     * Lista todas las entidades ordenadas por NIT ascendente.
      * 
-     * @return una lista de objetos RegistroEntidadPeticion
+     * @return una lista de objetos Entidad
      */
     @Override
-    public List<RegistroEntidadPeticion> listarTodos() {
-        List<Entidad> entidades = entidadRepository.findAllByOrderByNitEntidadAsc();
-        return entidades.stream()
-                .map(this::convertirARegistroEntidadPeticion)
-                .collect(Collectors.toList());
+    public List<Entidad> listarTodos() {
+        return entidadRepository.findAllByOrderByNitEntidadAsc();
     }
 
     /**
-     * Busca una entidad por su NIT, incluyendo sus relaciones con pensionados y trabajos.
+     * Busca una entidad por su NIT.
      * 
      * @param nit el NIT de la entidad a buscar
-     * @return un objeto RegistroEntidadPeticion
+     * @return un objeto Entidad
+     * @throws RuntimeException si no se encuentra la entidad
      */
     @Override
-    public RegistroEntidadPeticion buscarPorNit(Long nit) {
-        Entidad entidad = entidadRepository.findById(nit)
+    public Entidad buscarPorNit(Long nit) {
+        return entidadRepository.findById(nit)
                 .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nit));
-        return convertirARegistroEntidadPeticion(entidad);
     }
 
     /**
-     * Busca entidades por nombre, NIT o dirección, incluyendo sus relaciones con pensionados y trabajos.
+     * Busca entidades por nombre, NIT o dirección.
      * 
      * @param query el criterio de búsqueda (nombre, NIT o dirección)
-     * @return una lista de objetos RegistroEntidadPeticion
+     * @return una lista de objetos Entidad
      */
     @Override
-    public List<RegistroEntidadPeticion> buscarEntidadesPorCriterio(String query) {
+    public List<Entidad> buscarEntidadesPorCriterio(String query) {
         List<Entidad> resultado = new ArrayList<>();
 
         try {
@@ -127,10 +122,9 @@ public class ServicioEntidad implements IServicioEntidad {
         resultado.addAll(entidadRepository.findByDireccionEntidadContainingIgnoreCase(query));
         resultado.addAll(entidadRepository.findByEmailEntidadContainingIgnoreCase(query));
 
-        // Eliminar duplicados y convertir a RegistroEntidadPeticion
+        // Eliminar duplicados
         return resultado.stream()
                 .distinct()
-                .map(this::convertirARegistroEntidadPeticion)
                 .collect(Collectors.toList());
     }
 
@@ -138,60 +132,50 @@ public class ServicioEntidad implements IServicioEntidad {
      * Activa una entidad cambiando su estado a "Activa".
      * 
      * @param nid el NIT de la entidad a activar
-     * @return un Optional con el objeto RegistroEntidadPeticion
+     * @return true si la entidad fue activada, false si no existe
      */
     @Override
-    public Optional<RegistroEntidadPeticion> activarEntidad(Long nid) {
-        return entidadRepository.findById(nid)
-                .map(entidad -> {
-                    entidad.setEstadoEntidad("Activa");
-                    return convertirARegistroEntidadPeticion(entidadRepository.save(entidad));
-                });
+    public boolean activarEntidad(Long nid) {
+        Optional<Entidad> entidadOptional = entidadRepository.findById(nid);
+
+        if (entidadOptional.isPresent()) {
+            Entidad entidad = entidadOptional.get();
+            entidad.setEstadoEntidad("Activa");
+            entidadRepository.save(entidad);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * Desactiva una entidad cambiando su estado a "No Activa".
      * 
      * @param nid el NIT de la entidad a desactivar
-     * @return un Optional con el objeto RegistroEntidadPeticion
+     * @return true si la entidad fue desactivada, false si no existe
      */
     @Override
-    public Optional<RegistroEntidadPeticion> desactivarEntidad(Long nid) {
-        return entidadRepository.findById(nid)
-                .map(entidad -> {
-                    entidad.setEstadoEntidad("No Activa");
-                    return convertirARegistroEntidadPeticion(entidadRepository.save(entidad));
-                });
+    public boolean desactivarEntidad(Long nid) {
+        Optional<Entidad> entidadOptional = entidadRepository.findById(nid);
+
+        if (entidadOptional.isPresent()) {
+            Entidad entidad = entidadOptional.get();
+            entidad.setEstadoEntidad("No Activa");
+            entidadRepository.save(entidad);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
-     * Busca entidades por nombre, incluyendo sus relaciones con pensionados y trabajos.
+     * Busca entidades por nombre.
      * 
      * @param nombre el nombre de la entidad a buscar
-     * @return una lista de objetos RegistroEntidadPeticion
+     * @return una lista de objetos Entidad
      */
     @Override
-    public List<RegistroEntidadPeticion> buscarEntidadPorNombre(String nombre) {
-        List<Entidad> entidades = entidadRepository.findByNombreEntidadContainingIgnoreCase(nombre);
-        return entidades.stream()
-                .map(this::convertirARegistroEntidadPeticion)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Método auxiliar para convertir una entidad a un objeto RegistroEntidadPeticion.
-     * 
-     * @param entidad la entidad a convertir
-     * @return un objeto RegistroEntidadPeticion
-     */
-    private RegistroEntidadPeticion convertirARegistroEntidadPeticion(Entidad entidad) {
-        RegistroEntidadPeticion registro = new RegistroEntidadPeticion();
-        registro.setNitEntidad(entidad.getNitEntidad());
-        registro.setNombreEntidad(entidad.getNombreEntidad());
-        registro.setDireccionEntidad(entidad.getDireccionEntidad());
-        registro.setTelefonoEntidad(entidad.getTelefonoEntidad());
-        registro.setEmailEntidad(entidad.getEmailEntidad());
-        registro.setEstadoEntidad(entidad.getEstadoEntidad());
-        return registro;
-    }
+    public List<Entidad> buscarEntidadPorNombre(String nombre) {
+        return entidadRepository.findByNombreEntidadContainingIgnoreCase(nombre);
+    }    
 }
