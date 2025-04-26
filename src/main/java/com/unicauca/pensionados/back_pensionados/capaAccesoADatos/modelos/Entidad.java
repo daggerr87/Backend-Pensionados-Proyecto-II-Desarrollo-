@@ -1,7 +1,9 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -46,8 +48,9 @@ public class Entidad {
     private List<Pensionado> pensionados;
 
     //relacion 1 a muchos pensionados que trabajaron en la entidad
-    @OneToMany(mappedBy = "entidad")
-    private List<Trabajo> trabajos;
+    @OneToMany(mappedBy = "entidad", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Trabajo> trabajos = new ArrayList<>();
+
 
 
 }
