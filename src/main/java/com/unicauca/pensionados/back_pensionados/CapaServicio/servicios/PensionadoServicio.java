@@ -1,5 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
@@ -13,6 +15,8 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.T
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPensionadoPeticion;
 
 import jakarta.transaction.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -106,5 +110,82 @@ public class PensionadoServicio implements IPensionadoServicio {
     @Override
     public List<Pensionado> listarPensionados() {
         return pensionadoRepositorio.findAll();
+    }
+
+    /**
+     * Busca un pensionado por su ID.
+     * 
+     * @param id el ID del pensionado a buscar
+     * @return un objeto Pensionado
+     * @throws RuntimeException si no se encuentra el pensionado
+     */
+    @Override
+    public Pensionado buscarPensionadoPorId(Long id) {
+        return pensionadoRepositorio.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se encontró el pensionado con el  "
+                        + "Numero de Idemtificacion: " + id ));
+    }
+
+    /**
+     * Busca pensionados por su nombre.
+     * 
+     * @param nombre el nombre del pensionado a buscar
+     * @return una lista de objetos Pensionado
+     */
+    @Override
+    public List<Pensionado> buscarPensionadosPorNombre(String nombre) {
+        return pensionadoRepositorio.findByNombrePersonaContainingIgnoreCase(nombre);
+    }
+
+    /**
+     * Busca pensionados por su apellido.
+     * 
+     * @param apellido el apellido del pensionado a buscar
+     * @return una lista de objetos Pensionado
+     */
+    @Override
+    public List<Pensionado> buscarPensionadosPorApellido(String apellido) {
+        return pensionadoRepositorio.findByApellidosPersonaContainingIgnoreCase(apellido);
+    }
+
+    /**
+     * Busca pensionados por un criterio de búsqueda.
+     * 
+     * @param query el criterio de búsqueda
+     * @return una lista de objetos Pensionado
+     */
+    @Override
+    public List<Pensionado> buscarPensionadosPorCriterio(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return listarPensionados();
+        }
+        
+        query = query.trim();
+        
+        if (query.matches("\\d+")) {
+            Long id = Long.parseLong(query);
+            return pensionadoRepositorio.findById(id)
+                    .map(List::of)
+                    .orElseGet(ArrayList::new);
+        }
+
+        // Búsqueda por nombre o apellido
+        return pensionadoRepositorio.findByNombrePersonaContainingIgnoreCaseOrApellidosPersonaContainingIgnoreCase(query, query);
+    }
+
+    /**
+     * Desactiva un pensionado por su ID.
+     * 
+     * @param id el ID del pensionado a desactivar
+     * @throws RuntimeException si no se encuentra el pensionado
+     */
+    @Transactional
+    @Override
+    public void desactivarPensionado(Long id) {
+        Pensionado pensionado = pensionadoRepositorio.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pensionado no encontrado con ID: " + id));
+        
+        pensionado.setEstadoPersona("Inactivo");
+        pensionadoRepositorio.save(pensionado);
     }
 }
