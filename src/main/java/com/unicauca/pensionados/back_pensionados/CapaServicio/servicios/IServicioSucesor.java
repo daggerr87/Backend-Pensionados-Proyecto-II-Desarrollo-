@@ -7,4 +7,6 @@ public interface IServicioSucesor {
     void registrarSucesor(RegistroSucesorPeticion request);
     List<RegistroSucesorPeticion> listaSucesores();
     RegistroSucesorPeticion obtenerSucesorPorId(Long numeroIdPersona);
+    void eliminarSucesor(Long numeroIdPersona);
+    void editarSucesor(Long numeroIdPersona, RegistroSucesorPeticion request);
 }
