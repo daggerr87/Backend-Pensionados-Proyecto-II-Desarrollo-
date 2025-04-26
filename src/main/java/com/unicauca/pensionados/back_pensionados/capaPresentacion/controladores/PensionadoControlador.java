@@ -5,9 +5,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IPensionadoServicio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPensionadoPeticion;
+import java.util.List;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -46,6 +49,20 @@ public class PensionadoControlador {
             
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Error al actualzar pensionado: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error interno del servidor: " + ex.getMessage());
+        }
+    }
+
+    @GetMapping("/listar")
+    public ResponseEntity<?> listarPensionados() {
+        try {
+            List<Pensionado> pensionados = pensionadoServicio.listarPensionados();
+            return ResponseEntity.ok(pensionados);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al listar pensionados: " + ex.getMessage());
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error interno del servidor: " + ex.getMessage());

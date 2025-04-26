@@ -13,6 +13,7 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.T
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPensionadoPeticion;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class PensionadoServicio implements IPensionadoServicio {
@@ -100,5 +101,10 @@ public class PensionadoServicio implements IPensionadoServicio {
 
         // Guardar la entidad actualizada
         pensionadoRepositorio.save(pensionadoExistente);
+    }
+
+    @Override
+    public List<Pensionado> listarPensionados() {
+        return pensionadoRepositorio.findAll();
     }
 }
