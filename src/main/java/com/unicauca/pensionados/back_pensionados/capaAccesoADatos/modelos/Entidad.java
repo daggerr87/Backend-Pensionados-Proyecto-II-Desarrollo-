@@ -9,6 +9,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table (name = "ENTIDAD")
@@ -40,6 +41,7 @@ public class Entidad {
     private String estadoEntidad;
 
     //relacion 1 a muchos Pensonados
+    @JsonManagedReference //rompe el ciclo infinito de serializacion al mostrar el JSON
     @OneToMany(mappedBy = "entidadJubilacion")
     private List<Pensionado> pensionados;
 

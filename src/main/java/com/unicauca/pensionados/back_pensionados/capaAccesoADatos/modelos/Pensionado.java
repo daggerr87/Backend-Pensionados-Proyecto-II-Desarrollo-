@@ -16,6 +16,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table (name ="PENSIONADO")
@@ -36,6 +37,7 @@ public class Pensionado extends Persona{
     private Long totalDiasTrabajo;
 
     //relacion entidad de Jubilacion
+    @JsonBackReference //rompe el ciclo infinito de serializacion al mostrar el JSON
     @ManyToOne
     @JoinColumn(name = "nitEntidad", nullable = false)
     private Entidad entidadJubilacion; 
