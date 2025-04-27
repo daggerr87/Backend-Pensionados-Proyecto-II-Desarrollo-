@@ -18,6 +18,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PensionadoServicio implements IPensionadoServicio {
@@ -90,21 +91,55 @@ public class PensionadoServicio implements IPensionadoServicio {
      */
     @Transactional
     @Override
-    public void actualizarPensionado(Long numeroIdPersona, RegistroPensionadoPeticion pensionado) {
-        // Buscar la entidad por su NIT
+    public void actualizarPensionado(Long numeroIdPersona, RegistroPensionadoPeticion request) {
+        // Validar si el pensionado existe
         Pensionado pensionadoExistente = pensionadoRepositorio.findById(numeroIdPersona)
-                .orElseThrow(() -> new RuntimeException("No se encontró la persona con este numero de identidad: " + numeroIdPersona));
+                .orElseThrow(() -> new RuntimeException("No se encontró la persona con este número de identidad: " + numeroIdPersona));
 
-        // Actualizar los campos de la entidad
-        pensionadoExistente.setNombrePersona(pensionado.getNombrePersona());
-        pensionadoExistente.setApellidosPersona(pensionado.getApellidosPersona());
-        pensionadoExistente.setFechaNacimientoPersona(pensionado.getFechaNacimientoPersona());
-        pensionadoExistente.setFechaExpedicionDocumentoIdPersona(pensionado.getFechaExpedicionDocumentoIdPersona());
-        pensionadoExistente.setEstadoPersona(pensionado.getEstadoPersona());
-        pensionadoExistente.setGeneroPersona(pensionado.getGeneroPersona());
+        // Validar si la entidad en la que el pensionado se jubiló está registrada
+        Entidad entidad = entidadRepositorio.findById(request.getNitEntidad())
+                .orElseThrow(() -> new RuntimeException("La Entidad en la que el pensionado se jubiló no se encuentra registrada"));
 
-        // Guardar la entidad actualizada
+        // Actualizar los campos del pensionado
+        pensionadoExistente.setNombrePersona(request.getNombrePersona());
+        pensionadoExistente.setApellidosPersona(request.getApellidosPersona());
+        pensionadoExistente.setFechaNacimientoPersona(request.getFechaNacimientoPersona());
+        pensionadoExistente.setFechaExpedicionDocumentoIdPersona(request.getFechaExpedicionDocumentoIdPersona());
+        pensionadoExistente.setEstadoPersona(request.getEstadoPersona());
+        pensionadoExistente.setGeneroPersona(request.getGeneroPersona());
+
+        pensionadoExistente.setFechaInicioPension(request.getFechaInicioPension());
+        pensionadoExistente.setValorPension(request.getValorPension());
+        pensionadoExistente.setResolucionPension(request.getResolucionPension());
+        pensionadoExistente.setTotalDiasTrabajo(request.getTotalDiasTrabajo());
+        pensionadoExistente.setEntidadJubilacion(entidad);
+
+        // Guardar el pensionado actualizado
         pensionadoRepositorio.save(pensionadoExistente);
+
+        // Crear ID serializable para trabajo (nitEntidad, numeroIdPersona)
+        TrabajoId trabajoId = new TrabajoId(request.getNitEntidad(), numeroIdPersona);
+
+        // Buscar el trabajo existente
+        Optional<Trabajo> trabajoOptional = trabajoRepositorio.findById(trabajoId);
+
+        Trabajo trabajo;
+        if (trabajoOptional.isPresent()) {
+            // Si existe, actualizar el registro existente
+            trabajo = trabajoOptional.get();
+        } else {
+            // Si no existe, crear un nuevo registro
+            trabajo = new Trabajo();
+            trabajo.setId(trabajoId);
+            trabajo.setPensionado(pensionadoExistente);
+            trabajo.setEntidad(entidad);
+        }
+
+        // Actualizar los campos del trabajo
+        trabajo.setDiasDeServicio(request.getDiasDeServicio());
+
+        // Guardar el trabajo actualizado o nuevo
+        trabajoRepositorio.save(trabajo);
     }
 
     @Override
