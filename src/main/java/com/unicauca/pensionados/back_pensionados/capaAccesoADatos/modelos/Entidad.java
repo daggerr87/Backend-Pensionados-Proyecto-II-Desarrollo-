@@ -48,10 +48,8 @@ public class Entidad {
     private List<Pensionado> pensionados;
 
     //relacion 1 a muchos pensionados que trabajaron en la entidad
+    @JsonManagedReference(value = "entidad-trabajo")
     @OneToMany(mappedBy = "entidad", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Trabajo> trabajos = new ArrayList<>();
-
-
-
 }
 

@@ -17,6 +17,7 @@ import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table (name ="PENSIONADO")
@@ -44,6 +45,7 @@ public class Pensionado extends Persona{
 
 
     //relacion 1 a muchos con trabajo
+    @JsonManagedReference
     @OneToMany (mappedBy = "pensionado", cascade = CascadeType.ALL)
     private List <Trabajo> trabajos;
 }
