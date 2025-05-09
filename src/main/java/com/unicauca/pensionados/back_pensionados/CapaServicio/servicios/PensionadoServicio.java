@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Persona;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo.TrabajoId;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.EntidadRepositorio;
@@ -13,6 +14,8 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.P
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PersonaRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.TrabajoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPensionadoPeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.TrabajoRespuesta;
 
 import jakarta.transaction.Transactional;
 
@@ -64,6 +67,7 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionado.setFechaInicioPension(request.getFechaInicioPension());
         pensionado.setValorPension(request.getValorPension());
         pensionado.setResolucionPension(request.getResolucionPension());
+        
         pensionado.setTotalDiasTrabajo(request.getTotalDiasTrabajo());
         pensionado.setEntidadJubilacion(entidad);
 
@@ -154,12 +158,55 @@ public class PensionadoServicio implements IPensionadoServicio {
      * @return un objeto Pensionado
      * @throws RuntimeException si no se encuentra el pensionado
      */
-    @Override
+    /*@Override
     public Pensionado buscarPensionadoPorId(Long id) {
         return pensionadoRepositorio.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró el pensionado con el  "
-                        + "Numero de Idemtificacion: " + id ));
+                        + "Numero de Identificacion: " + id ));
+    }*/
+
+    @Override
+    public PensionadoRespuesta buscarPensionadoPorId(Long id) {
+        Pensionado pensionado = pensionadoRepositorio.findById(id)
+            .orElseThrow(() -> new RuntimeException("No se encontró el pensionado con el ID: " + id));
+
+        List<TrabajoRespuesta> trabajosDTO = new ArrayList<>();
+
+        for (Trabajo trabajo : pensionado.getTrabajos()) {
+            TrabajoRespuesta dto = new TrabajoRespuesta();
+            dto.setNitEntidad(trabajo.getEntidad().getNitEntidad());
+            dto.setNombreEntidad(trabajo.getEntidad().getNombreEntidad());
+            dto.setDiasDeServicio(trabajo.getDiasDeServicio());
+            trabajosDTO.add(dto);
+        }
+        TrabajoRespuesta trabajoRespuesta = new TrabajoRespuesta();
+        trabajoRespuesta.setNitEntidad(trabajoRespuesta.getNitEntidad());
+
+        PensionadoRespuesta respuesta = new PensionadoRespuesta();
+        respuesta.setNumeroIdPersona(pensionado.getNumeroIdPersona());
+        respuesta.setTipoIdPersona(pensionado.getTipoIdPersona());
+        respuesta.setNombrePersona(pensionado.getNombrePersona());
+        respuesta.setApellidosPersona(pensionado.getApellidosPersona());
+        respuesta.setFechaNacimientoPersona(pensionado.getFechaNacimientoPersona());
+        respuesta.setFechaExpedicionDocumentoIdPersona(pensionado.getFechaExpedicionDocumentoIdPersona());
+        respuesta.setEstadoPersona(pensionado.getEstadoPersona());
+        respuesta.setGeneroPersona(pensionado.getGeneroPersona());
+        respuesta.setFechaInicioPension(pensionado.getFechaInicioPension());
+        respuesta.setValorPension(pensionado.getValorPension());
+        respuesta.setResolucionPension(pensionado.getResolucionPension());
+        //respuesta.setNitEntidad(pensionado.getEntidad().getNitEntidad()); // solo si aplica
+        respuesta.setEntidadJubilacion(pensionado.getEntidadJubilacion().getNitEntidad());
+        
+        respuesta.setTrabajos(trabajosDTO);
+
+        return respuesta;
     }
+
+
+
+
+
+
 
     /**
      * Busca pensionados por su nombre.
