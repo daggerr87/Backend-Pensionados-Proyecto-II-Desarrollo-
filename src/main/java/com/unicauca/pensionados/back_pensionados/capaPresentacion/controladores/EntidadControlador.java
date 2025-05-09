@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
-import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IServicioEntidad;
+import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IEntidadServicio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
 
@@ -13,9 +13,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/entidad")
-public class ControladorEntidad {
+public class EntidadControlador {
     @Autowired
-    private IServicioEntidad entidadService;
+    private IEntidadServicio entidadService;
 
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarEntidad(@RequestBody RegistroEntidadPeticion entidad) {

@@ -16,7 +16,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ServicioSucesor implements IServicioSucesor {
+public class SucesorServicio implements ISucesorServicio {
     @Autowired
     private PersonaRepositorio personaRepositorio;
     @Autowired

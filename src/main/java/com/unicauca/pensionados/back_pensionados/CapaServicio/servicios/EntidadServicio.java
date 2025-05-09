@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import jakarta.transaction.Transactional;
 
 @Service
-public class ServicioEntidad implements IServicioEntidad {
+public class EntidadServicio implements IEntidadServicio {
 
     @Autowired
     private EntidadRepositorio entidadRepository;

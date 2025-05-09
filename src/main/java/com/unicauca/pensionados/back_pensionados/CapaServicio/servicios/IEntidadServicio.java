@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface IServicioEntidad {
+public interface IEntidadServicio {
     List<Entidad> buscarEntidadesPorCriterio(String query);
     List<Entidad> buscarEntidadPorNombre(String nombre);
     Entidad buscarPorNit(Long nit);

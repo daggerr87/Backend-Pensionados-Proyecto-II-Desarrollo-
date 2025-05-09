@@ -10,7 +10,6 @@ public interface IPensionadoServicio {
     void registrarPensionado (RegistroPensionadoPeticion request);
     void actualizarPensionado (Long id, RegistroPensionadoPeticion request);
     List<Pensionado> listarPensionados();
-    //Pensionado buscarPensionadoPorId(Long id);
     List<Pensionado> buscarPensionadosPorNombre(String nombre);
     List<Pensionado> buscarPensionadosPorApellido(String apellido);
     List<Pensionado> buscarPensionadosPorCriterio(String query);
