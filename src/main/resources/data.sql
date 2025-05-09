@@ -36,7 +36,6 @@ INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
 (1001000000, 9004567281, 1825), -- Trabajó ~5 años en el Hospital San José
 (1001000000, 8600123456, 2190); -- Trabajó ~6 años en la Alcaldía de Popayán
-(1001000000, 8911500319, 2920); -- Trabajó ~8 años en Unicauca
 
 -- Trabajos para Maria Lopez (1002000000)
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
@@ -48,7 +47,6 @@ VALUES
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
 (1003000000, 8600123456, 2190), -- Trabajó ~6 años en la Alcaldía de Popayán
-(1003000000, 8911500319, 2920), -- Trabajó ~8 años en Unicauca
 (1003000000, 9001234567, 1460), -- Trabajó ~4 años en la Gobernación del Cauca
 (1003000000, 8300123123, 1095); -- Trabajó ~3 años en el Colegio La Salle
 
