@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IPensionadoServicio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPensionadoPeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
+
 import java.util.List;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
 
@@ -72,16 +74,20 @@ public class PensionadoControlador {
         }
     }
     
+ 
     @GetMapping("/buscar/id/{id}")
     public ResponseEntity<?> buscarPensionadoPorId(@PathVariable Long id) {
         try {
-            Pensionado pensionado = pensionadoServicio.buscarPensionadoPorId(id);
-            return ResponseEntity.ok(pensionado);
+            PensionadoRespuesta pensionadoDTO = pensionadoServicio.buscarPensionadoPorId(id);
+            return ResponseEntity.ok(pensionadoDTO);
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Error: " + ex.getMessage());
         }
     }
+
+
+
 
     @GetMapping("/buscar/nombre")
     public ResponseEntity<?> buscarPensionadosPorNombre(

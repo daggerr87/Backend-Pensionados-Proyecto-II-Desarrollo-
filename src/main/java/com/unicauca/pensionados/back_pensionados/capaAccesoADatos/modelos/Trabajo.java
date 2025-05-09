@@ -11,6 +11,7 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "TRABAJO")
@@ -24,11 +25,13 @@ public class Trabajo {
     @Column(name = "diasDeServicio", nullable = false)
     private Long diasDeServicio;
 
+    @JsonBackReference
     @ManyToOne
     @MapsId("numeroIdPersona")
     @JoinColumn(name = "numeroIdPersona", referencedColumnName = "numeroIdPersona")
     private Pensionado pensionado;
 
+    @JsonBackReference(value = "entidad-trabajo")
     @ManyToOne
     @MapsId("nitEntidad")
     @JoinColumn(name = "nitEntidad", referencedColumnName = "nitEntidad")
