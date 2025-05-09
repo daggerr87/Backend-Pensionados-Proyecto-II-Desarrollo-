@@ -12,52 +12,54 @@ VALUES
 -- Insertar 5 personas
 INSERT INTO PERSONA (numeroIdPersona, tipoIdPersona, nombrePersona, apellidosPersona, fechaNacimientoPersona, fechaExpedicionDocumentoIdPersona, estadoPersona, generoPersona)
 VALUES 
-(1001, 'Cedula', 'Carlos', 'Gomez Perez', '1955-03-12', '2010-05-20', 'Activo', 'Masculino'),
-(1002, 'Cedula', 'Maria', 'Lopez Ruiz', '1960-07-25', '2012-08-15', 'Activo', 'Femenino'),
-(1003, 'Cedula', 'Jorge', 'Martinez Diaz', '1948-11-05', '2005-10-30', 'Activo', 'Masculino'),
-(1004, 'Cedula', 'Ana', 'Rodriguez Soto', '1952-09-18', '2008-04-22', 'Activo', 'Femenino'),
-(1005, 'Cedula', 'Luis', 'Sanchez Mora', '1958-02-14', '2015-03-10', 'Activo', 'Masculino');
+(1001000000, 'Cedula', 'Carlos', 'Gomez Perez', '1955-03-12', '2010-05-20', 'Activo', 'Masculino'),
+(1002000000, 'Cedula', 'Maria', 'Lopez Ruiz', '1960-07-25', '2012-08-15', 'Activo', 'Femenino'),
+(1003000000, 'Cedula', 'Jorge', 'Martinez Diaz', '1948-11-05', '2005-10-30', 'Activo', 'Masculino'),
+(1004000000, 'Cedula', 'Ana', 'Rodriguez Soto', '1952-09-18', '2008-04-22', 'Activo', 'Femenino'),
+(1005000000, 'Cedula', 'Luis', 'Sanchez Mora', '1958-02-14', '2015-03-10', 'Activo', 'Masculino');
 
 -- Insertar 5 pensionados asociados a la entidad Unicauca (nit 8911500319)
 INSERT INTO PENSIONADO (numeroIdPersona, nitEntidad, fechaInicioPension, valorPension, resolucionPension, totalDiasTrabajo)
 VALUES 
-(1001, 8911500319, '2018-01-01', 2500000, 'RES-2018-001', 9000),
-(1002, 8911500319, '2019-05-15', 1800000, 'RES-2019-045', 8500),
-(1003, 8911500319, '2015-03-20', 3000000, 'RES-2015-012', 9500),
-(1004, 8911500319, '2020-10-10', 2100000, 'RES-2020-087', 8000),
-(1005, 8911500319, '2017-12-05', 2750000, 'RES-2017-032', 9200);
+(1001000000, 8911500319, '2018-01-01', 2500000, 'RES-2018-001', 6935),
+(1002000000, 8300123123, '2019-05-15', 1800000, 'RES-2019-045', 4015),
+(1003000000, 8911500319, '2015-03-20', 3000000, 'RES-2015-012', 7665),
+(1004000000, 9004567281, '2020-10-10', 2100000, 'RES-2020-087', 4745),
+(1005000000, 9001234567, '2017-12-05', 2750000, 'RES-2017-032', 3650);
 
 -- Insertar registros de trabajo para los pensionados
 -- Cada pensionado tiene su trabajo principal en Unicauca (ya registrado en la tabla PENSIONADO)
 -- Y trabajos adicionales en otras entidades a lo largo de su vida laboral
 
--- Trabajos para Carlos Gomez (1001)
+-- Trabajos para Carlos Gomez (1001000000)
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1001, 9004567281, 1825), -- Trabajó ~5 años en el Hospital San José
-(1001, 8600123456, 2190); -- Trabajó ~6 años en la Alcaldía de Popayán
+(1001000000, 9004567281, 1825), -- Trabajó ~5 años en el Hospital San José
+(1001000000, 8600123456, 2190); -- Trabajó ~6 años en la Alcaldía de Popayán
+(1001000000, 8911500319, 2920); -- Trabajó ~8 años en Unicauca
 
--- Trabajos para Maria Lopez (1002)
+-- Trabajos para Maria Lopez (1002000000)
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1002, 8300123123, 2555), -- Trabajó ~7 años en el Colegio La Salle
-(1002, 9001234567, 1460); -- Trabajó ~4 años en la Gobernación del Cauca
+(1002000000, 8300123123, 2555), -- Trabajó ~7 años en el Colegio La Salle
+(1002000000, 9001234567, 1460); -- Trabajó ~4 años en la Gobernación del Cauca
 
--- Trabajos para Jorge Martinez (1003) 
+-- Trabajos para Jorge Martinez (1003000000) 
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1003, 8600123456, 2190), -- Trabajó ~6 años en la Alcaldía de Popayán
-(1003, 9001234567, 2920), -- Trabajó ~8 años en la Gobernación del Cauca
-(1003, 8300123123, 1095); -- Trabajó ~3 años en el Colegio La Salle
+(1003000000, 8600123456, 2190), -- Trabajó ~6 años en la Alcaldía de Popayán
+(1003000000, 8911500319, 2920), -- Trabajó ~8 años en Unicauca
+(1003000000, 9001234567, 1460), -- Trabajó ~4 años en la Gobernación del Cauca
+(1003000000, 8300123123, 1095); -- Trabajó ~3 años en el Colegio La Salle
 
--- Trabajos para Ana Rodriguez (1004)
+-- Trabajos para Ana Rodriguez (1004000000)
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1004, 9004567281, 2920), -- Trabajó ~8 años en el Hospital San José
-(1004, 8300123123, 1825); -- Trabajó ~5 años en el Colegio La Salle
+(1004000000, 9004567281, 2920), -- Trabajó ~8 años en el Hospital San José
+(1004000000, 8300123123, 1825); -- Trabajó ~5 años en el Colegio La Salle
 
--- Trabajos para Luis Sanchez (1005)
+-- Trabajos para Luis Sanchez (1005000000)
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1005, 9001234567, 2555), -- Trabajó ~7 años en la Gobernación del Cauca
-(1005, 9004567281, 1095); -- Trabajó ~3 años en el Hospital San José
+(1005000000, 9001234567, 2555), -- Trabajó ~7 años en la Gobernación del Cauca
+(1005000000, 9004567281, 1095); -- Trabajó ~3 años en el Hospital San José
