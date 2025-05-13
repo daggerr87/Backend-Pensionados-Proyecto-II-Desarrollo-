@@ -1,6 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.sql.Date;
+import java.util.List;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,8 +37,7 @@ public class Periodo {
     @JoinColumn(name = "fechaIpc", referencedColumnName = "fechaIpc")
     private IPC ipc;
 
-    // Relación con CuotaParte
-    @ManyToOne
-    @JoinColumn(name = "idCuotaParte", nullable = false)
-    private CuotaParte cuotaParte;
+    // Relacion: un periodo puede tener muchas cuotas partes
+    @OneToMany(mappedBy = "periodo")
+    private List<CuotaParte> cuotasParte;
 }

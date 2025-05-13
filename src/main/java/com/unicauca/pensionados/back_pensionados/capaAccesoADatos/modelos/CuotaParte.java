@@ -30,9 +30,10 @@ public class CuotaParte {
     @Column(name = "notas")
     private String notas;
 
-    // Relación con Periodo (1 cuota parte puede estar en muchos periodos)
-    @OneToMany(mappedBy = "cuotaParte")
-    private List<Periodo> periodos;
+    // Relación: una cuota parte pertenece a un unico periodo
+    @ManyToOne
+    @JoinColumn(name = "idPeriodo")
+    private Periodo periodo;
 
     // Relación con EntidadCuotaParte (muchas entidades pueden estar asociadas a una cuota parte)
     @OneToMany(mappedBy = "cuotaParte")
