@@ -108,6 +108,24 @@ CREATE TABLE PENSIONADOCUOTAPARTE (
 );
 
 /*==============================================================*/
+/* Table: SALARIO_MINIMO                                        */
+/*==============================================================*/
+CREATE TABLE SALARIO_MINIMO (
+   anioSalarioMinimo YEAR NOT NULL,
+   salarioMinimoMensual DOUBLE NOT NULL,
+   PRIMARY KEY (anioSalarioMinimo)
+);
+
+/*==============================================================*/
+/* Table: IPC                                                   */
+/*==============================================================*/
+CREATE TABLE IPC (
+   fechaIpc DATE NOT NULL,
+   inflacionTotalFinMes DOUBLE NOT NULL,
+   PRIMARY KEY (fechaIpc)
+);
+
+/*==============================================================*/
 /* Table: PERIODO                                               */
 /*==============================================================*/
 CREATE TABLE PERIODO (
@@ -115,15 +133,14 @@ CREATE TABLE PERIODO (
    idCuotaParte BIGINT NOT NULL,
    fechaInicioPeriodo DATE NOT NULL,
    fechaFinPeriodo DATE NOT NULL,
-   numeroMesesAdas BIGINT NOT NULL,
+   numeroMesadas BIGINT NOT NULL,
    valorPension DOUBLE NOT NULL,
    cuotaParteMensual DOUBLE NOT NULL,
-   salud DOUBLE,
-   cuotaParteTotalAnio DOUBLE NOT NULL,
    porcentajeIncremento DOUBLE NOT NULL,
-   incrementoLey4_76 DOUBLE,
+   fechaIpc DATE NOT NULL,
    PRIMARY KEY (idPeriodo),
-   FOREIGN KEY (idCuotaParte) REFERENCES CUOTA_PARTE(idCuotaParte)
+   FOREIGN KEY (idCuotaParte) REFERENCES CUOTA_PARTE(idCuotaParte),
+   FOREIGN KEY (fechaIpc) REFERENCES IPC(fechaIpc)
 );
 
 /*==============================================================*/
@@ -148,22 +165,4 @@ CREATE TABLE TRABAJO (
    PRIMARY KEY (numeroIdPersona, nitEntidad),
    FOREIGN KEY (numeroIdPersona) REFERENCES PENSIONADO(numeroIdPersona),
    FOREIGN KEY (nitEntidad) REFERENCES ENTIDAD(nitEntidad)
-);
-
-/*==============================================================*/
-/* Table: SALARIO_MINIMO                                        */
-/*==============================================================*/
-CREATE TABLE SALARIO_MINIMO (
-   anioSalarioMinimo YEAR NOT NULL,
-   salarioMinimoMensual DOUBLE NOT NULL,
-   PRIMARY KEY (anioSalarioMinimo)
-);
-
-/*==============================================================*/
-/* Table: IPC                                                   */
-/*==============================================================*/
-CREATE TABLE IPC (
-   fechaIpc DATE NOT NULL,
-   inflacionTotalFinMes DOUBLE NOT NULL,
-   PRIMARY KEY (fechaIpc)
 );

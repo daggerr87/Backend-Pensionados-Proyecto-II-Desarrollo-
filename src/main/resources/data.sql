@@ -61,3 +61,13 @@ INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
 (1005000000, 9001234567, 2555), -- Trabajó ~7 años en la Gobernación del Cauca
 (1005000000, 9004567281, 1095); -- Trabajó ~3 años en el Hospital San José
+
+-- =========================
+-- Datos para la tabla IPC
+-- =========================
+INSERT INTO IPC (fechaIpc, inflacionTotalFinMes) VALUES
+('2023-12-31', 9.28);
+
+INSERT INTO CUOTA_PARTE (idCuotaParte, valorCuotaParte, porcentajeCuotaParte, valorTotalCuotaParte, fechaGeneracion, notas) VALUES (2, 2, 2, 2, '2025-05-30', NULL);
+
+INSERT INTO PERIODO (idPeriodo, idCuotaParte, fechaInicioPeriodo, fechaFinPeriodo, numeroMesadas, valorPension, cuotaParteMensual, porcentajeIncremento, fechaIpc) VALUES (1, 2, '2023-01-01', '2023-12-31', 2, 2, 2, 9.28, '2023-12-31');
