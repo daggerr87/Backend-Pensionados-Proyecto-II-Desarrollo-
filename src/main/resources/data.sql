@@ -68,6 +68,10 @@ VALUES
 INSERT INTO IPC (fechaIpc, inflacionTotalFinMes) VALUES
 ('2023-12-31', 9.28);
 
-INSERT INTO CUOTA_PARTE (idCuotaParte, valorCuotaParte, porcentajeCuotaParte, valorTotalCuotaParte, fechaGeneracion, notas) VALUES (2, 2, 2, 2, '2025-05-30', NULL);
+-- Insertar un periodo
+INSERT INTO PERIODO (idPeriodo, fechaInicioPeriodo, fechaFinPeriodo, numeroMesadas, valorPension, cuotaParteMensual, porcentajeIncremento, fechaIpc)
+VALUES (1, '2023-01-01', '2023-12-31', 2, 2, 2, 9.28, '2023-12-31');
 
-INSERT INTO PERIODO (idPeriodo, idCuotaParte, fechaInicioPeriodo, fechaFinPeriodo, numeroMesadas, valorPension, cuotaParteMensual, porcentajeIncremento, fechaIpc) VALUES (1, 2, '2023-01-01', '2023-12-31', 2, 2, 2, 9.28, '2023-12-31');
+-- Insertar una cuota parte (debe existir el pensionado 1001000000 y el periodo 1)
+INSERT INTO CUOTA_PARTE (idCuotaParte, valorCuotaParte, porcentajeCuotaParte, valorTotalCuotaParte, fechaGeneracion, notas, numeroIdPersona, idPeriodo)
+VALUES (2, 2, 2, 2, '2025-05-30', NULL, 1001000000, 1);

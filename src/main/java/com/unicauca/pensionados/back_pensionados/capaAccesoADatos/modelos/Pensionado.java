@@ -48,4 +48,8 @@ public class Pensionado extends Persona{
     @JsonManagedReference
     @OneToMany (mappedBy = "pensionado", cascade = CascadeType.ALL)
     private List <Trabajo> trabajos;
+
+    // Relación: un pensionado puede tener muchas cuotas partes
+    @OneToMany(mappedBy = "pensionado")
+    private List<CuotaParte> cuotasParte;
 }

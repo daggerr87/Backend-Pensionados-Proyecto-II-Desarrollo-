@@ -30,16 +30,17 @@ public class CuotaParte {
     @Column(name = "notas")
     private String notas;
 
-    // Relación: una cuota parte pertenece a un unico periodo
+    // Relación: una cuota parte pertenece a un único periodo
     @ManyToOne
     @JoinColumn(name = "idPeriodo")
     private Periodo periodo;
 
+    // Relación: una cuota parte pertenece a un único pensionado (hereda el id)
+    @ManyToOne
+    @JoinColumn(name = "numeroIdPersona", nullable = false)
+    private Pensionado pensionado;
+
     // Relación con EntidadCuotaParte (muchas entidades pueden estar asociadas a una cuota parte)
     @OneToMany(mappedBy = "cuotaParte")
     private List<EntidadCuotaParte> entidadesCuotaParte;
-
-    // Relación con PensionadoCuotaParte (muchos pensionados pueden estar asociados a una cuota parte)
-    @OneToMany(mappedBy = "cuotaParte")
-    private List<PensionadoCuotaParte> pensionadosCuotaParte;
 }
