@@ -1,3 +1,9 @@
+--Insertar Usuario por Defecto
+INSERT INTO USUARIO (id, apellido, email, nombre, password, username)
+VALUES (1, 'Unicauca', 'pensiones@unicauca.edu.co', 'pensiones', '$2a$10$R6MoChK7sDHuSTrON3BC5.jENlU5fn/tMRP0v7frkmiCMfDafgKJK', 'pensiones@unicauca.edu.co');
+
+
+
 INSERT INTO ENTIDAD (nitEntidad, nombreEntidad, direccionEntidad, emailEntidad, telefonoEntidad, estadoEntidad)
 VALUES (8911500319, 'Unicauca', 'Calle 5 No. 4-70 (Popayán - Cauca', 'rectoria@unicauca.edu.co', 8209900, "Activa");
 
@@ -47,6 +53,7 @@ VALUES
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
 (1003000000, 8600123456, 2190), -- Trabajó ~6 años en la Alcaldía de Popayán
+(1003000000, 8911500319, 2920), -- Trabajó ~8 años en Unicauca
 (1003000000, 9001234567, 1460), -- Trabajó ~4 años en la Gobernación del Cauca
 (1003000000, 8300123123, 1095); -- Trabajó ~3 años en el Colegio La Salle
 
