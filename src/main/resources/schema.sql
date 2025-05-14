@@ -3,6 +3,8 @@
 /* Created on:     7/04/2025 8:05:52 p.�m.                      */
 /*==============================================================*/
 
+DROP TABLE IF EXISTS USUARIO;
+
 DROP TABLE IF EXISTS SUCESOR;
 
 DROP TABLE IF EXISTS TRABAJO;
@@ -25,6 +27,18 @@ DROP TABLE IF EXISTS SALARIO_MINIMO;
 
 DROP TABLE IF EXISTS PERSONA;
 
+/*==============================================================*/
+/* Table: USUARIO                                               */
+/*==============================================================*/
+CREATE TABLE USUARIO (
+   id BIGINT NOT NULL,
+   nombre VARCHAR(100) NOT NULL,
+   apellido VARCHAR(100) NOT NULL,
+   email VARCHAR(100) NOT NULL,
+   username VARCHAR(100) NOT NULL,
+   password VARCHAR(200) NOT NULL,
+   PRIMARY KEY (id)
+);
 
 /*==============================================================*/
 /* Table: PERSONA                                               */
