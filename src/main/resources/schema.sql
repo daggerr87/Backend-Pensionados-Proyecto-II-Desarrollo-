@@ -7,6 +7,8 @@ DROP TABLE IF EXISTS SUCESOR;
 
 DROP TABLE IF EXISTS TRABAJO;
 
+DROP TABLE IF EXISTS PENSIONADOCUOTAPARTE;
+
 DROP TABLE IF EXISTS PERIODO;
 
 DROP TABLE IF EXISTS PENSIONADO;
@@ -52,6 +54,32 @@ CREATE TABLE ENTIDAD (
    PRIMARY KEY (nitEntidad)
 );
 
+
+/*==============================================================*/
+/* Table: CUOTA_PARTE                                           */
+/*==============================================================*/
+CREATE TABLE CUOTA_PARTE (
+   idCuotaParte BIGINT NOT NULL,
+   valorCuotaParte DOUBLE NOT NULL,
+   porcentajeCuotaParte DOUBLE NOT NULL,
+   valorTotalCuotaParte DOUBLE NOT NULL,
+   fechaGeneracion DATE NOT NULL,
+   notas VARCHAR(200),
+   PRIMARY KEY (idCuotaParte)
+);
+
+
+/*==============================================================*/
+/* Table: ENTIDADCUOTAPARTE                                     */
+/*==============================================================*/
+CREATE TABLE ENTIDADCUOTAPARTE (
+   idCuotaParte BIGINT NOT NULL,
+   nitEntidad BIGINT NOT NULL,
+   PRIMARY KEY (idCuotaParte, nitEntidad),
+   FOREIGN KEY (idCuotaParte) REFERENCES CUOTA_PARTE(idCuotaParte),
+   FOREIGN KEY (nitEntidad) REFERENCES ENTIDAD(nitEntidad)
+);
+
 /*==============================================================*/
 /* Table: PENSIONADO                                            */
 /*==============================================================*/
@@ -65,6 +93,18 @@ CREATE TABLE PENSIONADO (
    PRIMARY KEY (numeroIdPersona),
    FOREIGN KEY (numeroIdPersona) REFERENCES PERSONA(numeroIdPersona),
    FOREIGN KEY (nitEntidad) REFERENCES ENTIDAD(nitEntidad)
+);
+
+
+/*==============================================================*/
+/* Table: PENSIONADOCUOTAPARTE                                  */
+/*==============================================================*/
+CREATE TABLE PENSIONADOCUOTAPARTE (
+   numeroIdPersona BIGINT NOT NULL,
+   idCuotaParte BIGINT NOT NULL,
+   PRIMARY KEY (numeroIdPersona, idCuotaParte),
+   FOREIGN KEY (numeroIdPersona) REFERENCES PENSIONADO(numeroIdPersona),
+   FOREIGN KEY (idCuotaParte) REFERENCES CUOTA_PARTE(idCuotaParte)
 );
 
 /*==============================================================*/
@@ -90,6 +130,7 @@ CREATE TABLE IPC (
 /*==============================================================*/
 CREATE TABLE PERIODO (
    idPeriodo BIGINT NOT NULL,
+   idCuotaParte BIGINT NOT NULL,
    fechaInicioPeriodo DATE NOT NULL,
    fechaFinPeriodo DATE NOT NULL,
    numeroMesadas BIGINT NOT NULL,
@@ -98,35 +139,8 @@ CREATE TABLE PERIODO (
    porcentajeIncremento DOUBLE NOT NULL,
    fechaIpc DATE NOT NULL,
    PRIMARY KEY (idPeriodo),
-   FOREIGN KEY (fechaIpc) REFERENCES IPC(fechaIpc)
-);
-
-/*==============================================================*/
-/* Table: CUOTA_PARTE                                           */
-/*==============================================================*/
-CREATE TABLE CUOTA_PARTE (
-   idCuotaParte BIGINT NOT NULL,
-   valorCuotaParte DOUBLE NOT NULL,
-   porcentajeCuotaParte DOUBLE NOT NULL,
-   valorTotalCuotaParte DOUBLE NOT NULL,
-   fechaGeneracion DATE NOT NULL,
-   notas VARCHAR(200),
-   numeroIdPersona BIGINT NOT NULL,
-   idPeriodo BIGINT NOT NULL,
-   PRIMARY KEY (idCuotaParte),
-   FOREIGN KEY (numeroIdPersona) REFERENCES PENSIONADO(numeroIdPersona),
-   FOREIGN KEY (idPeriodo) REFERENCES PERIODO(idPeriodo)
-);
-
-/*==============================================================*/
-/* Table: ENTIDADCUOTAPARTE                                     */
-/*==============================================================*/
-CREATE TABLE ENTIDADCUOTAPARTE (
-   idCuotaParte BIGINT NOT NULL,
-   nitEntidad BIGINT NOT NULL,
-   PRIMARY KEY (idCuotaParte, nitEntidad),
    FOREIGN KEY (idCuotaParte) REFERENCES CUOTA_PARTE(idCuotaParte),
-   FOREIGN KEY (nitEntidad) REFERENCES ENTIDAD(nitEntidad)
+   FOREIGN KEY (fechaIpc) REFERENCES IPC(fechaIpc)
 );
 
 /*==============================================================*/
