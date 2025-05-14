@@ -43,4 +43,7 @@ public abstract class Persona {
     @Column (name = "generoPersona", length = 50, nullable = true)
     private String generoPersona;
 
+    @Column (name = "fechaDefuncionPersona", length = 50)
+    private Date fechaDefucnionPersona;
+
 }

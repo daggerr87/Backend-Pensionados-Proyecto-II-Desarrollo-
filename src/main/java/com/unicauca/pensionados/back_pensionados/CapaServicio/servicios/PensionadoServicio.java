@@ -63,9 +63,10 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionado.setFechaExpedicionDocumentoIdPersona(request.getFechaExpedicionDocumentoIdPersona());
         pensionado.setEstadoPersona(request.getEstadoPersona());
         pensionado.setGeneroPersona(request.getGeneroPersona());
+        pensionado.setFechaDefucnionPersona(request.getFechaDefuncionPersona());
 
         pensionado.setFechaInicioPension(request.getFechaInicioPension());
-        pensionado.setValorPension(request.getValorPension());
+        pensionado.setValorInicialPension(request.getValorInicialPension());
         pensionado.setResolucionPension(request.getResolucionPension());
         
         pensionado.setTotalDiasTrabajo(request.getTotalDiasTrabajo());
@@ -111,9 +112,10 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionadoExistente.setFechaExpedicionDocumentoIdPersona(request.getFechaExpedicionDocumentoIdPersona());
         pensionadoExistente.setEstadoPersona(request.getEstadoPersona());
         pensionadoExistente.setGeneroPersona(request.getGeneroPersona());
+        pensionadoExistente.setFechaDefucnionPersona(request.getFechaDefuncionPersona());
 
         pensionadoExistente.setFechaInicioPension(request.getFechaInicioPension());
-        pensionadoExistente.setValorPension(request.getValorPension());
+        pensionadoExistente.setValorInicialPension(request.getValorInicialPension());
         pensionadoExistente.setResolucionPension(request.getResolucionPension());
         pensionadoExistente.setTotalDiasTrabajo(request.getTotalDiasTrabajo());
         pensionadoExistente.setEntidadJubilacion(entidad);
@@ -192,7 +194,7 @@ public class PensionadoServicio implements IPensionadoServicio {
         respuesta.setEstadoPersona(pensionado.getEstadoPersona());
         respuesta.setGeneroPersona(pensionado.getGeneroPersona());
         respuesta.setFechaInicioPension(pensionado.getFechaInicioPension());
-        respuesta.setValorPension(pensionado.getValorPension());
+        respuesta.setValorInicialPension(pensionado.getValorInicialPension());
         respuesta.setResolucionPension(pensionado.getResolucionPension());
         //respuesta.setNitEntidad(pensionado.getEntidad().getNitEntidad()); // solo si aplica
         respuesta.setEntidadJubilacion(pensionado.getEntidadJubilacion().getNitEntidad());

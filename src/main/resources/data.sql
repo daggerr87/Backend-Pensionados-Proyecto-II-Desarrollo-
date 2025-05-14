@@ -25,7 +25,7 @@ VALUES
 (1005000000, 'Cedula', 'Luis', 'Sanchez Mora', '1958-02-14', '2015-03-10', 'Activo', 'Masculino');
 
 -- Insertar 5 pensionados asociados a la entidad Unicauca (nit 8911500319)
-INSERT INTO PENSIONADO (numeroIdPersona, nitEntidad, fechaInicioPension, valorPension, resolucionPension, totalDiasTrabajo)
+INSERT INTO PENSIONADO (numeroIdPersona, nitEntidad, fechaInicioPension, valorInicialPension, resolucionPension, totalDiasTrabajo)
 VALUES 
 (1001000000, 8911500319, '2018-01-01', 2500000, 'RES-2018-001', 6935),
 (1002000000, 8300123123, '2019-05-15', 1800000, 'RES-2019-045', 4015),

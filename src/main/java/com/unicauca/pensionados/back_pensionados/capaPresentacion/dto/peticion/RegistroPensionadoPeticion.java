@@ -24,10 +24,11 @@ public class RegistroPensionadoPeticion {
     private Date fechaExpedicionDocumentoIdPersona;
     private String estadoPersona;
     private String generoPersona;
+    private Date fechaDefuncionPersona;
 
     //Datos de Pensionado
     private Date fechaInicioPension;
-    private BigDecimal valorPension;
+    private BigDecimal valorInicialPension;
     private String resolucionPension;
     private Long totalDiasTrabajo;
 
