@@ -63,8 +63,8 @@ CREATE TABLE ENTIDAD (
 /* Table: IPC                                                   */
 /*==============================================================*/
 CREATE TABLE IPC (
-   fechaIPC BIGINT NOT NULL,
-   valorIPC DOUBLE NOT NULL,
+   fechaIPC INT NOT NULL,
+   valorIPC DECIMAL(5,2) NOT NULL,
    PRIMARY KEY (fechaIPC)
 );
 
@@ -112,7 +112,7 @@ CREATE TABLE SUCESOR (
 /*==============================================================*/
 CREATE TABLE PERIODO (
    idPeriodo BIGINT NOT NULL,
-   fechaIPC BIGINT NOT NULL,
+   fechaIPC INT NOT NULL,
    fechaInicioPeriodo DATE NOT NULL,
    fechaFinPeriodo DATE NOT NULL,
    numeroMesadas BIGINT NOT NULL,
