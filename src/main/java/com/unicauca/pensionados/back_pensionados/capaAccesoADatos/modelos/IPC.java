@@ -14,9 +14,9 @@ import lombok.Setter;
 @Getter @Setter
 public class IPC {
     @Id
-    @Column (name = "fechaIPC")
-    private Long fechaIPC;
+    @Column (name = "fechaIPC", nullable = false)
+    private Integer fechaIPC;
     
-    @Column (name = "valorIPC", nullable = false)
+    @Column (name = "valorIPC", nullable = false, precision = 5, scale = 2)
     private BigDecimal valorIPC;
 }
