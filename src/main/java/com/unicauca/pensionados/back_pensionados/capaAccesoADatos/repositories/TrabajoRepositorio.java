@@ -13,6 +13,7 @@ public interface TrabajoRepositorio extends JpaRepository<Trabajo, Long> {
     
     Optional<Trabajo> findByPensionadoAndEntidad(Pensionado pensionado, Entidad entidad);
     List<Trabajo> findByEntidadNitEntidad(Long nitEntidad);
+    List<Trabajo> findByPensionado(Pensionado pensionado);
     
 }
 ////

@@ -30,11 +30,14 @@ public class Periodo {
 
     @Column (name = "fechaInicioPeriodo", nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date fechaInicioPerido;
+    private Date fechaInicioPeriodo;
 
     @Column (name = "fechaFinPeriodo", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date fechaFinPeriodo;
+
+    @Column (name = "cuotaParteTotalPeriodo", nullable = false)
+    private double cuotaParteTotalPeriodo;
 
 
     @ManyToOne
