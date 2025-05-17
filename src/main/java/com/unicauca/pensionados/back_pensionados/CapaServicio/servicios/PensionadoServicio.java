@@ -8,7 +8,7 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entida
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Persona;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo;
-import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo.TrabajoId;
+//import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo.TrabajoId;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.EntidadRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PensionadoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PersonaRepositorio;
@@ -72,13 +72,12 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionado.setTotalDiasTrabajo(request.getTotalDiasTrabajo());
         pensionado.setEntidadJubilacion(entidad);
 
-        pensionadoRepositorio.save(pensionado);
+        pensionado = pensionadoRepositorio.save(pensionado);
 
         //Crear ID serializable para trabajo (nitEntidad, numeroIdPersona)
-        TrabajoId trabajoId = new TrabajoId(request.getNitEntidad(), request.getNumeroIdPersona());
+     
 
         Trabajo trabajo = new Trabajo();
-        trabajo.setId(trabajoId);
         trabajo.setDiasDeServicio(request.getDiasDeServicio());
         trabajo.setPensionado(pensionado);
         trabajo.setEntidad(entidad);
@@ -124,19 +123,20 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionadoRepositorio.save(pensionadoExistente);
 
         // Crear ID serializable para trabajo (nitEntidad, numeroIdPersona)
-        TrabajoId trabajoId = new TrabajoId(request.getNitEntidad(), numeroIdPersona);
+        //TrabajoId trabajoId = new TrabajoId(request.getNitEntidad(), numeroIdPersona);
+        Trabajo trabajo = new Trabajo();
 
         // Buscar el trabajo existente
-        Optional<Trabajo> trabajoOptional = trabajoRepositorio.findById(trabajoId);
-
-        Trabajo trabajo;
+        //Optional<Trabajo> trabajoOptional = trabajoRepositorio.findById(numeroIdPersona);
+        Optional<Trabajo> trabajoOptional = trabajoRepositorio.findByPensionadoAndEntidad(pensionadoExistente, entidad);
+        //Trabajo trabajo;
         if (trabajoOptional.isPresent()) {
             // Si existe, actualizar el registro existente
             trabajo = trabajoOptional.get();
         } else {
             // Si no existe, crear un nuevo registro
             trabajo = new Trabajo();
-            trabajo.setId(trabajoId);
+            //trabajo.setId(trabajoId);
             trabajo.setPensionado(pensionadoExistente);
             trabajo.setEntidad(entidad);
         }

@@ -32,11 +32,11 @@ public class Usuario implements UserDetails{
     Integer id;
 
     @Column(nullable = false)
-    String username;
-    String password;
-    String email;
     String nombre;
     String apellido;
+    String email;
+    String username;
+    String password;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){

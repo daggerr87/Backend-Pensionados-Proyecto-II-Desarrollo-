@@ -54,6 +54,7 @@ public class SucesorServicio implements ISucesorServicio {
         sucesor.setEstadoPersona(request.getEstadoPersona());
         sucesor.setGeneroPersona(request.getGeneroPersona());
         sucesor.setFechaInicioSucesion(request.getFechaInicioSucesion());
+        sucesor.setPorcentajePension(request.getPorcentajePension());
         sucesor.setPensionado(pensionado);
         // Guardar el sucesor
         sucesorRepositorio.save(sucesor);

@@ -11,6 +11,10 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.P
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.TrabajoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.EntidadConPensionadosRespuesta;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoConTrabajoRespuesta;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.TrabajoRespuesta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,9 +76,9 @@ public class EntidadServicio implements IEntidadServicio {
                         "El pensionado con ID: " + registroTrabajoPeticion.getNumeroIdPersona() + " no está registrado"));
 
                 Trabajo trabajo = new Trabajo();
-                Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), pensionado.getNumeroIdPersona());
+                /*Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), pensionado.getNumeroIdPersona());*/
 
-                trabajo.setId(trabajoId);
+               //trabajo.setId(trabajoId);
                 trabajo.setDiasDeServicio(registroTrabajoPeticion.getDiasDeServicio());
                 trabajo.setEntidad(entidad);
                 trabajo.setPensionado(pensionado);
@@ -141,26 +145,24 @@ public class EntidadServicio implements IEntidadServicio {
             Pensionado pensionado = pensionadoRepositorio.findById(numeroIdPersona)
                     .orElseThrow(() -> new RuntimeException(
                             "El pensionado con ID: " + numeroIdPersona + " no está registrado"));
+            
+        // Buscar trabajo existente por pensionado y entidad
+            Optional<Trabajo> trabajoExistenteOpt = trabajoRepositorio.findByPensionadoAndEntidad(pensionado, entidad);
 
             // Verificar si el trabajo ya existe
-            if (mapaTrabajosActuales.containsKey(numeroIdPersona)) {
-                // Actualizar los días de servicio si el trabajo ya existe
-                Trabajo trabajoExistente = mapaTrabajosActuales.get(numeroIdPersona);
+            if (trabajoExistenteOpt.isPresent()) {
+                Trabajo trabajoExistente = trabajoExistenteOpt.get();
                 trabajoExistente.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
                 trabajoRepositorio.save(trabajoExistente);
-
+                mapaTrabajosActuales.remove(numeroIdPersona); // Remover el trabajo del mapa para identificar los que no están en la lista actualizada
                 // Remover el trabajo del mapa para identificar los que no están en la lista actualizada
                 mapaTrabajosActuales.remove(numeroIdPersona);
             } else {
                 // Crear un nuevo trabajo si no existe
                 Trabajo nuevoTrabajo = new Trabajo();
-                Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), numeroIdPersona);
-
-                nuevoTrabajo.setId(trabajoId);
                 nuevoTrabajo.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
                 nuevoTrabajo.setEntidad(entidad);
                 nuevoTrabajo.setPensionado(pensionado);
-
                 trabajoRepositorio.save(nuevoTrabajo);
                 entidad.getTrabajos().add(nuevoTrabajo);
             }
@@ -197,6 +199,59 @@ public class EntidadServicio implements IEntidadServicio {
     public Entidad buscarPorNit(Long nit) {
         return entidadRepository.findById(nit)
                 .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nit));
+    }
+
+
+    @Override
+    public List<EntidadConPensionadosRespuesta> buscarEntidadesConPensionadosPorCriterio(String query) {
+        List<Entidad> entidades = new ArrayList<>();
+
+        try {
+            Long nit = Long.parseLong(query);
+            entidades.addAll(entidadRepository.findByNitEntidadIs(nit));
+        } catch (NumberFormatException e) {
+            // No es un número, buscar por nombre, dirección, email
+        }
+        entidades.addAll(entidadRepository.findByNombreEntidadContainingIgnoreCase(query));
+        entidades.addAll(entidadRepository.findByDireccionEntidadContainingIgnoreCase(query));
+        entidades.addAll(entidadRepository.findByEmailEntidadContainingIgnoreCase(query));
+
+        // Eliminar duplicados
+        entidades = entidades.stream().distinct().toList();
+
+        // Mapear a DTO
+        return entidades.stream().map(entidad -> {
+            // Pensionados asociados con su trabajo
+            List<PensionadoConTrabajoRespuesta> pensionados = entidad.getTrabajos().stream()
+                .map(Trabajo::getPensionado)
+                .distinct()
+                .map(p -> PensionadoConTrabajoRespuesta.builder()
+                    .numeroIdPersona(p.getNumeroIdPersona())
+                    .nombrePersona(p.getNombrePersona())
+                    .apellidosPersona(p.getApellidosPersona())
+                    .build())
+                .toList();
+
+            // Si necesitas el campo trabajos, mapea aquí también
+            List<TrabajoRespuesta> trabajos = entidad.getTrabajos().stream()
+                .map(trabajo -> TrabajoRespuesta.builder()
+                    .nitEntidad(trabajo.getEntidad().getNitEntidad())
+                    .nombreEntidad(trabajo.getEntidad().getNombreEntidad())
+                    .diasDeServicio(trabajo.getDiasDeServicio())
+                    .build())
+                .toList();
+
+            return EntidadConPensionadosRespuesta.builder()
+                .nitEntidad(entidad.getNitEntidad())
+                .nombreEntidad(entidad.getNombreEntidad())
+                .direccionEntidad(entidad.getDireccionEntidad())
+                .telefonoEntidad(entidad.getTelefonoEntidad())
+                .emailEntidad(entidad.getEmailEntidad())
+                .estadoEntidad(entidad.getEstadoEntidad())
+                .pensionados(pensionados) // Usa el tipo correcto aquí
+                .trabajos(trabajos)
+                .build();
+        }).toList();
     }
 
     /**

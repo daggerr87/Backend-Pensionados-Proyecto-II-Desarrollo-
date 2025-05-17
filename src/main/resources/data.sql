@@ -38,36 +38,36 @@ VALUES
 -- Y trabajos adicionales en otras entidades a lo largo de su vida laboral
 
 -- Trabajos para Carlos Gomez (1001000000)
-INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
+INSERT INTO TRABAJO (idTrabajo, numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1001000000, 9004567281, 1825), -- Trabajó ~5 años en el Hospital San José
-(1001000000, 8600123456, 2190); -- Trabajó ~6 años en la Alcaldía de Popayán
+(1, 1001000000, 9004567281, 1825), -- Trabajó ~5 años en el Hospital San José
+(2, 1001000000, 8600123456, 2190); -- Trabajó ~6 años en la Alcaldía de Popayán
 
 -- Trabajos para Maria Lopez (1002000000)
-INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
+INSERT INTO TRABAJO (idTrabajo, numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1002000000, 8300123123, 2555), -- Trabajó ~7 años en el Colegio La Salle
-(1002000000, 9001234567, 1460); -- Trabajó ~4 años en la Gobernación del Cauca
+(3, 1002000000, 8300123123, 2555), -- Trabajó ~7 años en el Colegio La Salle
+(4, 1002000000, 9001234567, 1460); -- Trabajó ~4 años en la Gobernación del Cauca
 
 -- Trabajos para Jorge Martinez (1003000000) 
-INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
+INSERT INTO TRABAJO (idTrabajo, numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1003000000, 8600123456, 2190), -- Trabajó ~6 años en la Alcaldía de Popayán
-(1003000000, 8911500319, 2920), -- Trabajó ~8 años en Unicauca
-(1003000000, 9001234567, 1460), -- Trabajó ~4 años en la Gobernación del Cauca
-(1003000000, 8300123123, 1095); -- Trabajó ~3 años en el Colegio La Salle
+(5, 1003000000, 8600123456, 2190), -- Trabajó ~6 años en la Alcaldía de Popayán
+(6, 1003000000, 8911500319, 2920), -- Trabajó ~8 años en Unicauca
+(7, 1003000000, 9001234567, 1460), -- Trabajó ~4 años en la Gobernación del Cauca
+(8, 1003000000, 8300123123, 1095); -- Trabajó ~3 años en el Colegio La Salle
 
 -- Trabajos para Ana Rodriguez (1004000000)
-INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
+INSERT INTO TRABAJO (idTrabajo, numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1004000000, 9004567281, 2920), -- Trabajó ~8 años en el Hospital San José
-(1004000000, 8300123123, 1825); -- Trabajó ~5 años en el Colegio La Salle
+(9, 1004000000, 9004567281, 2920), -- Trabajó ~8 años en el Hospital San José
+(10, 1004000000, 8300123123, 1825); -- Trabajó ~5 años en el Colegio La Salle
 
 -- Trabajos para Luis Sanchez (1005000000)
-INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
+INSERT INTO TRABAJO (idTrabajo, numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1005000000, 9001234567, 2555), -- Trabajó ~7 años en la Gobernación del Cauca
-(1005000000, 9004567281, 1095); -- Trabajó ~3 años en el Hospital San José
+(11, 1005000000, 9001234567, 2555), -- Trabajó ~7 años en la Gobernación del Cauca
+(12,  1005000000, 9004567281, 1095); -- Trabajó ~3 años en el Hospital San José
 
 --INSERTAR DATOS IPC
 --Datos IPC 31/12/1955 - 30/4/2025

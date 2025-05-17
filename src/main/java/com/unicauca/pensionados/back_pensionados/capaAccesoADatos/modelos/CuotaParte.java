@@ -24,17 +24,6 @@ public class CuotaParte {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idCuotaParte;
 
-    @ManyToOne
-    @JoinColumn(name = "idPeriodo", nullable = false)
-    private Periodo periodo;
-
-    @ManyToOne
-    @JoinColumn(name = "nitEntidad", nullable = false)
-    private Entidad entidad;
-
-    @ManyToOne
-    @JoinColumn(name = "numeroIdPersona", nullable = false)
-    private Pensionado pensionado;
 
     @Column (name = "valorCuotaParte", nullable = false)
     private BigDecimal valorCuotaParte;
@@ -58,7 +47,18 @@ public class CuotaParte {
     @Column (name = "incrementoLey476", nullable = true)
     private BigDecimal incrementoLey476;
 
+    @Column (name = "numeroMesadas", nullable = false)
+    private BigDecimal numeroMesadas;
+
     @Column (name = "valorTotalCuotaParte", nullable = false)
-    private BigDecimal valorTotalCuotaParte;	
+    private BigDecimal cuotaParteTotal;	
+
+     @ManyToOne
+    @JoinColumn(name = "idPeriodo", nullable = false)
+    private Periodo periodo;
+
+    @ManyToOne
+    @JoinColumn(name = "idTrabajo", nullable = false)
+    private Trabajo trabajo;
 
 }

@@ -8,6 +8,7 @@ import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.R
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IEntidadServicio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.EntidadConPensionadosRespuesta;
 
 import java.util.List;
 
@@ -29,13 +30,22 @@ public class EntidadControlador {
         }
     }
 
-    @GetMapping("/buscar")
+    /*@GetMapping("/buscar")
     public List<Entidad> buscarPorCriterio(@RequestParam(required = false) String query) {
         if (query == null || query.trim().isEmpty()) {
             return entidadService.listarTodos();
         }
         query = query.replace("\"", "").trim(); // elimina comillas
         return entidadService.buscarEntidadesPorCriterio(query);
+    }*/
+
+    @GetMapping("/buscar")
+    public List<EntidadConPensionadosRespuesta> buscarPorCriterio(@RequestParam(required = false) String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return entidadService.buscarEntidadesConPensionadosPorCriterio("");
+        }
+        query = query.replace("\"", "").trim();
+        return entidadService.buscarEntidadesConPensionadosPorCriterio(query);
     }
     
     @GetMapping("/buscarPorNombre")
@@ -81,6 +91,21 @@ public class EntidadControlador {
             return ResponseEntity.status(500).body("Error interno del servidor: " + ex.getMessage());
         }
     }
+
+    /*@PutMapping("/actualizar/{nid}")
+    public ResponseEntity<?> actualizarEntidad(@PathVariable("nid") Long id, @RequestBody RegistroEntidadPeticion entidad) {
+        try {
+            EntidadConPensionadosRespuesta respuesta = entidadService.actualizar(id, entidad);
+            return ResponseEntity.ok(respuesta);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body("Error al actualizar entidad: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body("Error interno del servidor: " + ex.getMessage());
+        }
+    }*/
+
+
+
 
     @PutMapping("/activar/{nid}")
     public ResponseEntity<?> activarEntidad(@PathVariable Long nid) {

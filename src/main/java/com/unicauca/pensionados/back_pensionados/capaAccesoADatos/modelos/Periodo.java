@@ -1,6 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -26,21 +27,25 @@ public class Periodo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPeriodo;
 
-    @ManyToOne
-    @JoinColumn(name = "fechaIPC", nullable = false)
-    private IPC IPC;
 
     @Column (name = "fechaInicioPeriodo", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date fechaInicioPerido;
 
-    @Column (name = "fechaFinPerido", nullable = false)
+    @Column (name = "fechaFinPeriodo", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date fechaFinPeriodo;
 
-    @Column (name = "numeroMesadas", nullable = false)
-    private Long numeroMesadas;
 
+    @ManyToOne
+    @JoinColumn(name = "fechaIPC", nullable = false)
+    private IPC IPC;
+
+
+    @OneToMany(mappedBy = "periodo", cascade = CascadeType.ALL)
+    private List<PensionadoPeriodo> pensionadosPeriodos = new ArrayList<>();
+
+    
     @OneToMany(mappedBy = "periodo", cascade = CascadeType.ALL)
     private List<CuotaParte> cuotasPartes;
 
