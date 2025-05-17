@@ -16,13 +16,13 @@ VALUES
 (8300123123, 'Colegio La Salle', 'Avenida 2 No. 12-40, Popayán', 'secretaria@lasalle.edu.co', 8220044, 'Activa');
 
 -- Insertar 5 personas
-INSERT INTO PERSONA (numeroIdPersona, tipoIdPersona, nombrePersona, apellidosPersona, fechaNacimientoPersona, fechaExpedicionDocumentoIdPersona, estadoPersona, generoPersona)
+INSERT INTO PERSONA (numeroIdPersona, tipoIdPersona, nombrePersona, apellidosPersona, fechaNacimientoPersona, fechaExpedicionDocumentoIdPersona, estadoPersona, generoPersona,fechaDefuncionPersona)
 VALUES 
-(1001000000, 'Cedula', 'Carlos', 'Gomez Perez', '1955-03-12', '2010-05-20', 'Activo', 'Masculino'),
-(1002000000, 'Cedula', 'Maria', 'Lopez Ruiz', '1960-07-25', '2012-08-15', 'Activo', 'Femenino'),
-(1003000000, 'Cedula', 'Jorge', 'Martinez Diaz', '1948-11-05', '2005-10-30', 'Activo', 'Masculino'),
-(1004000000, 'Cedula', 'Ana', 'Rodriguez Soto', '1952-09-18', '2008-04-22', 'Activo', 'Femenino'),
-(1005000000, 'Cedula', 'Luis', 'Sanchez Mora', '1958-02-14', '2015-03-10', 'Activo', 'Masculino');
+(1001000000, 'Cedula', 'Carlos', 'Gomez Perez', '1955-03-12', '2010-05-20', 'Activo', 'Masculino','2000-03-12'),
+(1002000000, 'Cedula', 'Maria', 'Lopez Ruiz', '1960-07-25', '2012-08-15', 'Activo', 'Femenino','2000-03-12'),
+(1003000000, 'Cedula', 'Jorge', 'Martinez Diaz', '1948-11-05', '2005-10-30', 'Activo', 'Masculino','2000-03-12'),
+(1004000000, 'Cedula', 'Ana', 'Rodriguez Soto', '1952-09-18', '2008-04-22', 'Activo', 'Femenino','2000-03-12'),
+(1005000000, 'Cedula', 'Luis', 'Sanchez Mora', '1958-02-14', '2015-03-10', 'Activo', 'Masculino','2000-03-12');
 
 -- Insertar 5 pensionados asociados a la entidad Unicauca (nit 8911500319)
 INSERT INTO PENSIONADO (numeroIdPersona, nitEntidad, fechaInicioPension, valorInicialPension, resolucionPension, totalDiasTrabajo)

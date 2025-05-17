@@ -14,6 +14,7 @@ public class EntidadConPensionadosRespuesta {
     private Long telefonoEntidad;
     private String emailEntidad;
     private String estadoEntidad;
-    private List<PensionadoConTrabajoRespuesta> pensionados;
+    private List<PensionadoRespuesta> pensionados;
     private List<TrabajoRespuesta> trabajos;
+    private List<TrabajoRespuestaEntidad> trabajosEntidad;
 }

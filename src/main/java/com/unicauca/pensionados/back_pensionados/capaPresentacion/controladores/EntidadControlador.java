@@ -30,23 +30,15 @@ public class EntidadControlador {
         }
     }
 
-    /*@GetMapping("/buscar")
-    public List<Entidad> buscarPorCriterio(@RequestParam(required = false) String query) {
+    @GetMapping("/buscar")
+    public List<EntidadConPensionadosRespuesta> buscarPorCriterio(@RequestParam(required = false) String query) {
         if (query == null || query.trim().isEmpty()) {
             return entidadService.listarTodos();
         }
         query = query.replace("\"", "").trim(); // elimina comillas
         return entidadService.buscarEntidadesPorCriterio(query);
-    }*/
-
-    @GetMapping("/buscar")
-    public List<EntidadConPensionadosRespuesta> buscarPorCriterio(@RequestParam(required = false) String query) {
-        if (query == null || query.trim().isEmpty()) {
-            return entidadService.buscarEntidadesConPensionadosPorCriterio("");
-        }
-        query = query.replace("\"", "").trim();
-        return entidadService.buscarEntidadesConPensionadosPorCriterio(query);
     }
+
     
     @GetMapping("/buscarPorNombre")
     public ResponseEntity<List<Entidad>> buscarPorNombre(@RequestParam String nombre) {
@@ -70,7 +62,7 @@ public class EntidadControlador {
     }
 
     @GetMapping("/listar")
-    public List<Entidad> listarTodos() {
+    public List<EntidadConPensionadosRespuesta> listarTodos() {
         try {
             return entidadService.listarTodos();
         } catch (RuntimeException ex) {
@@ -91,20 +83,6 @@ public class EntidadControlador {
             return ResponseEntity.status(500).body("Error interno del servidor: " + ex.getMessage());
         }
     }
-
-    /*@PutMapping("/actualizar/{nid}")
-    public ResponseEntity<?> actualizarEntidad(@PathVariable("nid") Long id, @RequestBody RegistroEntidadPeticion entidad) {
-        try {
-            EntidadConPensionadosRespuesta respuesta = entidadService.actualizar(id, entidad);
-            return ResponseEntity.ok(respuesta);
-        } catch (RuntimeException ex) {
-            return ResponseEntity.badRequest().body("Error al actualizar entidad: " + ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(500).body("Error interno del servidor: " + ex.getMessage());
-        }
-    }*/
-
-
 
 
     @PutMapping("/activar/{nid}")

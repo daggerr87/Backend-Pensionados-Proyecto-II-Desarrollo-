@@ -37,6 +37,7 @@ public class Pensionado extends Persona{
     
     @Column (name = "totalDiasTrabajo", nullable = true)
     private Long totalDiasTrabajo;
+    
 
     //relacion entidad de Jubilacion
     @JsonBackReference //rompe el ciclo infinito de serializacion al mostrar el JSON

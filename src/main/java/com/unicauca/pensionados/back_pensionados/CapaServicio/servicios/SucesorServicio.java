@@ -78,6 +78,7 @@ public class SucesorServicio implements ISucesorServicio {
             request.setFechaExpedicionDocumentoIdPersona(sucesor.getFechaExpedicionDocumentoIdPersona());
             request.setEstadoPersona(sucesor.getEstadoPersona());
             request.setGeneroPersona(sucesor.getGeneroPersona());
+            request.setPorcentajePension(sucesor.getPorcentajePension());
             request.setFechaInicioSucesion(sucesor.getFechaInicioSucesion());
             request.setPensionado(sucesor.getPensionado().getNumeroIdPersona());
             return request;
@@ -108,6 +109,7 @@ public class SucesorServicio implements ISucesorServicio {
         request.setFechaExpedicionDocumentoIdPersona(sucesor.getFechaExpedicionDocumentoIdPersona());
         request.setEstadoPersona(sucesor.getEstadoPersona());
         request.setGeneroPersona(sucesor.getGeneroPersona());
+        request.setPorcentajePension(sucesor.getPorcentajePension());
         request.setFechaInicioSucesion(sucesor.getFechaInicioSucesion());
         request.setPensionado(sucesor.getPensionado().getNumeroIdPersona());
 

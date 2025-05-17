@@ -11,14 +11,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface IEntidadServicio {
-    List<Entidad> buscarEntidadesPorCriterio(String query);
+    List<EntidadConPensionadosRespuesta> buscarEntidadesPorCriterio(String query);
     List<Entidad> buscarEntidadPorNombre(String nombre);
     Entidad buscarPorNit(Long nit);
-    List<Entidad> listarTodos();
+    List<EntidadConPensionadosRespuesta> listarTodos();
     void registrarEntidad(RegistroEntidadPeticion request);
     void actualizar(Long nid, RegistroEntidadPeticion entidad);
     boolean activarEntidad(Long nid);
     boolean desactivarEntidad(Long nid);
     void editarPensionadosDeEntidad(Long nitEntidad, List<RegistroTrabajoPeticion> trabajosActualizados);
-    List<EntidadConPensionadosRespuesta> buscarEntidadesConPensionadosPorCriterio(String query);
 }

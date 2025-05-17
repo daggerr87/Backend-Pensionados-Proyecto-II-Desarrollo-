@@ -4,15 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TrabajoRespuesta {
-        private Long idTrabajo;
-        //private Long nitEntidad;
-        //private Long numeroIdPersona;
+public class TrabajoRespuestaEntidad {
+
+        //private Long idTrabajo;
+        private Long nitEntidad;
+        private Long numeroIdPersona;
         //private String nombreEntidad;
         private Long diasDeServicio;
   }
