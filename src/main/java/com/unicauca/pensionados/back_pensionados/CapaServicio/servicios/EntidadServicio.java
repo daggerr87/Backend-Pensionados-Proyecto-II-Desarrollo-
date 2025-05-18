@@ -234,6 +234,7 @@ public class EntidadServicio implements IEntidadServicio {
                         .map((Trabajo trabajo) -> TrabajoRespuesta.builder()
                             //.nitEntidad(trabajo.getEntidad().getNitEntidad())
                             //.numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                            .idTrabajo(trabajo.getIdTrabajo())
                             .diasDeServicio(trabajo.getDiasDeServicio())
                             .build())
                         .toList())
