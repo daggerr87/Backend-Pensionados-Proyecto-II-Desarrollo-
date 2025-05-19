@@ -298,8 +298,8 @@ public class EntidadServicio implements IEntidadServicio {
                 .map((Trabajo trabajo) -> TrabajoRespuesta.builder()
                     .idTrabajo(trabajo.getIdTrabajo())
                     .diasDeServicio(trabajo.getDiasDeServicio())
-                    //.nitEntidad(trabajo.getEntidad().getNitEntidad())
-                    //.numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                    .nitEntidad(trabajo.getEntidad().getNitEntidad())
+                    .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
                     .build())
                 .toList();
                 
