@@ -45,17 +45,15 @@ public class EntidadServicio implements IEntidadServicio {
     @Transactional
     @Override
     public void registrarEntidad(RegistroEntidadPeticion request) {
-        // Validar si ya existe una entidad con el mismo NIT
         if (entidadRepository.existsByNitEntidad(request.getNitEntidad())) {
             throw new RuntimeException("Ya existe una entidad con el NIT: " + request.getNitEntidad());
         }
 
-        // Validar si ya existe una entidad con el mismo nombre
         if (entidadRepository.existsByNombreEntidad(request.getNombreEntidad())) {
             throw new RuntimeException("Ya existe una entidad con el nombre: " + request.getNombreEntidad());
         }
 
-        // Crear la entidad
+        // 1. Crear y guardar la Entidad primero
         Entidad entidad = new Entidad();
         entidad.setNitEntidad(request.getNitEntidad());
         entidad.setNombreEntidad(request.getNombreEntidad());
@@ -64,29 +62,27 @@ public class EntidadServicio implements IEntidadServicio {
         entidad.setEmailEntidad(request.getEmailEntidad());
         entidad.setEstadoEntidad(request.getEstadoEntidad());
 
-        // Inisializar la lista de trabajos si esta vacia
-        if (entidad.getTrabajos() == null) {
-            entidad.setTrabajos(new ArrayList<>());
-        }
-        entidadRepository.save(entidad);
+        entidadRepository.saveAndFlush(entidad);
 
-        //Verificar si en la peticion se enviaron pensionados que trabajaron en la entidad
+        // 2. Procesar trabajos si existen
         if (request.getTrabajos() != null && !request.getTrabajos().isEmpty()) {
+            List<Trabajo> trabajos = new ArrayList<>();
+
             for (RegistroTrabajoPeticion registroTrabajoPeticion : request.getTrabajos()) {
                 Pensionado pensionado = pensionadoRepositorio.findById(registroTrabajoPeticion.getNumeroIdPersona())
                     .orElseThrow(() -> new RuntimeException(
                         "El pensionado con ID: " + registroTrabajoPeticion.getNumeroIdPersona() + " no está registrado"));
 
                 Trabajo trabajo = new Trabajo();
-                /*Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), pensionado.getNumeroIdPersona());*/
-
-               //trabajo.setId(trabajoId);
                 trabajo.setDiasDeServicio(registroTrabajoPeticion.getDiasDeServicio());
-                trabajo.setEntidad(entidad);
-                trabajo.setPensionado(pensionado);
-                trabajoRepositorio.save(trabajo);
-                entidad.getTrabajos().add(trabajo);
+                trabajo.setEntidad(entidad); // Asignar entidad persistida
+                trabajo.setPensionado(pensionado); // Asignar pensionado existente
+
+                trabajos.add(trabajo);
             }
+
+            // Guardar todos los trabajos de una vez
+            trabajoRepositorio.saveAll(trabajos);
         }
     }
 
@@ -114,7 +110,7 @@ public class EntidadServicio implements IEntidadServicio {
         entidadExistente.setEstadoEntidad(entidad.getEstadoEntidad());
 
         // Guardar la entidad actualizada
-        entidadRepository.save(entidadExistente);
+        entidadRepository.saveAndFlush(entidadExistente);
     }
 
     /**

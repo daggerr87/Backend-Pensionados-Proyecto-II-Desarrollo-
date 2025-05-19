@@ -15,4 +15,5 @@ public interface EntidadRepositorio extends JpaRepository<Entidad, Long> {
     Boolean existsByNitEntidad(Long nitEntidad); //verifica si existe el NIT de la entidad
     //Listar todas las entidades
     List<Entidad> findAllByOrderByNitEntidadAsc(); // ordena por NIT ascendente
+    
 }
