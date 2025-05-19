@@ -29,6 +29,7 @@ public class Trabajo {
     @Column(name = "diasDeServicio", nullable = false)
     private Long diasDeServicio;
 
+    
     @JsonBackReference
     @ManyToOne
     //@MapsId("numeroIdPersona")

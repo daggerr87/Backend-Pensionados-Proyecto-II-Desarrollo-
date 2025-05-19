@@ -40,19 +40,20 @@ public class PensionadoServicio implements IPensionadoServicio {
         this.entidadRepositorio = entidadRepositorio;
         this.trabajoRepositorio = trabajoRepositorio;
     }
-@Transactional
+    @Transactional
     @Override
     public void registrarPensionado(RegistroPensionadoPeticion request) {
 
-        //validar si ya se encuentra registrado el usuario
+        // Validar si ya se encuentra registrado el usuario
         if (personaRepositorio.existsById(request.getNumeroIdPersona())) {
-            throw new RuntimeException("El numero de identifiacion ya se encuentra registrado");
+            throw new RuntimeException("El número de identificación ya se encuentra registrado");
         }
 
-        //validar si ya la entidad en el que el pensionado se jubilo se encuentra registrada
+        // Validar si la entidad en la que el pensionado se jubiló está registrada
         Entidad entidad = entidadRepositorio.findById(request.getNitEntidad())
-                .orElseThrow(() -> new RuntimeException("La Entidad en la que el pensionado se jubilo no se encuentra registrada"));
+                .orElseThrow(() -> new RuntimeException("La Entidad en la que el pensionado se jubiló no se encuentra registrada"));
 
+        // Crear el pensionado
         Pensionado pensionado = new Pensionado();
         pensionado.setNumeroIdPersona(request.getNumeroIdPersona());
         pensionado.setTipoIdPersona(request.getTipoIdPersona());
@@ -62,35 +63,26 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionado.setFechaExpedicionDocumentoIdPersona(request.getFechaExpedicionDocumentoIdPersona());
         pensionado.setEstadoPersona(request.getEstadoPersona());
         pensionado.setGeneroPersona(request.getGeneroPersona());
-        //pensionado.setFechaDefuncionPersona(request.getFechaDefuncionPersona());
-
         pensionado.setFechaInicioPension(request.getFechaInicioPension());
         pensionado.setValorInicialPension(request.getValorInicialPension());
         pensionado.setResolucionPension(request.getResolucionPension());
-        
-        Long totalDiasTrabajo = 0L;
         pensionado.setEntidadJubilacion(entidad);
 
-        if(pensionado.getTrabajos() == null) {
-            pensionado.setTrabajos(new ArrayList<>());
-        }
+        // Crear el trabajo asociado
+        Trabajo trabajo = new Trabajo();
+        trabajo.setDiasDeServicio(request.getDiasDeServicio());
+        trabajo.setEntidad(entidad); // Asociar el trabajo a la entidad
+        trabajo.setPensionado(pensionado); // Asociar el trabajo al pensionado
 
-       if (request.getTrabajos() != null && !request.getTrabajos().isEmpty()) {
-        List<Trabajo> trabajos = new ArrayList<>();
-        for (RegistroTrabajoPeticion registroTrabajoPeticion : request.getTrabajos()) {
-            Trabajo trabajo = new Trabajo();
-            trabajo.setDiasDeServicio(registroTrabajoPeticion.getDiasDeServicio());
-            trabajo.setPensionado(pensionado); // Asociar el trabajo al pensionado
-            trabajo.setEntidad(entidad); // Asociar el trabajo a la entidad
-            totalDiasTrabajo+= registroTrabajoPeticion.getDiasDeServicio();
-            trabajos.add(trabajo);
-        }
+        // Establecer el total de días de trabajo en el pensionado
+        pensionado.setTotalDiasTrabajo(request.getDiasDeServicio());
 
-        pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
-        pensionado.setTrabajos(trabajos);
-    }
+        // Guardar el pensionado
         pensionadoRepositorio.save(pensionado);
-        }
+
+        // Guardar el trabajo en el repositorio
+        trabajoRepositorio.save(trabajo);
+    }
 
     /**
      * Actualizar pensionado en la base de datos.
