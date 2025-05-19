@@ -231,7 +231,7 @@ public class EntidadServicio implements IEntidadServicio {
                     .trabajos(p.getTrabajos().stream()
                         .map((Trabajo trabajo) -> TrabajoRespuesta.builder()
                             //.nitEntidad(trabajo.getEntidad().getNitEntidad())
-                            //.numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                            .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
                             .idTrabajo(trabajo.getIdTrabajo())
                             .diasDeServicio(trabajo.getDiasDeServicio())
                             .build())
