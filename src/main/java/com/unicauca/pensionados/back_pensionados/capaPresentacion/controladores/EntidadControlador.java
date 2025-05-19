@@ -8,6 +8,7 @@ import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.R
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IEntidadServicio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.EntidadConPensionadosRespuesta;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class EntidadControlador {
     }
 
     @GetMapping("/buscar")
-    public List<Entidad> buscarPorCriterio(@RequestParam(required = false) String query) {
+    public List<EntidadConPensionadosRespuesta> buscarPorCriterio(@RequestParam(required = false) String query) {
         if (query == null || query.trim().isEmpty()) {
             return entidadService.listarTodos();
         }
@@ -60,7 +61,7 @@ public class EntidadControlador {
     }
 
     @GetMapping("/listar")
-    public List<Entidad> listarTodos() {
+    public List<EntidadConPensionadosRespuesta> listarTodos() {
         try {
             return entidadService.listarTodos();
         } catch (RuntimeException ex) {
