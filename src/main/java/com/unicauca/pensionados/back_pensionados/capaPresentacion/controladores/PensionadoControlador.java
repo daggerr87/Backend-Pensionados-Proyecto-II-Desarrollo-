@@ -63,7 +63,7 @@ public class PensionadoControlador {
     @GetMapping("/listar")
     public ResponseEntity<?> listarPensionados() {
         try {
-            List<PensionadoRespuesta> pensionados = pensionadoServicio.listarPensionados();
+            List<Pensionado> pensionados = pensionadoServicio.listarPensionados();
             return ResponseEntity.ok(pensionados);
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

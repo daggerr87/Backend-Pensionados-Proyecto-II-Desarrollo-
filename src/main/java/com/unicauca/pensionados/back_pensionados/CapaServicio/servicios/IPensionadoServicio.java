@@ -9,7 +9,7 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensio
 public interface IPensionadoServicio {
     void registrarPensionado (RegistroPensionadoPeticion request);
     void actualizarPensionado (Long id, RegistroPensionadoPeticion request);
-    List<PensionadoRespuesta> listarPensionados();
+    List<Pensionado> listarPensionados();
     List<Pensionado> buscarPensionadosPorNombre(String nombre);
     List<Pensionado> buscarPensionadosPorApellido(String apellido);
     List<Pensionado> buscarPensionadosPorCriterio(String query);

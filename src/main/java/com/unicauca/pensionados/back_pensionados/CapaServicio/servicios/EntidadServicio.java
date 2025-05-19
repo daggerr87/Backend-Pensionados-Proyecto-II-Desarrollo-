@@ -272,7 +272,7 @@ public class EntidadServicio implements IEntidadServicio {
      * @param query el criterio de búsqueda (nombre, NIT o dirección)
      * @return una lista de objetos Entidad
      */
-    @Override
+      @Override
         public List<EntidadConPensionadosRespuesta> buscarEntidadesPorCriterio(String query) {
             List<Entidad> entidades = new ArrayList<>();
 
@@ -297,8 +297,8 @@ public class EntidadServicio implements IEntidadServicio {
                 .map((Trabajo trabajo) -> TrabajoRespuesta.builder()
                     .idTrabajo(trabajo.getIdTrabajo())
                     .diasDeServicio(trabajo.getDiasDeServicio())
-                    //.nitEntidad(trabajo.getEntidad().getNitEntidad())
-                    //.numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                    .nitEntidad(trabajo.getEntidad().getNitEntidad())
+                    .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
                     .build())
                 .toList();
                 
@@ -324,8 +324,8 @@ public class EntidadServicio implements IEntidadServicio {
                     .diasDeServicio(trabajoRepositorio.findByPensionadoAndEntidad(p, entidad).get().getDiasDeServicio())
                     .trabajos(p.getTrabajos().stream()
                         .map((Trabajo trabajo) -> TrabajoRespuesta.builder()
-                            //.nitEntidad(trabajo.getEntidad().getNitEntidad)
-                            //.numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                            .nitEntidad(trabajo.getEntidad().getNitEntidad())
+                            .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
                             .idTrabajo(trabajo.getIdTrabajo())
                             .diasDeServicio(trabajo.getDiasDeServicio())
                             .build())
