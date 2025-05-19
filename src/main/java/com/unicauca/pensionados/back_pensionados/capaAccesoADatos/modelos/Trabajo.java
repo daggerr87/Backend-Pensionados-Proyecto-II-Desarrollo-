@@ -29,7 +29,7 @@ public class Trabajo {
     @Column(name = "diasDeServicio", nullable = false)
     private Long diasDeServicio;
 
-    /*@Column(name = "nitEntidad", insertable = false, updatable = false)
+    @Column(name = "nitEntidad", insertable = false, updatable = false)
     private Long nitEntidad; // Clave foránea hacia Entidad
 
     @Column(name = "numeroIdPersona", insertable = false, updatable = false)
