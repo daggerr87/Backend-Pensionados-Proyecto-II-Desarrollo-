@@ -2,7 +2,7 @@ package com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,4 +34,7 @@ public class RegistroPensionadoPeticion {
 
     private Long nitEntidad; //Entidad de Jubilacion
     private Long diasDeServicio;
+
+     //Lista de trabajos asociados a la entidad 
+     private List<RegistroTrabajoPeticion> trabajos;
 }

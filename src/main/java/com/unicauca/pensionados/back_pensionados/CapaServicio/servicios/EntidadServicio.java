@@ -72,9 +72,9 @@ public class EntidadServicio implements IEntidadServicio {
                         "El pensionado con ID: " + registroTrabajoPeticion.getNumeroIdPersona() + " no está registrado"));
 
                 Trabajo trabajo = new Trabajo();
-                Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), pensionado.getNumeroIdPersona());
+                /*Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), pensionado.getNumeroIdPersona());*/
 
-                trabajo.setId(trabajoId);
+               //trabajo.setId(trabajoId);
                 trabajo.setDiasDeServicio(registroTrabajoPeticion.getDiasDeServicio());
                 trabajo.setEntidad(entidad);
                 trabajo.setPensionado(pensionado);
@@ -142,40 +142,50 @@ public class EntidadServicio implements IEntidadServicio {
                     .orElseThrow(() -> new RuntimeException(
                             "El pensionado con ID: " + numeroIdPersona + " no está registrado"));
 
+            // Buscar trabajo existente por pensionado y entidad
+            Optional<Trabajo> trabajoExistenteOpt = trabajoRepositorio.findByPensionadoAndEntidad(pensionado, entidad);
+
             // Verificar si el trabajo ya existe
-            if (mapaTrabajosActuales.containsKey(numeroIdPersona)) {
-                // Actualizar los días de servicio si el trabajo ya existe
-                Trabajo trabajoExistente = mapaTrabajosActuales.get(numeroIdPersona);
+            if (trabajoExistenteOpt.isPresent()) {
+                Trabajo trabajoExistente = trabajoExistenteOpt.get();
                 trabajoExistente.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
                 trabajoRepositorio.save(trabajoExistente);
-
-                // Remover el trabajo del mapa para identificar los que no están en la lista actualizada
-                mapaTrabajosActuales.remove(numeroIdPersona);
+                mapaTrabajosActuales.remove(numeroIdPersona); // Remover el trabajo del mapa para identificar los que no están en la lista actualizada
             } else {
                 // Crear un nuevo trabajo si no existe
                 Trabajo nuevoTrabajo = new Trabajo();
-                Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), numeroIdPersona);
-
-                nuevoTrabajo.setId(trabajoId);
                 nuevoTrabajo.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
                 nuevoTrabajo.setEntidad(entidad);
                 nuevoTrabajo.setPensionado(pensionado);
-
                 trabajoRepositorio.save(nuevoTrabajo);
                 entidad.getTrabajos().add(nuevoTrabajo);
             }
+
+            // Recalcular el total de días de trabajo del pensionado
+            Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado).stream()
+                    .mapToLong(Trabajo::getDiasDeServicio)
+                    .sum();
+            pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
+            pensionadoRepositorio.save(pensionado);
         }
 
         // Eliminar los trabajos que no están en la lista actualizada
         for (Trabajo trabajoAEliminar : mapaTrabajosActuales.values()) {
+            Pensionado pensionado = trabajoAEliminar.getPensionado();
             trabajoRepositorio.delete(trabajoAEliminar);
             entidad.getTrabajos().remove(trabajoAEliminar);
+
+            // Recalcular el total de días de trabajo del pensionado después de eliminar el trabajo
+            Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado).stream()
+                    .mapToLong(Trabajo::getDiasDeServicio)
+                    .sum();
+            pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
+            pensionadoRepositorio.save(pensionado);
         }
 
         // Guardar la entidad actualizada
         entidadRepository.save(entidad);
     }
-
     /**
      * Lista todas las entidades ordenadas por NIT ascendente.
      * 

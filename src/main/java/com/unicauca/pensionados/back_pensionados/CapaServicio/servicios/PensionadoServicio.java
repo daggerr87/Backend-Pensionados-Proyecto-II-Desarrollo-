@@ -8,12 +8,12 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entida
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Persona;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo;
-import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo.TrabajoId;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.EntidadRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PensionadoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PersonaRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.TrabajoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPensionadoPeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.TrabajoRespuesta;
 
@@ -40,8 +40,7 @@ public class PensionadoServicio implements IPensionadoServicio {
         this.entidadRepositorio = entidadRepositorio;
         this.trabajoRepositorio = trabajoRepositorio;
     }
-
-    @Transactional
+@Transactional
     @Override
     public void registrarPensionado(RegistroPensionadoPeticion request) {
 
@@ -63,28 +62,35 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionado.setFechaExpedicionDocumentoIdPersona(request.getFechaExpedicionDocumentoIdPersona());
         pensionado.setEstadoPersona(request.getEstadoPersona());
         pensionado.setGeneroPersona(request.getGeneroPersona());
-        pensionado.setFechaDefucnionPersona(request.getFechaDefuncionPersona());
+        //pensionado.setFechaDefuncionPersona(request.getFechaDefuncionPersona());
 
         pensionado.setFechaInicioPension(request.getFechaInicioPension());
         pensionado.setValorInicialPension(request.getValorInicialPension());
         pensionado.setResolucionPension(request.getResolucionPension());
         
-        pensionado.setTotalDiasTrabajo(request.getTotalDiasTrabajo());
+        Long totalDiasTrabajo = 0L;
         pensionado.setEntidadJubilacion(entidad);
 
-        pensionadoRepositorio.save(pensionado);
+        if(pensionado.getTrabajos() == null) {
+            pensionado.setTrabajos(new ArrayList<>());
+        }
 
-        //Crear ID serializable para trabajo (nitEntidad, numeroIdPersona)
-        TrabajoId trabajoId = new TrabajoId(request.getNitEntidad(), request.getNumeroIdPersona());
+       if (request.getTrabajos() != null && !request.getTrabajos().isEmpty()) {
+        List<Trabajo> trabajos = new ArrayList<>();
+        for (RegistroTrabajoPeticion registroTrabajoPeticion : request.getTrabajos()) {
+            Trabajo trabajo = new Trabajo();
+            trabajo.setDiasDeServicio(registroTrabajoPeticion.getDiasDeServicio());
+            trabajo.setPensionado(pensionado); // Asociar el trabajo al pensionado
+            trabajo.setEntidad(entidad); // Asociar el trabajo a la entidad
+            totalDiasTrabajo+= registroTrabajoPeticion.getDiasDeServicio();
+            trabajos.add(trabajo);
+        }
 
-        Trabajo trabajo = new Trabajo();
-        trabajo.setId(trabajoId);
-        trabajo.setDiasDeServicio(request.getDiasDeServicio());
-        trabajo.setPensionado(pensionado);
-        trabajo.setEntidad(entidad);
-
-        trabajoRepositorio.save(trabajo);
+        pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
+        pensionado.setTrabajos(trabajos);
     }
+        pensionadoRepositorio.save(pensionado);
+        }
 
     /**
      * Actualizar pensionado en la base de datos.
@@ -112,100 +118,65 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionadoExistente.setFechaExpedicionDocumentoIdPersona(request.getFechaExpedicionDocumentoIdPersona());
         pensionadoExistente.setEstadoPersona(request.getEstadoPersona());
         pensionadoExistente.setGeneroPersona(request.getGeneroPersona());
-        pensionadoExistente.setFechaDefucnionPersona(request.getFechaDefuncionPersona());
-
         pensionadoExistente.setFechaInicioPension(request.getFechaInicioPension());
         pensionadoExistente.setValorInicialPension(request.getValorInicialPension());
         pensionadoExistente.setResolucionPension(request.getResolucionPension());
-        pensionadoExistente.setTotalDiasTrabajo(request.getTotalDiasTrabajo());
         pensionadoExistente.setEntidadJubilacion(entidad);
+
+        // Inicializar el total de días de trabajo
+        Long totalDiasTrabajo = 0L;
+
+        // Sumar los días de servicio de los trabajos existentes
+        List<Trabajo> trabajosActualizados = new ArrayList<>(pensionadoExistente.getTrabajos());
+        for (Trabajo trabajoExistente : trabajosActualizados) {
+            totalDiasTrabajo += trabajoExistente.getDiasDeServicio();
+        }
+
+        // Procesar los trabajos enviados en la solicitud
+        if (request.getTrabajos() != null && !request.getTrabajos().isEmpty()) {
+            for (RegistroTrabajoPeticion trabajoDTO : request.getTrabajos()) {
+                // Buscar si ya existe un trabajo para este pensionado y entidad
+                Optional<Trabajo> trabajoExistente = trabajoRepositorio.findByPensionadoAndEntidad(pensionadoExistente, entidad);
+
+                Trabajo trabajo;
+                if (trabajoExistente.isPresent()) {
+                    // Si existe, actualizar los días de servicio
+                    trabajo = trabajoExistente.get();
+                    totalDiasTrabajo -= trabajo.getDiasDeServicio(); // Restar los días anteriores
+                    trabajo.setDiasDeServicio(trabajoDTO.getDiasDeServicio());
+                } else {
+                    // Si no existe, crear un nuevo trabajo
+                    trabajo = new Trabajo();
+                    trabajo.setDiasDeServicio(trabajoDTO.getDiasDeServicio());
+                    trabajo.setPensionado(pensionadoExistente);
+                    trabajo.setEntidad(entidad);
+                    trabajosActualizados.add(trabajo);
+                }
+
+                // Sumar los días de servicio del trabajo actualizado o nuevo
+                totalDiasTrabajo += trabajo.getDiasDeServicio();
+            }
+        }
+
+        // Establecer el total de días de trabajo en el pensionado
+        pensionadoExistente.setTotalDiasTrabajo(totalDiasTrabajo);
+
+        // Actualizar la lista de trabajos del pensionado
+        pensionadoExistente.setTrabajos(trabajosActualizados);
 
         // Guardar el pensionado actualizado
         pensionadoRepositorio.save(pensionadoExistente);
 
-        // Crear ID serializable para trabajo (nitEntidad, numeroIdPersona)
-        TrabajoId trabajoId = new TrabajoId(request.getNitEntidad(), numeroIdPersona);
-
-        // Buscar el trabajo existente
-        Optional<Trabajo> trabajoOptional = trabajoRepositorio.findById(trabajoId);
-
-        Trabajo trabajo;
-        if (trabajoOptional.isPresent()) {
-            // Si existe, actualizar el registro existente
-            trabajo = trabajoOptional.get();
-        } else {
-            // Si no existe, crear un nuevo registro
-            trabajo = new Trabajo();
-            trabajo.setId(trabajoId);
-            trabajo.setPensionado(pensionadoExistente);
-            trabajo.setEntidad(entidad);
+        // Guardar los trabajos actualizados
+        for (Trabajo trabajo : trabajosActualizados) {
+            trabajoRepositorio.save(trabajo);
         }
-
-        // Actualizar los campos del trabajo
-        trabajo.setDiasDeServicio(request.getDiasDeServicio());
-
-        // Guardar el trabajo actualizado o nuevo
-        trabajoRepositorio.save(trabajo);
     }
 
     @Override
     public List<Pensionado> listarPensionados() {
         return pensionadoRepositorio.findAll();
     }
-
-    /**
-     * Busca un pensionado por su ID.
-     * 
-     * @param id el ID del pensionado a buscar
-     * @return un objeto Pensionado
-     * @throws RuntimeException si no se encuentra el pensionado
-     */
-    /*@Override
-    public Pensionado buscarPensionadoPorId(Long id) {
-        return pensionadoRepositorio.findById(id)
-                .orElseThrow(() -> new RuntimeException("No se encontró el pensionado con el  "
-                        + "Numero de Identificacion: " + id ));
-    }*/
-
-    @Override
-    public PensionadoRespuesta buscarPensionadoPorId(Long id) {
-        Pensionado pensionado = pensionadoRepositorio.findById(id)
-            .orElseThrow(() -> new RuntimeException("No se encontró el pensionado con el ID: " + id));
-
-        List<TrabajoRespuesta> trabajosDTO = new ArrayList<>();
-
-        for (Trabajo trabajo : pensionado.getTrabajos()) {
-            TrabajoRespuesta dto = new TrabajoRespuesta();
-            dto.setNitEntidad(trabajo.getEntidad().getNitEntidad());
-            dto.setNombreEntidad(trabajo.getEntidad().getNombreEntidad());
-            dto.setDiasDeServicio(trabajo.getDiasDeServicio());
-            trabajosDTO.add(dto);
-        }
-        TrabajoRespuesta trabajoRespuesta = new TrabajoRespuesta();
-        trabajoRespuesta.setNitEntidad(trabajoRespuesta.getNitEntidad());
-
-        PensionadoRespuesta respuesta = new PensionadoRespuesta();
-        respuesta.setNumeroIdPersona(pensionado.getNumeroIdPersona());
-        respuesta.setTipoIdPersona(pensionado.getTipoIdPersona());
-        respuesta.setNombrePersona(pensionado.getNombrePersona());
-        respuesta.setApellidosPersona(pensionado.getApellidosPersona());
-        respuesta.setFechaNacimientoPersona(pensionado.getFechaNacimientoPersona());
-        respuesta.setFechaExpedicionDocumentoIdPersona(pensionado.getFechaExpedicionDocumentoIdPersona());
-        respuesta.setEstadoPersona(pensionado.getEstadoPersona());
-        respuesta.setGeneroPersona(pensionado.getGeneroPersona());
-        respuesta.setFechaInicioPension(pensionado.getFechaInicioPension());
-        respuesta.setValorInicialPension(pensionado.getValorInicialPension());
-        respuesta.setResolucionPension(pensionado.getResolucionPension());
-        //respuesta.setNitEntidad(pensionado.getEntidad().getNitEntidad()); // solo si aplica
-        respuesta.setEntidadJubilacion(pensionado.getEntidadJubilacion().getNitEntidad());
-        
-        respuesta.setTrabajos(trabajosDTO);
-
-        return respuesta;
-    }
-
-
-
 
 
 
@@ -271,5 +242,13 @@ public class PensionadoServicio implements IPensionadoServicio {
         
         pensionado.setEstadoPersona("Inactivo");
         pensionadoRepositorio.save(pensionado);
+    }
+
+
+    //Revisar el metodo de buscarPensionadoPorID no se puede devolver una lista 
+    @Override
+    public PensionadoRespuesta buscarPensionadoPorId(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'buscarPensionadoPorId'");
     }
 }

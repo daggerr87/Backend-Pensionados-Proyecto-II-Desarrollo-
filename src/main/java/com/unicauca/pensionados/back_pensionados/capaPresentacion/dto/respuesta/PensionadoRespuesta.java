@@ -25,11 +25,14 @@ public class PensionadoRespuesta {
     private Date fechaExpedicionDocumentoIdPersona;
     private String estadoPersona;
     private String generoPersona;
-    private Date fechaDefucncionPersona;
+    private Date fechaDefuncionPersona;
     private Date fechaInicioPension;
     private BigDecimal valorInicialPension;
     private String resolucionPension;
-    private Long entidadJubilacion;
-    //private Long diasDeServicio;
+    private String entidadJubilacion;
+    private Long totalDiasTrabajo;
+    
+    private Long diasDeServicio;
     private List<TrabajoRespuesta> trabajos;
+    
 }
