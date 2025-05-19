@@ -25,13 +25,13 @@ VALUES
 (1005000000, 'Cedula', 'Luis', 'Sanchez Mora', '1958-02-14', '2015-03-10', 'Activo', 'Masculino');
 
 -- Insertar 5 pensionados asociados a la entidad Unicauca (nit 8911500319)
-INSERT INTO PENSIONADO (numeroIdPersona, nitEntidad, fechaInicioPension, valorInicialPension, resolucionPension, totalDiasTrabajo)
+INSERT INTO PENSIONADO (numeroIdPersona, nitEntidad, fechaInicioPension, valorInicialPension, resolucionPension)
 VALUES 
-(1001000000, 8911500319, '2018-01-01', 2500000, 'RES-2018-001', 6935),
-(1002000000, 8300123123, '2019-05-15', 1800000, 'RES-2019-045', 4015),
-(1003000000, 8911500319, '2015-03-20', 3000000, 'RES-2015-012', 7665),
-(1004000000, 9004567281, '2020-10-10', 2100000, 'RES-2020-087', 4745),
-(1005000000, 9001234567, '2017-12-05', 2750000, 'RES-2017-032', 3650);
+(1001000000, 8911500319, '2018-01-01', 2500000, 'RES-2018-001'),
+(1002000000, 8911500319, '2019-05-15', 1800000, 'RES-2019-045'),
+(1003000000, 8911500319, '2015-03-20', 3000000, 'RES-2015-012'),
+(1004000000, 8911500319, '2020-10-10', 2100000, 'RES-2020-087'),
+(1005000000, 8911500319, '2017-12-05', 2750000, 'RES-2017-032');
 
 -- Insertar registros de trabajo para los pensionados
 -- Cada pensionado tiene su trabajo principal en Unicauca (ya registrado en la tabla PENSIONADO)
@@ -40,7 +40,7 @@ VALUES
 -- Trabajos para Carlos Gomez (1001000000)
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1001000000, 9004567281, 1825), -- Trabajó ~5 años en el Hospital San José
+(1001000000, 8911500319, 1825), -- Trabajó ~5 años en el Hospital San José
 (1001000000, 8600123456, 2190); -- Trabajó ~6 años en la Alcaldía de Popayán
 
 -- Trabajos para Maria Lopez (1002000000)
