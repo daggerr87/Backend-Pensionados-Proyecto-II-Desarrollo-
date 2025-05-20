@@ -16,58 +16,58 @@ VALUES
 (8300123123, 'Colegio La Salle', 'Avenida 2 No. 12-40, Popayán', 'secretaria@lasalle.edu.co', 8220044, 'Activa');
 
 -- Insertar 5 personas
-INSERT INTO PERSONA (numeroIdPersona, tipoIdPersona, nombrePersona, apellidosPersona, fechaNacimientoPersona, fechaExpedicionDocumentoIdPersona, estadoPersona, generoPersona,fechaDefuncionPersona)
+INSERT INTO PERSONA (numeroIdPersona, tipoIdPersona, nombrePersona, apellidosPersona, fechaNacimientoPersona, fechaExpedicionDocumentoIdPersona, estadoPersona, generoPersona)
 VALUES 
-(1001000000, 'Cedula', 'Carlos', 'Gomez Perez', '1955-03-12', '2010-05-20', 'Activo', 'Masculino','2000-03-12'),
-(1002000000, 'Cedula', 'Maria', 'Lopez Ruiz', '1960-07-25', '2012-08-15', 'Activo', 'Femenino','2000-03-12'),
-(1003000000, 'Cedula', 'Jorge', 'Martinez Diaz', '1948-11-05', '2005-10-30', 'Activo', 'Masculino','2000-03-12'),
-(1004000000, 'Cedula', 'Ana', 'Rodriguez Soto', '1952-09-18', '2008-04-22', 'Activo', 'Femenino','2000-03-12'),
-(1005000000, 'Cedula', 'Luis', 'Sanchez Mora', '1958-02-14', '2015-03-10', 'Activo', 'Masculino','2000-03-12');
+(1001000000, 'Cedula', 'Carlos', 'Gomez Perez', '1955-03-12', '2010-05-20', 'Activo', 'Masculino'),
+(1002000000, 'Cedula', 'Maria', 'Lopez Ruiz', '1960-07-25', '2012-08-15', 'Activo', 'Femenino'),
+(1003000000, 'Cedula', 'Jorge', 'Martinez Diaz', '1948-11-05', '2005-10-30', 'Activo', 'Masculino'),
+(1004000000, 'Cedula', 'Ana', 'Rodriguez Soto', '1952-09-18', '2008-04-22', 'Activo', 'Femenino'),
+(1005000000, 'Cedula', 'Luis', 'Sanchez Mora', '1958-02-14', '2015-03-10', 'Activo', 'Masculino');
 
 -- Insertar 5 pensionados asociados a la entidad Unicauca (nit 8911500319)
-INSERT INTO PENSIONADO (numeroIdPersona, nitEntidad, fechaInicioPension, valorInicialPension, resolucionPension, totalDiasTrabajo)
+INSERT INTO PENSIONADO (numeroIdPersona, nitEntidad, fechaInicioPension, valorInicialPension, resolucionPension)
 VALUES 
-(1001000000, 8911500319, '2018-01-01', 2500000, 'RES-2018-001', 6935),
-(1002000000, 8300123123, '2019-05-15', 1800000, 'RES-2019-045', 4015),
-(1003000000, 8911500319, '2015-03-20', 3000000, 'RES-2015-012', 7665),
-(1004000000, 9004567281, '2020-10-10', 2100000, 'RES-2020-087', 4745),
-(1005000000, 9001234567, '2017-12-05', 2750000, 'RES-2017-032', 3650);
+(1001000000, 8911500319, '2018-01-01', 2500000, 'RES-2018-001'),
+(1002000000, 8911500319, '2019-05-15', 1800000, 'RES-2019-045'),
+(1003000000, 8911500319, '2015-03-20', 3000000, 'RES-2015-012'),
+(1004000000, 8911500319, '2020-10-10', 2100000, 'RES-2020-087'),
+(1005000000, 8911500319, '2017-12-05', 2750000, 'RES-2017-032');
 
 -- Insertar registros de trabajo para los pensionados
 -- Cada pensionado tiene su trabajo principal en Unicauca (ya registrado en la tabla PENSIONADO)
 -- Y trabajos adicionales en otras entidades a lo largo de su vida laboral
 
 -- Trabajos para Carlos Gomez (1001000000)
-INSERT INTO TRABAJO (idTrabajo, numeroIdPersona, nitEntidad, diasDeServicio)
+INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1, 1001000000, 9004567281, 1825), -- Trabajó ~5 años en el Hospital San José
-(2, 1001000000, 8600123456, 2190); -- Trabajó ~6 años en la Alcaldía de Popayán
+(1001000000, 8911500319, 1825), -- Trabajó ~5 años en el Hospital San José
+(1001000000, 8600123456, 2190); -- Trabajó ~6 años en la Alcaldía de Popayán
 
 -- Trabajos para Maria Lopez (1002000000)
-INSERT INTO TRABAJO (idTrabajo, numeroIdPersona, nitEntidad, diasDeServicio)
+INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(3, 1002000000, 8300123123, 2555), -- Trabajó ~7 años en el Colegio La Salle
-(4, 1002000000, 9001234567, 1460); -- Trabajó ~4 años en la Gobernación del Cauca
+(1002000000, 8300123123, 2555), -- Trabajó ~7 años en el Colegio La Salle
+(1002000000, 9001234567, 1460); -- Trabajó ~4 años en la Gobernación del Cauca
 
 -- Trabajos para Jorge Martinez (1003000000) 
-INSERT INTO TRABAJO (idTrabajo, numeroIdPersona, nitEntidad, diasDeServicio)
+INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(5, 1003000000, 8600123456, 2190), -- Trabajó ~6 años en la Alcaldía de Popayán
-(6, 1003000000, 8911500319, 2920), -- Trabajó ~8 años en Unicauca
-(7, 1003000000, 9001234567, 1460), -- Trabajó ~4 años en la Gobernación del Cauca
-(8, 1003000000, 8300123123, 1095); -- Trabajó ~3 años en el Colegio La Salle
+(1003000000, 8600123456, 2190), -- Trabajó ~6 años en la Alcaldía de Popayán
+(1003000000, 8911500319, 2920), -- Trabajó ~8 años en Unicauca
+(1003000000, 9001234567, 1460), -- Trabajó ~4 años en la Gobernación del Cauca
+(1003000000, 8300123123, 1095); -- Trabajó ~3 años en el Colegio La Salle
 
 -- Trabajos para Ana Rodriguez (1004000000)
-INSERT INTO TRABAJO (idTrabajo, numeroIdPersona, nitEntidad, diasDeServicio)
+INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(9, 1004000000, 9004567281, 2920), -- Trabajó ~8 años en el Hospital San José
-(10, 1004000000, 8300123123, 1825); -- Trabajó ~5 años en el Colegio La Salle
+(1004000000, 9004567281, 2920), -- Trabajó ~8 años en el Hospital San José
+(1004000000, 8300123123, 1825); -- Trabajó ~5 años en el Colegio La Salle
 
 -- Trabajos para Luis Sanchez (1005000000)
-INSERT INTO TRABAJO (idTrabajo, numeroIdPersona, nitEntidad, diasDeServicio)
+INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(11, 1005000000, 9001234567, 2555), -- Trabajó ~7 años en la Gobernación del Cauca
-(12,  1005000000, 9004567281, 1095); -- Trabajó ~3 años en el Hospital San José
+(1005000000, 9001234567, 2555), -- Trabajó ~7 años en la Gobernación del Cauca
+(1005000000, 9004567281, 1095); -- Trabajó ~3 años en el Hospital San José*/
 
 --INSERTAR DATOS IPC
 --Datos IPC 31/12/1955 - 30/4/2025
@@ -79,10 +79,3 @@ INSERT INTO IPC (fechaIPC, valorIPC) VALUES
 (1995, 19.46), (1996, 21.63), (1997, 17.68), (1998, 16.70), (1999, 9.23),(2000, 8.75), (2001, 7.65), (2002, 6.99), (2003, 6.49), (2004, 5.50),
 (2005, 4.85), (2006, 4.48), (2007, 5.69), (2008, 7.67), (2009, 2.00),(2010, 3.17), (2011, 3.73), (2012, 2.44), (2013, 1.94), (2014, 3.66),
 (2015, 6.77), (2016, 5.75), (2017, 4.09), (2018, 3.18), (2019, 3.80),(2020, 1.61), (2021, 5.62), (2022, 13.12), (2023, 9.28), (2024, 5.20), (2025, 5.16);
-
-
-INSERT INTO PERIODO (idPeriodo,fechaIPC,fechaInicioPeriodo,fechaFinPeriodo,cuotaParteTotalPeriodo)VALUES (1,2024,
-    '2024-01-01',
-    '2024-12-31',
-    12500000.50
-);

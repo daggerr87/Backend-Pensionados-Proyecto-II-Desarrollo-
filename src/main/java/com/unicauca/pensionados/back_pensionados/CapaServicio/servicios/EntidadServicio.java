@@ -12,10 +12,9 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.T
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.EntidadConPensionadosRespuesta;
-import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoConTrabajoRespuesta;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
-//import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.TrabajoIdRespuesta;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.TrabajoRespuesta;
+
 import java.util.Objects;
 
 import java.util.ArrayList;
@@ -53,7 +52,6 @@ public class EntidadServicio implements IEntidadServicio {
             throw new RuntimeException("Ya existe una entidad con el nombre: " + request.getNombreEntidad());
         }
 
-        // 1. Crear y guardar la Entidad primero
         Entidad entidad = new Entidad();
         entidad.setNitEntidad(request.getNitEntidad());
         entidad.setNombreEntidad(request.getNombreEntidad());
@@ -62,27 +60,26 @@ public class EntidadServicio implements IEntidadServicio {
         entidad.setEmailEntidad(request.getEmailEntidad());
         entidad.setEstadoEntidad(request.getEstadoEntidad());
 
-        entidadRepository.saveAndFlush(entidad);
+        if (entidad.getTrabajos() == null) {
+            entidad.setTrabajos(new ArrayList<>());
+        }
+        entidadRepository.save(entidad);
 
-        // 2. Procesar trabajos si existen
         if (request.getTrabajos() != null && !request.getTrabajos().isEmpty()) {
-            List<Trabajo> trabajos = new ArrayList<>();
-
             for (RegistroTrabajoPeticion registroTrabajoPeticion : request.getTrabajos()) {
                 Pensionado pensionado = pensionadoRepositorio.findById(registroTrabajoPeticion.getNumeroIdPersona())
                     .orElseThrow(() -> new RuntimeException(
                         "El pensionado con ID: " + registroTrabajoPeticion.getNumeroIdPersona() + " no está registrado"));
 
                 Trabajo trabajo = new Trabajo();
+
+               //trabajo.setId(trabajoId);
                 trabajo.setDiasDeServicio(registroTrabajoPeticion.getDiasDeServicio());
-                trabajo.setEntidad(entidad); // Asignar entidad persistida
-                trabajo.setPensionado(pensionado); // Asignar pensionado existente
-
-                trabajos.add(trabajo);
+                trabajo.setEntidad(entidad);
+                trabajo.setPensionado(pensionado);
+                trabajoRepositorio.save(trabajo);
+                entidad.getTrabajos().add(trabajo);
             }
-
-            // Guardar todos los trabajos de una vez
-            trabajoRepositorio.saveAll(trabajos);
         }
     }
 
@@ -98,19 +95,16 @@ public class EntidadServicio implements IEntidadServicio {
     @Transactional
     @Override
     public void actualizar(Long nid, RegistroEntidadPeticion entidad) {
-        // Buscar la entidad por su NIT
         Entidad entidadExistente = entidadRepository.findById(nid)
                 .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nid));
 
-        // Actualizar los campos de la entidad
         entidadExistente.setNombreEntidad(entidad.getNombreEntidad());
         entidadExistente.setDireccionEntidad(entidad.getDireccionEntidad());
         entidadExistente.setTelefonoEntidad(entidad.getTelefonoEntidad());
         entidadExistente.setEmailEntidad(entidad.getEmailEntidad());
         entidadExistente.setEstadoEntidad(entidad.getEstadoEntidad());
 
-        // Guardar la entidad actualizada
-        entidadRepository.saveAndFlush(entidadExistente);
+        entidadRepository.save(entidadExistente);
     }
 
     /**
@@ -188,7 +182,6 @@ public class EntidadServicio implements IEntidadServicio {
         // Guardar la entidad actualizada
         entidadRepository.save(entidad);
     }
-
     /**
      * Lista todas las entidades ordenadas por NIT ascendente.
      * 
@@ -219,7 +212,7 @@ public class EntidadServicio implements IEntidadServicio {
                     .fechaExpedicionDocumentoIdPersona(p.getFechaExpedicionDocumentoIdPersona())
                     .estadoPersona(p.getEstadoPersona())
                     .generoPersona(p.getGeneroPersona())
-                    .fechaDefuncionPersona(p.getFechaDefuncionPersona())
+                    //.fechaDefuncionPersona(p.getFechaDefuncionPersona())
                     .fechaInicioPension(p.getFechaInicioPension())
                     .valorInicialPension(p.getValorInicialPension())
                     .resolucionPension(p.getResolucionPension())
@@ -229,7 +222,7 @@ public class EntidadServicio implements IEntidadServicio {
                     .trabajos(p.getTrabajos().stream()
                         .map((Trabajo trabajo) -> TrabajoRespuesta.builder()
                             //.nitEntidad(trabajo.getEntidad().getNitEntidad())
-                            //.numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                            .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
                             .idTrabajo(trabajo.getIdTrabajo())
                             .diasDeServicio(trabajo.getDiasDeServicio())
                             .build())
@@ -251,7 +244,6 @@ public class EntidadServicio implements IEntidadServicio {
         }).toList();
     }
 
-
     /**
      * Busca una entidad por su NIT.
      * 
@@ -265,8 +257,6 @@ public class EntidadServicio implements IEntidadServicio {
                 .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nit));
     }
 
-    
-    
     /**
      * Busca entidades por nombre, NIT o dirección.
      * 
@@ -304,7 +294,7 @@ public class EntidadServicio implements IEntidadServicio {
                 .toList();
                 
                 List<PensionadoRespuesta> pensionados = entidad.getTrabajos().stream()
-                .map(Trabajo::getPensionado) // <-- tipo inferido: Pensionado
+                .map(Trabajo::getPensionado) 
                 .filter(Objects::nonNull)
                 .distinct()
                 .map((Pensionado p) -> PensionadoRespuesta.builder()
@@ -316,7 +306,7 @@ public class EntidadServicio implements IEntidadServicio {
                     .fechaExpedicionDocumentoIdPersona(p.getFechaExpedicionDocumentoIdPersona())
                     .estadoPersona(p.getEstadoPersona())
                     .generoPersona(p.getGeneroPersona())
-                    .fechaDefuncionPersona(p.getFechaDefuncionPersona())
+                    //.fechaDefuncionPersona(p.getFechaDefuncionPersona())
                     .fechaInicioPension(p.getFechaInicioPension())
                     .valorInicialPension(p.getValorInicialPension())
                     .resolucionPension(p.getResolucionPension())
@@ -334,7 +324,6 @@ public class EntidadServicio implements IEntidadServicio {
                     .build())
                 .toList();
 
-                // Retornar el DTO de la entidad con los trabajos
                 return EntidadConPensionadosRespuesta.builder()
                     .nitEntidad(entidad.getNitEntidad())
                     .nombreEntidad(entidad.getNombreEntidad())

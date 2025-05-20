@@ -74,21 +74,17 @@ public class PensionadoControlador {
         }
     }
     
-   @GetMapping("/buscar/id/{id}")
-    public ResponseEntity<?> buscarPensionadosPorId(@PathVariable Long id) {
+ 
+    @GetMapping("/buscar/id/{id}")
+    public ResponseEntity<?> buscarPensionadoPorId(@PathVariable Long id) {
         try {
-            List<Pensionado> pensionados = pensionadoServicio.buscarPensionadoPorId(id);
-            if (pensionados == null || pensionados.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No se encontró ningún pensionado con el ID: " + id);
-            }
-            return ResponseEntity.ok(pensionados);
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error interno: " + ex.getMessage());
+            PensionadoRespuesta pensionadoDTO = pensionadoServicio.buscarPensionadoPorId(id);
+            return ResponseEntity.ok(pensionadoDTO);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error: " + ex.getMessage());
         }
     }
-
 
 
 

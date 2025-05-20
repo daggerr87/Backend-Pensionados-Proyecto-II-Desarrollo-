@@ -13,7 +13,7 @@ public class TrabajoRespuesta {
         private Long idTrabajo;
         private Long nitEntidad;
         private Long numeroIdPersona;
-        //private String nombreEntidad;
+        private String entidadJubilacion;
         private Long diasDeServicio;
-  }
+}
     

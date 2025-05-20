@@ -42,7 +42,7 @@ public class Entidad {
     //estado de la entidad, no puede ser nulo
     private String estadoEntidad;
 
-    //relacion 1 a muchos Pensionados
+    //relacion 1 a muchos Pensonados
     @JsonManagedReference //rompe el ciclo infinito de serializacion al mostrar el JSON
     @OneToMany(mappedBy = "entidadJubilacion")
     private List<Pensionado> pensionados;

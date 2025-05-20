@@ -24,19 +24,17 @@ public class RegistroPensionadoPeticion {
     private Date fechaExpedicionDocumentoIdPersona;
     private String estadoPersona;
     private String generoPersona;
-    private Date fechaInicioPension;
-    private String resolucionPension;
-    private BigDecimal valorInicialPension;
-    private Long nitEntidad; //Entidad de Jubilacion
-    private Long totalDiasTrabajo;
-    //private Long diasDeServicio;
-    //private Date fechaDefuncionPersona;
+    private Date fechaDefuncionPersona;
 
     //Datos de Pensionado
-    
-    
+    private Date fechaInicioPension;
+    private BigDecimal valorInicialPension;
+    private String resolucionPension;
+    private Long totalDiasTrabajo;
 
-   
+    private Long nitEntidad; //Entidad de Jubilacion
+    private Long diasDeServicio;
+
      //Lista de trabajos asociados a la entidad 
-    private List<RegistroTrabajoPeticion> trabajos;
+     private List<RegistroTrabajoPeticion> trabajos;
 }

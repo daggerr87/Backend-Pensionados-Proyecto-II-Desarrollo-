@@ -38,7 +38,6 @@ public class EntidadControlador {
         query = query.replace("\"", "").trim(); // elimina comillas
         return entidadService.buscarEntidadesPorCriterio(query);
     }
-
     
     @GetMapping("/buscarPorNombre")
     public ResponseEntity<List<Entidad>> buscarPorNombre(@RequestParam String nombre) {
@@ -83,7 +82,6 @@ public class EntidadControlador {
             return ResponseEntity.status(500).body("Error interno del servidor: " + ex.getMessage());
         }
     }
-
 
     @PutMapping("/activar/{nid}")
     public ResponseEntity<?> activarEntidad(@PathVariable Long nid) {

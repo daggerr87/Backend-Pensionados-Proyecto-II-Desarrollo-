@@ -31,8 +31,8 @@ public class PensionadoRespuesta {
     private String resolucionPension;
     private String entidadJubilacion;
     private Long totalDiasTrabajo;
-    
     private Long diasDeServicio;
+    private Long nitEntidad; 
     private List<TrabajoRespuesta> trabajos;
     
 }

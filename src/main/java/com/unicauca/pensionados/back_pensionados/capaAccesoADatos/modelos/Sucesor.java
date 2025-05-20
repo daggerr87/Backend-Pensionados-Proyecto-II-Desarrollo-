@@ -26,7 +26,4 @@ public class Sucesor extends Persona{
     @ManyToOne
     @JoinColumn(name = "numeroIdPensionado", nullable = false)
     private Pensionado pensionado;
-
-
-    private Double porcentajePension;
 }

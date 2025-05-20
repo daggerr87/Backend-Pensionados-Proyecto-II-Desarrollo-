@@ -6,6 +6,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -22,19 +23,13 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 public class Trabajo {
 
     @Id
-    @GeneratedValue
-    @Column (name = "idTrabajo" , nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idTrabajo;
 
     @Column(name = "diasDeServicio", nullable = false)
     private Long diasDeServicio;
 
-    @Column(name = "nitEntidad", insertable = false, updatable = false)
-    private Long nitEntidad; // Clave foránea hacia Entidad
-
-    @Column(name = "numeroIdPersona", insertable = false, updatable = false)
-    private Long numeroIdPersona; // Clave foránea hacia Pensionado*/
-
+    
     @JsonBackReference
     @ManyToOne
     //@MapsId("numeroIdPersona")
@@ -47,27 +42,4 @@ public class Trabajo {
     @JoinColumn(name = "nitEntidad", referencedColumnName = "nitEntidad")
     private Entidad entidad;
 
-    /*public Trabajo() {}
-
-    public Trabajo(TrabajoId id, Long diasDeServicio, Pensionado pensionado, Entidad entidad) {
-        this.id = id;
-        this.diasDeServicio = diasDeServicio;
-        this.pensionado = pensionado;
-        this.entidad = entidad;
-    }
-
-    @Embeddable
-    @Getter
-    @Setter
-    public static class TrabajoId implements Serializable {
-        private Long nitEntidad;
-        private Long numeroIdPersona;
-
-        public TrabajoId() {}
-
-        public TrabajoId(Long nitEntidad, Long numeroIdPersona) {
-            this.nitEntidad = nitEntidad;
-            this.numeroIdPersona = numeroIdPersona;
-        }
-    }*/
 }

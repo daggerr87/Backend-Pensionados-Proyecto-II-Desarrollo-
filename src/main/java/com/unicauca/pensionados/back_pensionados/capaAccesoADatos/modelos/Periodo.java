@@ -1,10 +1,9 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
+import java.math.BigDecimal;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
 
-import jakarta.persistence.CascadeType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,7 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -27,29 +26,35 @@ public class Periodo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPeriodo;
 
-
-    @Column (name = "fechaInicioPeriodo", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date fechaInicioPeriodo;
-
-    @Column (name = "fechaFinPeriodo", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date fechaFinPeriodo;
-
-    @Column (name = "cuotaParteTotalPeriodo", nullable = false)
-    private double cuotaParteTotalPeriodo;
-
-
     @ManyToOne
     @JoinColumn(name = "fechaIPC", nullable = false)
     private IPC IPC;
 
+    @ManyToOne
+    @JoinColumn(name = "idCuotaParte")
+    private CuotaParte cuotaParte;
 
-    @OneToMany(mappedBy = "periodo", cascade = CascadeType.ALL)
-    private List<PensionadoPeriodo> pensionadosPeriodos = new ArrayList<>();
+    @Column (name = "fechaInicioPeriodo", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date fechaInicioPerido;
 
+    @Column (name = "fechaFinPerido", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date fechaFinPeriodo;
+
+    @Column (name = "numeroMesadas", nullable = false)
+    private Long numeroMesadas;
+
+    @Column (name = "valorPension", nullable = false)
+    private BigDecimal valorPension;
+
+    @Column (name = "cuotaParteMensual", nullable = false)
+    private BigDecimal cuotaParteMensual;
+
+    @Column (name = "cuotaParteTotalAnio", nullable = false)
+    private BigDecimal cuotaParteTotalAnio;
+
+    @Column (name = "incrementoLey476", nullable = true)
+    private BigDecimal incrementoLey476;
     
-    @OneToMany(mappedBy = "periodo", cascade = CascadeType.ALL)
-    private List<CuotaParte> cuotasPartes;
-
 }   

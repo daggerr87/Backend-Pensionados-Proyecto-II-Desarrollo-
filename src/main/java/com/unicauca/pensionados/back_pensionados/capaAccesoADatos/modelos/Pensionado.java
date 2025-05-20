@@ -2,7 +2,6 @@ package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -37,7 +36,6 @@ public class Pensionado extends Persona{
     
     @Column (name = "totalDiasTrabajo", nullable = true)
     private Long totalDiasTrabajo;
-    
 
     //relacion entidad de Jubilacion
     @JsonBackReference //rompe el ciclo infinito de serializacion al mostrar el JSON
@@ -50,9 +48,4 @@ public class Pensionado extends Persona{
     @JsonManagedReference
     @OneToMany (mappedBy = "pensionado", cascade = CascadeType.ALL)
     private List <Trabajo> trabajos;
-
-    //relacion 1 a muchos con PensionadoPeriodo
-    @JsonManagedReference
-    @OneToMany (mappedBy = "pensionado", cascade = CascadeType.ALL)
-    private List <PensionadoPeriodo> pensionadosPeriodos = new ArrayList<>();
 }

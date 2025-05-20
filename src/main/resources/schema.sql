@@ -5,13 +5,13 @@
 
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE IF EXISTS CUOTA_PARTE;
+
 DROP TABLE IF EXISTS PERIODO;
+DROP TABLE IF EXISTS CUOTA_PARTE;
 DROP TABLE IF EXISTS TRABAJO;
 DROP TABLE IF EXISTS SUCESOR;
 DROP TABLE IF EXISTS PENSIONADO;
 DROP TABLE IF EXISTS IPC;
-DROP TABLE IF EXISTS PENSIONADOPERIODO;
 DROP TABLE IF EXISTS ENTIDAD;
 DROP TABLE IF EXISTS PERSONA;
 DROP TABLE IF EXISTS USUARIO;
@@ -22,7 +22,7 @@ SET FOREIGN_KEY_CHECKS=1;
 /* Table: USUARIO                                               */
 /*==============================================================*/
 CREATE TABLE USUARIO (
-   id BIGINT NOT NULL AUTO_INCREMENT,
+   id BIGINT NOT NULL,
    nombre VARCHAR(100) NOT NULL,
    apellido VARCHAR(100) NOT NULL,
    email VARCHAR(100) NOT NULL,
@@ -104,10 +104,24 @@ CREATE TABLE SUCESOR (
     numeroIdPersona BIGINT NOT NULL,
     numeroIdPensionado BIGINT NOT NULL,
     fechaInicioSucesion DATE NOT NULL,
-    porcentajePension FLOAT NOT NULL,
     PRIMARY KEY (numeroIdPersona),
     FOREIGN KEY (numeroIdPersona) REFERENCES PERSONA(numeroIdPersona),
     FOREIGN KEY (numeroIdPensionado) REFERENCES PENSIONADO(numeroIdPersona)
+);
+
+/*==============================================================*/
+/* Table: CUOTA_PARTE                                           */
+/*==============================================================*/
+CREATE TABLE CUOTA_PARTE (
+   idCuotaParte BIGINT NOT NULL AUTO_INCREMENT,
+   idTrabajo BIGINT NOT NULL,
+   valorCuotaParte DOUBLE NOT NULL,
+   porcentajeCuotaParte DOUBLE NOT NULL,
+   fechaGeneracion DATE,
+   notas VARCHAR(200) NOT NULL,
+   cuotaParteTotal DOUBLE NOT NULL,
+   PRIMARY KEY (idCuotaParte),
+   FOREIGN KEY (idTrabajo) REFERENCES TRABAJO(idTrabajo)
 );
 
 /*==============================================================*/
@@ -116,42 +130,16 @@ CREATE TABLE SUCESOR (
 CREATE TABLE PERIODO (
    idPeriodo BIGINT NOT NULL,
    fechaIPC INT NOT NULL,
+   idCuotaParte BIGINT NOT NULL,
    fechaInicioPeriodo DATE NOT NULL,
    fechaFinPeriodo DATE NOT NULL,
-   cuotaParteTotalPeriodo DOUBLE NOT NULL,
-   PRIMARY KEY (idPeriodo),
-   FOREIGN KEY (fechaIPC) REFERENCES IPC(fechaIPC)
-);
-
-/*==============================================================*/
-/* Table: PENSIONADOPERIODO                                    */
-/*==============================================================*/
-CREATE TABLE PENSIONADOPERIODO (
-   numeroIdPersona BIGINT NOT NULL,
-   idPeriodo BIGINT NOT NULL,
-   PRIMARY KEY (numeroIdPersona, idPeriodo),
-   FOREIGN KEY (numeroIdPersona) REFERENCES PENSIONADO(numeroIdPersona),
-   FOREIGN KEY (idPeriodo) REFERENCES PERIODO(idPeriodo)
-);
-
-
-/*==============================================================*/
-/* Table: CUOTA_PARTE                                           */
-/*==============================================================*/
-CREATE TABLE CUOTA_PARTE (
-   idCuotaParte BIGINT NOT NULL,
-   idPeriodo BIGINT NOT NULL,
-   idTrabajo BIGINT NOT NULL,
-   valorCuotaParte DOUBLE NOT NULL,
-   porcentajeCuotaParte DOUBLE NOT NULL,
-   fechaGeneracion DATE NOT NULL,
-   notas VARCHAR(200),
+   numeroMesadas BIGINT NOT NULL,
    valorPension DOUBLE NOT NULL,
    cuotaParteMensual DOUBLE NOT NULL,
-   incrementoLey476 DOUBLE,
-   numeroMesadas BIGINT NOT NULL,
-   cuotaParteTotal DOUBLE NOT NULL,
-   PRIMARY KEY (idCuotaParte),
-   FOREIGN KEY (idPeriodo) REFERENCES PERIODO(idPeriodo),
-   FOREIGN KEY (idTrabajo) REFERENCES TRABAJO(idTrabajo)
+   cuotaParteTotalAnio DOUBLE NOT NULL,
+   incrementoAdicionalLey476 DOUBLE,
+   PRIMARY KEY (idPeriodo),
+   FOREIGN KEY (fechaIPC) REFERENCES IPC(fechaIPC), 
+   FOREIGN KEY (idCuotaParte) REFERENCES CUOTA_PARTE(idCuotaParte)
 );
+

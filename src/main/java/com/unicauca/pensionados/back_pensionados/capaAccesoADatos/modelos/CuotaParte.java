@@ -2,7 +2,9 @@ package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -24,6 +27,9 @@ public class CuotaParte {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idCuotaParte;
 
+    @ManyToOne
+    @JoinColumn(name = "idTrabajo")
+    private Trabajo trabajo;
 
     @Column (name = "valorCuotaParte", nullable = false)
     private BigDecimal valorCuotaParte;
@@ -35,30 +41,13 @@ public class CuotaParte {
     @Temporal(TemporalType.DATE)
     private Date fechaGeneracion;
 
-    @Column (name = "nombreEntidad", nullable = false, length = 200)
+    @Column (name = "notas", nullable = false, length = 200)
     private String notas;
 
-    @Column (name = "valorPension", nullable = false)
-    private BigDecimal valorPension;
+    @Column (name = "cuotaParteTotal", nullable = false)
+    private BigDecimal valorTotalCuotaParte;	
 
-    @Column (name = "cuotaParteMensual", nullable = false)
-    private BigDecimal cuotaParteMensual;
-
-    @Column (name = "incrementoLey476", nullable = true)
-    private BigDecimal incrementoLey476;
-
-    @Column (name = "numeroMesadas", nullable = false)
-    private BigDecimal numeroMesadas;
-
-    @Column (name = "valorTotalCuotaParte", nullable = false)
-    private BigDecimal cuotaParteTotal;	
-
-     @ManyToOne
-    @JoinColumn(name = "idPeriodo", nullable = false)
-    private Periodo periodo;
-
-    @ManyToOne
-    @JoinColumn(name = "idTrabajo", nullable = false)
-    private Trabajo trabajo;
-
+    @OneToMany(mappedBy = "cuotaParte", cascade = CascadeType.ALL)
+    private List<Periodo> peridos;
+    
 }

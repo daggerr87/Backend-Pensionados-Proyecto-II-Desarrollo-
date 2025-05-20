@@ -13,6 +13,6 @@ public interface IPensionadoServicio {
     List<Pensionado> buscarPensionadosPorNombre(String nombre);
     List<Pensionado> buscarPensionadosPorApellido(String apellido);
     List<Pensionado> buscarPensionadosPorCriterio(String query);
-    List<Pensionado> buscarPensionadoPorId(Long id);
+    PensionadoRespuesta buscarPensionadoPorId(Long id);
     void desactivarPensionado(Long id);
 }
