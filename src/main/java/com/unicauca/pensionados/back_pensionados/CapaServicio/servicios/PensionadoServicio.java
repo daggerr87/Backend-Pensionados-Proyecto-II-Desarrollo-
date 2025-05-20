@@ -44,16 +44,13 @@ public class PensionadoServicio implements IPensionadoServicio {
     @Override
     public void registrarPensionado(RegistroPensionadoPeticion request) {
 
-        // Validar si ya se encuentra registrado el usuario
         if (personaRepositorio.existsById(request.getNumeroIdPersona())) {
             throw new RuntimeException("El número de identificación ya se encuentra registrado");
         }
 
-        // Validar si la entidad en la que el pensionado se jubiló está registrada
         Entidad entidad = entidadRepositorio.findById(request.getNitEntidad())
                 .orElseThrow(() -> new RuntimeException("La Entidad en la que el pensionado se jubiló no se encuentra registrada"));
 
-        // Crear el pensionado
         Pensionado pensionado = new Pensionado();
         pensionado.setNumeroIdPersona(request.getNumeroIdPersona());
         pensionado.setTipoIdPersona(request.getTipoIdPersona());
@@ -68,19 +65,15 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionado.setResolucionPension(request.getResolucionPension());
         pensionado.setEntidadJubilacion(entidad);
 
-        // Crear el trabajo asociado
         Trabajo trabajo = new Trabajo();
         trabajo.setDiasDeServicio(request.getDiasDeServicio());
-        trabajo.setEntidad(entidad); // Asociar el trabajo a la entidad
-        trabajo.setPensionado(pensionado); // Asociar el trabajo al pensionado
+        trabajo.setEntidad(entidad); 
+        trabajo.setPensionado(pensionado); 
 
-        // Establecer el total de días de trabajo en el pensionado
         pensionado.setTotalDiasTrabajo(request.getDiasDeServicio());
 
-        // Guardar el pensionado
         pensionadoRepositorio.save(pensionado);
 
-        // Guardar el trabajo en el repositorio
         trabajoRepositorio.save(trabajo);
     }
 
@@ -95,15 +88,12 @@ public class PensionadoServicio implements IPensionadoServicio {
     @Transactional
     @Override
     public void actualizarPensionado(Long numeroIdPersona, RegistroPensionadoPeticion request) {
-        // Validar si el pensionado existe
         Pensionado pensionadoExistente = pensionadoRepositorio.findById(numeroIdPersona)
                 .orElseThrow(() -> new RuntimeException("No se encontró la persona con este número de identidad: " + numeroIdPersona));
 
-        // Validar si la entidad en la que el pensionado se jubiló está registrada
         Entidad entidad = entidadRepositorio.findById(request.getNitEntidad())
                 .orElseThrow(() -> new RuntimeException("La Entidad en la que el pensionado se jubiló no se encuentra registrada"));
 
-        // Actualizar los campos del pensionado
         pensionadoExistente.setNombrePersona(request.getNombrePersona());
         pensionadoExistente.setApellidosPersona(request.getApellidosPersona());
         pensionadoExistente.setFechaNacimientoPersona(request.getFechaNacimientoPersona());
@@ -115,30 +105,23 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionadoExistente.setResolucionPension(request.getResolucionPension());
         pensionadoExistente.setEntidadJubilacion(entidad);
 
-        // Guardar el pensionado actualizado
         pensionadoRepositorio.save(pensionadoExistente);
 
-        // Buscar si ya existe un trabajo para este pensionado y entidad
         Optional<Trabajo> trabajoOptional = trabajoRepositorio.findByPensionadoAndEntidad(pensionadoExistente, entidad);
 
         Trabajo trabajo;
         if (trabajoOptional.isPresent()) {
-            // Si existe, actualizar el registro existente
             trabajo = trabajoOptional.get();
         } else {
-            // Si no existe, crear un nuevo registro
             trabajo = new Trabajo();
             trabajo.setPensionado(pensionadoExistente);
             trabajo.setEntidad(entidad);
         }
 
-        // Actualizar los campos del trabajo
         trabajo.setDiasDeServicio(request.getDiasDeServicio());
 
-        // Guardar el trabajo actualizado o nuevo
         trabajoRepositorio.save(trabajo);
 
-        // Actualizar el total de días de trabajo del pensionado
         Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionadoExistente)
                 .stream()
                 .mapToLong(Trabajo::getDiasDeServicio)
@@ -219,19 +202,22 @@ public class PensionadoServicio implements IPensionadoServicio {
     }
 
 
-    //Revisar el metodo de buscarPensionadoPorID no se puede devolver una lista 
     @Override
     public PensionadoRespuesta buscarPensionadoPorId(Long id) {
-        // Buscar el pensionado por su ID
         Pensionado pensionado = pensionadoRepositorio.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró el pensionado con ID: " + id));
 
-        // Calcular el total de días de trabajo
         Long totalDiasTrabajo = pensionado.getTrabajos().stream()
                 .mapToLong(Trabajo::getDiasDeServicio)
                 .sum();
 
-        // Mapear los trabajos a TrabajoRespuesta
+        Long diasDeServicioJubilacion = pensionado.getTrabajos().stream()
+            .filter(trabajo -> trabajo.getEntidad().getNitEntidad()
+                    .equals(pensionado.getEntidadJubilacion().getNitEntidad()))
+            .mapToLong(Trabajo::getDiasDeServicio)
+            .findFirst()
+            .orElse(0L);
+
         List<TrabajoRespuesta> trabajos = pensionado.getTrabajos().stream()
                 .map(trabajo -> TrabajoRespuesta.builder()
                         .idTrabajo(trabajo.getIdTrabajo())
@@ -242,7 +228,6 @@ public class PensionadoServicio implements IPensionadoServicio {
                         .build())
                 .toList();
 
-        // Construir y devolver el objeto PensionadoRespuesta
         return PensionadoRespuesta.builder()
                 .numeroIdPersona(pensionado.getNumeroIdPersona())
                 .tipoIdPersona(pensionado.getTipoIdPersona())
@@ -256,10 +241,9 @@ public class PensionadoServicio implements IPensionadoServicio {
                 .valorInicialPension(pensionado.getValorInicialPension())
                 .resolucionPension(pensionado.getResolucionPension())
                 .nitEntidad(pensionado.getEntidadJubilacion().getNitEntidad())
+                .entidadJubilacion(pensionado.getEntidadJubilacion().getNombreEntidad())
                 .totalDiasTrabajo(totalDiasTrabajo)
-                .diasDeServicio(pensionado.getTrabajos().stream()
-                        .mapToLong(Trabajo::getDiasDeServicio)
-                        .sum())
+                .diasDeServicio(diasDeServicioJubilacion)
                 .trabajos(trabajos)
                 .build();
     }

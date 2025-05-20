@@ -44,17 +44,14 @@ public class EntidadServicio implements IEntidadServicio {
     @Transactional
     @Override
     public void registrarEntidad(RegistroEntidadPeticion request) {
-        // Validar si ya existe una entidad con el mismo NIT
         if (entidadRepository.existsByNitEntidad(request.getNitEntidad())) {
             throw new RuntimeException("Ya existe una entidad con el NIT: " + request.getNitEntidad());
         }
 
-        // Validar si ya existe una entidad con el mismo nombre
         if (entidadRepository.existsByNombreEntidad(request.getNombreEntidad())) {
             throw new RuntimeException("Ya existe una entidad con el nombre: " + request.getNombreEntidad());
         }
 
-        // Crear la entidad
         Entidad entidad = new Entidad();
         entidad.setNitEntidad(request.getNitEntidad());
         entidad.setNombreEntidad(request.getNombreEntidad());
@@ -63,13 +60,11 @@ public class EntidadServicio implements IEntidadServicio {
         entidad.setEmailEntidad(request.getEmailEntidad());
         entidad.setEstadoEntidad(request.getEstadoEntidad());
 
-        // Inisializar la lista de trabajos si esta vacia
         if (entidad.getTrabajos() == null) {
             entidad.setTrabajos(new ArrayList<>());
         }
         entidadRepository.save(entidad);
 
-        //Verificar si en la peticion se enviaron pensionados que trabajaron en la entidad
         if (request.getTrabajos() != null && !request.getTrabajos().isEmpty()) {
             for (RegistroTrabajoPeticion registroTrabajoPeticion : request.getTrabajos()) {
                 Pensionado pensionado = pensionadoRepositorio.findById(registroTrabajoPeticion.getNumeroIdPersona())
@@ -77,7 +72,6 @@ public class EntidadServicio implements IEntidadServicio {
                         "El pensionado con ID: " + registroTrabajoPeticion.getNumeroIdPersona() + " no está registrado"));
 
                 Trabajo trabajo = new Trabajo();
-                /*Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), pensionado.getNumeroIdPersona());*/
 
                //trabajo.setId(trabajoId);
                 trabajo.setDiasDeServicio(registroTrabajoPeticion.getDiasDeServicio());
@@ -101,18 +95,15 @@ public class EntidadServicio implements IEntidadServicio {
     @Transactional
     @Override
     public void actualizar(Long nid, RegistroEntidadPeticion entidad) {
-        // Buscar la entidad por su NIT
         Entidad entidadExistente = entidadRepository.findById(nid)
                 .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nid));
 
-        // Actualizar los campos de la entidad
         entidadExistente.setNombreEntidad(entidad.getNombreEntidad());
         entidadExistente.setDireccionEntidad(entidad.getDireccionEntidad());
         entidadExistente.setTelefonoEntidad(entidad.getTelefonoEntidad());
         entidadExistente.setEmailEntidad(entidad.getEmailEntidad());
         entidadExistente.setEstadoEntidad(entidad.getEstadoEntidad());
 
-        // Guardar la entidad actualizada
         entidadRepository.save(entidadExistente);
     }
 
@@ -303,7 +294,7 @@ public class EntidadServicio implements IEntidadServicio {
                 .toList();
                 
                 List<PensionadoRespuesta> pensionados = entidad.getTrabajos().stream()
-                .map(Trabajo::getPensionado) // <-- tipo inferido: Pensionado
+                .map(Trabajo::getPensionado) 
                 .filter(Objects::nonNull)
                 .distinct()
                 .map((Pensionado p) -> PensionadoRespuesta.builder()
@@ -333,7 +324,6 @@ public class EntidadServicio implements IEntidadServicio {
                     .build())
                 .toList();
 
-                // Retornar el DTO de la entidad con los trabajos
                 return EntidadConPensionadosRespuesta.builder()
                     .nitEntidad(entidad.getNitEntidad())
                     .nombreEntidad(entidad.getNombreEntidad())
