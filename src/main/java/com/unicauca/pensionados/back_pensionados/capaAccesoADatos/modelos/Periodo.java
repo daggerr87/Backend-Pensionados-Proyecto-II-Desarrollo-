@@ -36,7 +36,7 @@ public class Periodo {
 
     @Column (name = "fechaInicioPeriodo", nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date fechaInicioPerido;
+    private Date fechaInicioPeriodo;
 
     @Column (name = "fechaFinPerido", nullable = false)
     @Temporal(TemporalType.DATE)

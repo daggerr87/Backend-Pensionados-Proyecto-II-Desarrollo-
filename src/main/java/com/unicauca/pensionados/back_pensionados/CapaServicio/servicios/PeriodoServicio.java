@@ -34,7 +34,7 @@ public class PeriodoServicio implements IPeriodoServicio {
      */
     @Override
     public List<PeriodoRespuesta> listarPeriodos() {
-        List<Periodo> periodos = periodoRepositorio.findAll();
+        /*List<Periodo> periodos = periodoRepositorio.findAll();
         return periodos.stream()
                 .map(periodo -> new PeriodoRespuesta(
                         periodo.getIPC().getFechaIPC(),
@@ -42,13 +42,14 @@ public class PeriodoServicio implements IPeriodoServicio {
                         periodo.getFechaFinPeriodo(),
                         periodo.getIPC().getValorIPC().doubleValue(),
                         periodo.getCuotaParteTotalPeriodo()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
+        return null;
     }
     
 
     @Override
     public PeriodoRespuesta consultarPeriodoPorAnio(int anio) {
-        // Buscar el periodo cuyo año de IPC coincida con el año solicitado
+        /*// Buscar el periodo cuyo año de IPC coincida con el año solicitado
         Optional<Periodo> periodoOpt = periodoRepositorio.findAll().stream()
             .filter(p -> p.getIPC() != null && p.getIPC().getFechaIPC() != null && p.getIPC().getFechaIPC() == anio)
             .findFirst();
@@ -60,14 +61,15 @@ public class PeriodoServicio implements IPeriodoServicio {
             .fechaInicioPeriodo(periodo.getFechaInicioPeriodo())
             .fechaFinPeriodo(periodo.getFechaFinPeriodo())
             .ipc(periodo.getIPC().getValorIPC() != null ? periodo.getIPC().getValorIPC().doubleValue() : null)
-            .build();
+            .build();*/
+            return null; //Hay que corregir 
     }
 
 
     @Override
     @Transactional
     public void editarPeriodo(EditarPeriodoPeticion peticion) {
-        Periodo periodo = periodoRepositorio.findById(peticion.getIdPeriodo())
+        /*Periodo periodo = periodoRepositorio.findById(peticion.getIdPeriodo())
             .orElseThrow(() -> new RuntimeException("No existe periodo con id: " + peticion.getIdPeriodo()));
 
         // Actualizar el IPC si es necesario
@@ -86,6 +88,8 @@ public class PeriodoServicio implements IPeriodoServicio {
         if (peticion.getCuotaParteTotalPeriodo() != null) {
             periodo.setCuotaParteTotalPeriodo(peticion.getCuotaParteTotalPeriodo());
         }
-        periodoRepositorio.save(periodo);
+        periodoRepositorio.save(periodo);*/
+
+        //Hay que corregir
     }
 }
