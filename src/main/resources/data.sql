@@ -67,7 +67,7 @@ VALUES
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
 (1005000000, 9001234567, 2555), -- Trabajó ~7 años en la Gobernación del Cauca
-(1005000000, 9004567281, 1095); -- Trabajó ~3 años en el Hospital San José
+(1005000000, 9004567281, 1095); -- Trabajó ~3 años en el Hospital San José*/
 
 --INSERTAR DATOS IPC
 --Datos IPC 31/12/1955 - 30/4/2025
