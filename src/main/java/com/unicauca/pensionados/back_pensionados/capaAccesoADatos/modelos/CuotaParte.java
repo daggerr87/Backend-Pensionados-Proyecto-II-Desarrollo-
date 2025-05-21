@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
 
+import javax.money.MonetaryAmount;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,6 +18,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,6 +51,12 @@ public class CuotaParte {
     private BigDecimal valorTotalCuotaParte;	
 
     @OneToMany(mappedBy = "cuotaParte", cascade = CascadeType.ALL)
-    private List<Periodo> peridos;
+    private List<Periodo> periodos;
     
+    //Declaramos atributos de tipo JavaMoney para poder realizar calculos mas precisos
+    @Transient
+    private MonetaryAmount valorCuotaParteMoney;
+    
+    @Transient
+    private MonetaryAmount valorTotalCuotaParteMoney;
 }
