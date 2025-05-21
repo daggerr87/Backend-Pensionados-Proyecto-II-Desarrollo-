@@ -5,7 +5,7 @@ VALUES (1, 'Unicauca', 'pensiones@unicauca.edu.co', 'pensiones', '$2a$10$R6MoChK
 
 
 INSERT INTO ENTIDAD (nitEntidad, nombreEntidad, direccionEntidad, emailEntidad, telefonoEntidad, estadoEntidad)
-VALUES (8911500319, 'Unicauca', 'Calle 5 No. 4-70 (Popayán - Cauca', 'rectoria@unicauca.edu.co', 8209900, "Activa");
+VALUES (8911500319, 'Universidad del Cauca', 'Calle 5 No. 4-70 (Popayán - Cauca', 'rectoria@unicauca.edu.co', 8209900, "Activa");
 
 -- Insertar más entidades para el historial laboral
 INSERT INTO ENTIDAD (nitEntidad, nombreEntidad, direccionEntidad, emailEntidad, telefonoEntidad, estadoEntidad)
@@ -25,13 +25,13 @@ VALUES
 (1005000000, 'Cedula', 'Luis', 'Sanchez Mora', '1958-02-14', '2015-03-10', 'Activo', 'Masculino');
 
 -- Insertar 5 pensionados asociados a la entidad Unicauca (nit 8911500319)
-INSERT INTO PENSIONADO (numeroIdPersona, nitEntidad, fechaInicioPension, valorInicialPension, resolucionPension)
+INSERT INTO PENSIONADO (numeroIdPersona, nitEntidad, fechaInicioPension, valorInicialPension, resolucionPension, totalDiasTrabajo)
 VALUES 
-(1001000000, 8911500319, '2018-01-01', 2500000, 'RES-2018-001'),
-(1002000000, 8911500319, '2019-05-15', 1800000, 'RES-2019-045'),
-(1003000000, 8911500319, '2015-03-20', 3000000, 'RES-2015-012'),
-(1004000000, 8911500319, '2020-10-10', 2100000, 'RES-2020-087'),
-(1005000000, 8911500319, '2017-12-05', 2750000, 'RES-2017-032');
+(1001000000, 8911500319, '2018-01-01', 2500000, 'RES-2018-001',4015),
+(1002000000, 8911500319, '2019-05-15', 1800000, 'RES-2019-045',4015),
+(1003000000, 8911500319, '2015-03-20', 3000000, 'RES-2015-012',7665),
+(1004000000, 8911500319, '2020-10-10', 2100000, 'RES-2020-087',4745),
+(1005000000, 8911500319, '2017-12-05', 2750000, 'RES-2017-032',3620);
 
 -- Insertar registros de trabajo para los pensionados
 -- Cada pensionado tiene su trabajo principal en Unicauca (ya registrado en la tabla PENSIONADO)
@@ -40,19 +40,18 @@ VALUES
 -- Trabajos para Carlos Gomez (1001000000)
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1001000000, 8911500319, 1825), -- Trabajó ~5 años en el Hospital San José
+(1001000000, 8911500319, 1825), -- Trabajó ~5 años en Unicauca
 (1001000000, 8600123456, 2190); -- Trabajó ~6 años en la Alcaldía de Popayán
 
 -- Trabajos para Maria Lopez (1002000000)
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1002000000, 8300123123, 2555), -- Trabajó ~7 años en el Colegio La Salle
+(1002000000, 8911500319, 2555), -- Trabajó ~7 años en Unicauca
 (1002000000, 9001234567, 1460); -- Trabajó ~4 años en la Gobernación del Cauca
 
 -- Trabajos para Jorge Martinez (1003000000) 
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1003000000, 8600123456, 2190), -- Trabajó ~6 años en la Alcaldía de Popayán
 (1003000000, 8911500319, 2920), -- Trabajó ~8 años en Unicauca
 (1003000000, 9001234567, 1460), -- Trabajó ~4 años en la Gobernación del Cauca
 (1003000000, 8300123123, 1095); -- Trabajó ~3 años en el Colegio La Salle
@@ -60,14 +59,14 @@ VALUES
 -- Trabajos para Ana Rodriguez (1004000000)
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1004000000, 9004567281, 2920), -- Trabajó ~8 años en el Hospital San José
+(1004000000, 8911500319, 2920), -- Trabajó ~8 años en Unicauca
 (1004000000, 8300123123, 1825); -- Trabajó ~5 años en el Colegio La Salle
 
 -- Trabajos para Luis Sanchez (1005000000)
 INSERT INTO TRABAJO (numeroIdPersona, nitEntidad, diasDeServicio)
 VALUES
-(1005000000, 9001234567, 2555), -- Trabajó ~7 años en la Gobernación del Cauca
-(1005000000, 9004567281, 1095); -- Trabajó ~3 años en el Hospital San José*/
+(1005000000, 8911500319, 2555), -- Trabajó ~7 años en Unicauca
+(1005000000, 9004567281, 1095); -- Trabajó ~3 años en el Hospital San José
 
 --INSERTAR DATOS IPC
 --Datos IPC 31/12/1955 - 30/4/2025

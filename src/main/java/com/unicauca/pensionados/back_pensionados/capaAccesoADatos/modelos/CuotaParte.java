@@ -31,10 +31,10 @@ public class CuotaParte {
     @JoinColumn(name = "idTrabajo")
     private Trabajo trabajo;
 
-    @Column (name = "valorCuotaParte", nullable = false)
+    @Column (name = "valorCuotaParte", nullable = false,precision = 19, scale = 2 )
     private BigDecimal valorCuotaParte;
 
-    @Column (name = "porcentajeCuotaParte", nullable = false)
+    @Column (name = "porcentajeCuotaParte", nullable = false, precision = 5, scale = 2)
     private BigDecimal porcentajeCuotaParte;
 
     @Column (name = "fechaGeneracion", nullable = true)
@@ -44,7 +44,7 @@ public class CuotaParte {
     @Column (name = "notas", nullable = false, length = 200)
     private String notas;
 
-    @Column (name = "cuotaParteTotal", nullable = false)
+    @Column (name = "cuotaParteTotal", nullable = false, precision = 19, scale = 2)
     private BigDecimal valorTotalCuotaParte;	
 
     @OneToMany(mappedBy = "cuotaParte", cascade = CascadeType.ALL)

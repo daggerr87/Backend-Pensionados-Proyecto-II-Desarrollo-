@@ -76,7 +76,7 @@ CREATE TABLE PENSIONADO (
    numeroIdPersona BIGINT NOT NULL,
    nitEntidad BIGINT NOT NULL,
    fechaInicioPension DATE,
-   valorInicialPension DOUBLE NOT NULL,
+   valorInicialPension DECIMAL (19,2) NOT NULL,
    resolucionPension  VARCHAR(200) NOT NULL,
    totalDiasTrabajo BIGINT,
    PRIMARY KEY (numeroIdPersona),
@@ -116,11 +116,11 @@ CREATE TABLE SUCESOR (
 CREATE TABLE CUOTA_PARTE (
    idCuotaParte BIGINT NOT NULL AUTO_INCREMENT,
    idTrabajo BIGINT NOT NULL,
-   valorCuotaParte DOUBLE NOT NULL,
-   porcentajeCuotaParte DOUBLE NOT NULL,
+   valorCuotaParte DECIMAL (19,2) NOT NULL,
+   porcentajeCuotaParte DECIMAL(5,2) NOT NULL,
    fechaGeneracion DATE,
    notas VARCHAR(200) NOT NULL,
-   cuotaParteTotal DOUBLE NOT NULL,
+   cuotaParteTotal DECIMAL (19,2) NOT NULL,
    PRIMARY KEY (idCuotaParte),
    FOREIGN KEY (idTrabajo) REFERENCES TRABAJO(idTrabajo)
 );
@@ -135,10 +135,10 @@ CREATE TABLE PERIODO (
    fechaInicioPeriodo DATE NOT NULL,
    fechaFinPeriodo DATE NOT NULL,
    numeroMesadas BIGINT NOT NULL,
-   valorPension DOUBLE NOT NULL,
-   cuotaParteMensual DOUBLE NOT NULL,
-   cuotaParteTotalAnio DOUBLE NOT NULL,
-   incrementoAdicionalLey476 DOUBLE,
+   valorPension DECIMAL (19,2) NOT NULL,
+   cuotaParteMensual DECIMAL (19,2) NOT NULL,
+   cuotaParteTotalAnio DECIMAL (19,2) NOT NULL,
+   incrementoAdicionalLey476 DECIMAL (19,2),
    PRIMARY KEY (idPeriodo),
    FOREIGN KEY (fechaIPC) REFERENCES IPC(fechaIPC), 
    FOREIGN KEY (idCuotaParte) REFERENCES CUOTA_PARTE(idCuotaParte)

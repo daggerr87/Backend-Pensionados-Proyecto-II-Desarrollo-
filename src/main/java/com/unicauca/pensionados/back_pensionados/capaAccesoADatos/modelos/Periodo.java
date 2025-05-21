@@ -3,6 +3,7 @@ package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 import java.math.BigDecimal;
 import java.sql.Date;
 
+import org.springdoc.core.converters.models.MonetaryAmount;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -45,16 +47,29 @@ public class Periodo {
     @Column (name = "numeroMesadas", nullable = false)
     private Long numeroMesadas;
 
-    @Column (name = "valorPension", nullable = false)
+    @Column (name = "valorPension", nullable = false, precision = 19, scale = 2)
     private BigDecimal valorPension;
 
-    @Column (name = "cuotaParteMensual", nullable = false)
+    @Column (name = "cuotaParteMensual", nullable = false, precision = 19, scale = 2)
     private BigDecimal cuotaParteMensual;
 
-    @Column (name = "cuotaParteTotalAnio", nullable = false)
+    @Column (name = "cuotaParteTotalAnio", nullable = false, precision = 19, scale = 2)
     private BigDecimal cuotaParteTotalAnio;
 
-    @Column (name = "incrementoLey476", nullable = true)
+    @Column (name = "incrementoLey476", nullable = true, precision = 19, scale = 2)
     private BigDecimal incrementoLey476;
+
+    //Declaramos atributos de tipo JavaMoney para poder realizar calculos mas precisos
+    @Transient
+    private MonetaryAmount valorPensionMoney;
+
+    @Transient
+    private MonetaryAmount cuotaParteMensualMoney;
+
+    @Transient
+    private MonetaryAmount cuotaParteTotalAnioMoney;
+
+    @Transient
+    private MonetaryAmount incrementoLey476Money;
     
 }   
