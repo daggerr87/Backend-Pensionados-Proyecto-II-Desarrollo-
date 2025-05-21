@@ -34,6 +34,7 @@ public class RegistroPensionadoPeticion {
 
     private Long nitEntidad; //Entidad de Jubilacion
     private Long diasDeServicio;
+    private String entidadJubilacion;
 
      //Lista de trabajos asociados a la entidad 
      private List<RegistroTrabajoPeticion> trabajos;

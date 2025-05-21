@@ -104,6 +104,7 @@ CREATE TABLE SUCESOR (
     numeroIdPersona BIGINT NOT NULL,
     numeroIdPensionado BIGINT NOT NULL,
     fechaInicioSucesion DATE NOT NULL,
+    porcentajePension DOUBLE NOT NULL,
     PRIMARY KEY (numeroIdPersona),
     FOREIGN KEY (numeroIdPersona) REFERENCES PERSONA(numeroIdPersona),
     FOREIGN KEY (numeroIdPensionado) REFERENCES PENSIONADO(numeroIdPersona)

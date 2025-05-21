@@ -54,6 +54,7 @@ public class SucesorServicio implements ISucesorServicio {
         sucesor.setEstadoPersona(request.getEstadoPersona());
         sucesor.setGeneroPersona(request.getGeneroPersona());
         sucesor.setFechaInicioSucesion(request.getFechaInicioSucesion());
+        sucesor.setPorcentajePension(request.getPorcentajePension());
         sucesor.setPensionado(pensionado);
         // Guardar el sucesor
         sucesorRepositorio.save(sucesor);
@@ -79,6 +80,7 @@ public class SucesorServicio implements ISucesorServicio {
             request.setGeneroPersona(sucesor.getGeneroPersona());
             request.setFechaInicioSucesion(sucesor.getFechaInicioSucesion());
             request.setPensionado(sucesor.getPensionado().getNumeroIdPersona());
+            request.setPorcentajePension(sucesor.getPorcentajePension());
             return request;
         }).toList();
     }
@@ -109,6 +111,7 @@ public class SucesorServicio implements ISucesorServicio {
         request.setGeneroPersona(sucesor.getGeneroPersona());
         request.setFechaInicioSucesion(sucesor.getFechaInicioSucesion());
         request.setPensionado(sucesor.getPensionado().getNumeroIdPersona());
+        request.setPorcentajePension(sucesor.getPorcentajePension());
 
         return request;
     }

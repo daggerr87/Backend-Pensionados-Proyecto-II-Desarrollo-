@@ -23,6 +23,10 @@ public class Sucesor extends Persona{
     @Temporal(TemporalType.DATE)
     private Date fechaInicioSucesion;
     
+    @Column (name = "porcentajePension", nullable = false)
+    private Double porcentajePension;
+
+
     @ManyToOne
     @JoinColumn(name = "numeroIdPensionado", nullable = false)
     private Pensionado pensionado;

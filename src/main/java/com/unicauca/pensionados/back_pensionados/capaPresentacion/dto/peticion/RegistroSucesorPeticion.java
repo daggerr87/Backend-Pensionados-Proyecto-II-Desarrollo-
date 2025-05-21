@@ -24,4 +24,5 @@ public class RegistroSucesorPeticion {
     //Datos de Sucesor
     Date fechaInicioSucesion;
     Long pensionado; // Pensionado asociado al sucesor
+    Double porcentajePension; // Porcentaje de la pensión que le corresponde al sucesor
 }

@@ -105,6 +105,7 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionadoExistente.setResolucionPension(request.getResolucionPension());
         pensionadoExistente.setEntidadJubilacion(entidad);
 
+
         pensionadoRepositorio.save(pensionadoExistente);
 
         Optional<Trabajo> trabajoOptional = trabajoRepositorio.findByPensionadoAndEntidad(pensionadoExistente, entidad);
@@ -131,8 +132,43 @@ public class PensionadoServicio implements IPensionadoServicio {
     }
 
     @Override
-    public List<Pensionado> listarPensionados() {
-        return pensionadoRepositorio.findAll();
+    public List<PensionadoRespuesta> listarPensionados() {
+        List<Pensionado> pensionados = pensionadoRepositorio.findAll();
+        List<PensionadoRespuesta> respuestas = new ArrayList<>();
+        for (Pensionado pensionado : pensionados) {
+            respuestas.add(PensionadoRespuesta.builder()
+                .numeroIdPersona(pensionado.getNumeroIdPersona())
+                .tipoIdPersona(pensionado.getTipoIdPersona())
+                .nombrePersona(pensionado.getNombrePersona())
+                .apellidosPersona(pensionado.getApellidosPersona())
+                .fechaNacimientoPersona(pensionado.getFechaNacimientoPersona())
+                .fechaExpedicionDocumentoIdPersona(pensionado.getFechaExpedicionDocumentoIdPersona())
+                .estadoPersona(pensionado.getEstadoPersona())
+                .generoPersona(pensionado.getGeneroPersona())
+                .fechaInicioPension(pensionado.getFechaInicioPension())
+                .valorInicialPension(pensionado.getValorInicialPension())
+                .resolucionPension(pensionado.getResolucionPension())
+                .nitEntidad(pensionado.getEntidadJubilacion().getNitEntidad())
+                .entidadJubilacion(pensionado.getEntidadJubilacion().getNombreEntidad())
+                .totalDiasTrabajo(pensionado.getTotalDiasTrabajo())
+                .diasDeServicio(pensionado.getTrabajos().stream()
+                        .filter(trabajo -> trabajo.getEntidad().getNitEntidad()
+                                .equals(pensionado.getEntidadJubilacion().getNitEntidad()))
+                        .mapToLong(Trabajo::getDiasDeServicio)
+                        .findFirst()
+                        .orElse(0L))
+                .trabajos(pensionado.getTrabajos().stream()
+                        .map(trabajo -> TrabajoRespuesta.builder()
+                                .idTrabajo(trabajo.getIdTrabajo())
+                                .diasDeServicio(trabajo.getDiasDeServicio())
+                                .nitEntidad(trabajo.getEntidad().getNitEntidad())
+                                .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                                .entidadJubilacion(trabajo.getEntidad().getNombreEntidad())
+                                .build())
+                        .toList())
+                .build());
+        }
+        return respuestas;
     }
 
 
@@ -169,7 +205,7 @@ public class PensionadoServicio implements IPensionadoServicio {
     @Override
     public List<Pensionado> buscarPensionadosPorCriterio(String query) {
         if (query == null || query.trim().isEmpty()) {
-            return listarPensionados();
+            return pensionadoRepositorio.findAll();
         }
         
         query = query.trim();
