@@ -1,7 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.money.MonetaryAmount;
@@ -16,8 +16,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,8 +39,7 @@ public class CuotaParte {
     private BigDecimal porcentajeCuotaParte;
 
     @Column (name = "fechaGeneracion", nullable = true)
-    @Temporal(TemporalType.DATE)
-    private Date fechaGeneracion;
+    private LocalDate fechaGeneracion;
 
     @Column (name = "notas", nullable = false, length = 200)
     private String notas;

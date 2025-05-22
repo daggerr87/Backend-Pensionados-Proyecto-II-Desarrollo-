@@ -1,19 +1,14 @@
 package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
-
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
-import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Persona;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.EntidadRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PensionadoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PersonaRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.TrabajoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPensionadoPeticion;
-import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.TrabajoRespuesta;
 
