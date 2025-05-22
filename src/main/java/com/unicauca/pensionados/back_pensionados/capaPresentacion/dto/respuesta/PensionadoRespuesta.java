@@ -1,10 +1,8 @@
 package com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
-
-import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,12 +19,12 @@ public class PensionadoRespuesta {
     private String tipoIdPersona;
     private String nombrePersona;
     private String apellidosPersona;
-    private Date fechaNacimientoPersona;
-    private Date fechaExpedicionDocumentoIdPersona;
+    private LocalDate fechaNacimientoPersona;
+    private LocalDate fechaExpedicionDocumentoIdPersona;
     private String estadoPersona;
     private String generoPersona;
-    private Date fechaDefuncionPersona;
-    private Date fechaInicioPension;
+    private LocalDate fechaDefuncionPersona;
+    private LocalDate fechaInicioPension;
     private BigDecimal valorInicialPension;
     private String resolucionPension;
     private String entidadJubilacion;

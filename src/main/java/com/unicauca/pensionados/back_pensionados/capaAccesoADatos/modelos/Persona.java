@@ -1,6 +1,6 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,10 +32,10 @@ public abstract class Persona {
     private String apellidosPersona;
 
     @Column (name = "fechaNacimientoPersona", nullable = false)
-    private Date fechaNacimientoPersona;
+    private LocalDate fechaNacimientoPersona;
 
     @Column(name = "fechaExpedicionDocumentoIdPersona", nullable = false)
-    private Date fechaExpedicionDocumentoIdPersona;
+    private LocalDate fechaExpedicionDocumentoIdPersona;
 
     @Column (name = "estadoPersona", nullable = false, length = 50)
     private String estadoPersona;

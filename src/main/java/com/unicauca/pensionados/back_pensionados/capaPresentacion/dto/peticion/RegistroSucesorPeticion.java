@@ -1,6 +1,6 @@
 package com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,8 +16,8 @@ public class RegistroSucesorPeticion {
     private String tipoIdPersona;
     private String nombrePersona;
     private String apellidosPersona;
-    private Date fechaNacimientoPersona;
-    private Date fechaExpedicionDocumentoIdPersona;
+    private LocalDate fechaNacimientoPersona;
+    private LocalDate fechaExpedicionDocumentoIdPersona;
     private String estadoPersona;
     private String generoPersona;
 

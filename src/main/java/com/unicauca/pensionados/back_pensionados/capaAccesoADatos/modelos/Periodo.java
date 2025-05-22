@@ -37,12 +37,10 @@ public class Periodo {
     private CuotaParte cuotaParte;
 
     @Column (name = "fechaInicioPeriodo", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date fechaInicioPeriodo;
+    private LocalDate fechaInicioPeriodo;
 
-    @Column (name = "fechaFinPerido", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date fechaFinPeriodo;
+    @Column (name = "fechaFinPeriodo", nullable = false)
+    private LocalDate fechaFinPeriodo;
 
     @Column (name = "numeroMesadas", nullable = false)
     private Long numeroMesadas;
@@ -72,4 +70,4 @@ public class Periodo {
     @Transient
     private MonetaryAmount incrementoLey476Money;
     
-}   
+}
