@@ -44,6 +44,6 @@ public abstract class Persona {
     private String generoPersona;
 
     @Column (name = "fechaDefuncionPersona", length = 50)
-    private Date fechaDefuncionPersona;
+    private LocalDate fechaDefuncionPersona;
 
 }

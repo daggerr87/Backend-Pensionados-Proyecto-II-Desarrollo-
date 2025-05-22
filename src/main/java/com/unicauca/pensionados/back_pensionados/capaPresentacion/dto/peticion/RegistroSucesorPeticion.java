@@ -22,7 +22,7 @@ public class RegistroSucesorPeticion {
     private String generoPersona;
 
     //Datos de Sucesor
-    Date fechaInicioSucesion;
+    LocalDate fechaInicioSucesion;
     Long pensionado; // Pensionado asociado al sucesor
     Double porcentajePension; // Porcentaje de la pensión que le corresponde al sucesor
 }
