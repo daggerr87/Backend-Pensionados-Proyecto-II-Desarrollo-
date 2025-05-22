@@ -40,8 +40,13 @@ public class IPCServicio implements IIPCServicio {
      */
     @Override
     public IPCRespuestaDTO buscarIPCPorAnio(Integer anio) {
+        int anioActual = Year.now().getValue();
+        if(anio>anioActual) {
+            throw new RuntimeException("No se puede consultar el IPC de años futuros");
+        }
         IPC ipc = ipcRepositorio.findById(anio).orElse(null);
         if (ipc == null) return null;
+        
         IPCRespuestaDTO dto = new IPCRespuestaDTO();
         dto.setFechaIPC(ipc.getFechaIPC());
         dto.setValorIPC(ipc.getValorIPC());
@@ -88,14 +93,17 @@ public class IPCServicio implements IIPCServicio {
             throw new RuntimeException("El campo valorIPC es obligatorio");
         }
         // Solo se puede editar el IPC del año actual, el inmediatamente anterior o de años futuros
-        if (anio < anioActual - 1) {
+        /*if (anio < anioActual - 1) {
             throw new RuntimeException("Solo se puede actualizar el IPC de un año anterior al actual en adelante (desde " + (anioActual - 1) + ")");
-        }
+        }*/
         Optional<IPC> existente = ipcRepositorio.findById(anio);
         if (existente.isEmpty()) {
             throw new RuntimeException("No existe un IPC registrado para el año especificado");
         }
         IPC ipcExistente = existente.get();
+        if(ipcExistente.getFechaIPC() != anioActual) {
+            throw new RuntimeException("No se puede actualizar el IPC de un año anterior al actual");
+        }
         ipcExistente.setValorIPC(peticion.getValorIPC());
         ipcRepositorio.save(ipcExistente);
     }
