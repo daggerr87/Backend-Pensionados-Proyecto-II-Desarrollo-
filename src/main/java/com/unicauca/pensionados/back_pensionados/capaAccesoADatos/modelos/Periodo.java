@@ -1,8 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,8 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,12 +32,10 @@ public class Periodo {
     private CuotaParte cuotaParte;
 
     @Column (name = "fechaInicioPeriodo", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date fechaInicioPeriodo;
+    private LocalDate fechaInicioPeriodo;
 
-    @Column (name = "fechaFinPerido", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date fechaFinPeriodo;
+    @Column (name = "fechaFinPeriodo", nullable = false)
+    private LocalDate fechaFinPeriodo;
 
     @Column (name = "numeroMesadas", nullable = false)
     private Long numeroMesadas;
@@ -54,7 +49,7 @@ public class Periodo {
     @Column (name = "cuotaParteTotalAnio", nullable = false)
     private BigDecimal cuotaParteTotalAnio;
 
-    @Column (name = "incrementoLey476", nullable = true)
+    @Column (name = "incrementoAdicionalLey476", nullable = true)
     private BigDecimal incrementoLey476;
     
-}   
+}

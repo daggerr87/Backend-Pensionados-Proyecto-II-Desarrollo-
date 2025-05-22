@@ -1,7 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -20,14 +20,14 @@ public class RegistroPensionadoPeticion {
     private String tipoIdPersona;
     private String nombrePersona;
     private String apellidosPersona;
-    private Date fechaNacimientoPersona;
-    private Date fechaExpedicionDocumentoIdPersona;
+    private LocalDate fechaNacimientoPersona;
+    private LocalDate fechaExpedicionDocumentoIdPersona;
     private String estadoPersona;
     private String generoPersona;
-    private Date fechaDefuncionPersona;
+    private LocalDate fechaDefuncionPersona;
 
     //Datos de Pensionado
-    private Date fechaInicioPension;
+    private LocalDate fechaInicioPension;
     private BigDecimal valorInicialPension;
     private String resolucionPension;
     private Long totalDiasTrabajo;

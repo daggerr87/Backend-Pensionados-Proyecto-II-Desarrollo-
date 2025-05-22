@@ -128,7 +128,7 @@ CREATE TABLE CUOTA_PARTE (
 /* Table: PERIODO                                               */
 /*==============================================================*/
 CREATE TABLE PERIODO (
-   idPeriodo BIGINT NOT NULL,
+   idPeriodo BIGINT NOT NULL AUTO_INCREMENT,
    fechaIPC INT NOT NULL,
    idCuotaParte BIGINT NOT NULL,
    fechaInicioPeriodo DATE NOT NULL,

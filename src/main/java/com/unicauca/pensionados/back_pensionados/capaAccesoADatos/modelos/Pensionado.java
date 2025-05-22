@@ -1,7 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -12,8 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -24,9 +22,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @PrimaryKeyJoinColumn (name = "numeroIdPersona") //tiene la misma PK que Persona
 @Setter @Getter
 public class Pensionado extends Persona{
-    @Column (name = "fechaInicioPension", nullable = true)
-    @Temporal(TemporalType.DATE)
-    private Date fechaInicioPension;
+    @Column (name = "fechaInicioPension", nullable = false)
+    private LocalDate fechaInicioPension;
     
     @Column (name = "valorInicialPension", nullable = false)
     private BigDecimal valorInicialPension;
