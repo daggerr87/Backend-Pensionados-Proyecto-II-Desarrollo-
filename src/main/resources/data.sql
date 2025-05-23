@@ -1,6 +1,6 @@
 --Insertar Usuario por Defecto
-INSERT INTO USUARIO (id, apellido, email, nombre, password, username)
-VALUES (1, 'Unicauca', 'pensiones@unicauca.edu.co', 'pensiones', '$2a$10$R6MoChK7sDHuSTrON3BC5.jENlU5fn/tMRP0v7frkmiCMfDafgKJK', 'pensiones@unicauca.edu.co');
+INSERT INTO USUARIO (id, apellido, nombre, password, username)
+VALUES (1, 'Unicauca', 'pensiones', '$2a$10$R6MoChK7sDHuSTrON3BC5.jENlU5fn/tMRP0v7frkmiCMfDafgKJK', 'pensiones@unicauca.edu.co');
 
 
 INSERT INTO ENTIDAD (nitEntidad, nombreEntidad, direccionEntidad, emailEntidad, telefonoEntidad, estadoEntidad)

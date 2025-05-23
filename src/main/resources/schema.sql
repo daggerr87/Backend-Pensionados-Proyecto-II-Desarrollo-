@@ -22,10 +22,10 @@ SET FOREIGN_KEY_CHECKS=1;
 /* Table: USUARIO                                               */
 /*==============================================================*/
 CREATE TABLE USUARIO (
-   id BIGINT NOT NULL,
+   id BIGINT NOT NULL AUTO_INCREMENT,
    nombre VARCHAR(100) NOT NULL,
    apellido VARCHAR(100) NOT NULL,
-   email VARCHAR(100) NOT NULL,
+   /*email VARCHAR(100) NOT NULL,*/
    username VARCHAR(100) NOT NULL,
    password VARCHAR(200) NOT NULL,
    PRIMARY KEY (id)

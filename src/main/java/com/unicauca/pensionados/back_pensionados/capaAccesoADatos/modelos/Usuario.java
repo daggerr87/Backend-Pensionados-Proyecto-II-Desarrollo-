@@ -35,7 +35,7 @@ public class Usuario implements UserDetails{
     @Column(nullable = false)
     String username;
     String password;
-    String email;
+    //String email;
     String nombre;
     String apellido;
 
