@@ -65,6 +65,10 @@ public class IPCServicio implements IIPCServicio {
         if (peticion.getFechaIPC() == null || peticion.getValorIPC() == null) {
             throw new RuntimeException("Los campos fechaIPC y valorIPC son obligatorios");
         }
+
+        if(peticion.getFechaIPC() != anioActual){
+            throw new RuntimeException("El año del IPC a registrar debe ser el año actual");
+        } 
         // Validar que el IPC a registrar es el siguiente al último registrado
         List<IPC> ipcList = ipcRepositorio.findAll();
         if (!ipcList.isEmpty()) {
