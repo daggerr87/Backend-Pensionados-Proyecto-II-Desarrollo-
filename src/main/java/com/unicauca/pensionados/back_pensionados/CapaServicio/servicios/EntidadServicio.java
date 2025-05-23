@@ -322,6 +322,7 @@ public class EntidadServicio implements IEntidadServicio {
                     .diasDeServicio(trabajo.getDiasDeServicio())
                     .nitEntidad(trabajo.getEntidad().getNitEntidad())
                     .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                    .entidadJubilacion(trabajo.getEntidad().getNombreEntidad())
                     .build())
                 .toList();
                 
