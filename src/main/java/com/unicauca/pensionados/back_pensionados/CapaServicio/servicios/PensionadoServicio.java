@@ -102,20 +102,20 @@ public class PensionadoServicio implements IPensionadoServicio {
 
 
         pensionadoRepositorio.save(pensionadoExistente);
-
+        
         Optional<Trabajo> trabajoOptional = trabajoRepositorio.findByPensionadoAndEntidad(pensionadoExistente, entidad);
-
+        
         Trabajo trabajo;
         if (trabajoOptional.isPresent()) {
             trabajo = trabajoOptional.get();
         } else {
+            
             trabajo = new Trabajo();
             trabajo.setPensionado(pensionadoExistente);
             trabajo.setEntidad(entidad);
         }
 
         trabajo.setDiasDeServicio(request.getDiasDeServicio());
-
         trabajoRepositorio.save(trabajo);
 
         Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionadoExistente)
