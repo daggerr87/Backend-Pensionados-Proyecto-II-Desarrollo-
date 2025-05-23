@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface PeriodoRepositorio extends JpaRepository<Periodo, Long> {
     @Query("SELECT p FROM Periodo p WHERE YEAR(p.fechaInicioPeriodo) = :anio")
     Optional<Periodo> findByAnio(int anio);
+
+    void deleteByCuotaParte_IdCuotaParte(Long idCuotaParte);
 }

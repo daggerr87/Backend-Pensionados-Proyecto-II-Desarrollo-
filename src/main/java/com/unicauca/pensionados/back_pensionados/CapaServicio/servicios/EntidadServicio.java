@@ -3,11 +3,14 @@ package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.CuotaParte;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.CuotaParteRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.EntidadRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PensionadoRepositorio;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PeriodoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.TrabajoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
@@ -33,6 +36,12 @@ public class EntidadServicio implements IEntidadServicio {
     private PensionadoRepositorio pensionadoRepositorio;
     @Autowired
     private TrabajoRepositorio trabajoRepositorio;
+    @Autowired
+    private CuotaParteServicio cuotaParteServicio;
+    @Autowired
+    private CuotaParteRepositorio cuotaParteRepositorio;
+    @Autowired
+    private PeriodoRepositorio periodoRepositorio;
 
     /**
      * Registra una nueva entidad en la base de datos junto con sus pensionados y trabajos asociados.
@@ -78,7 +87,9 @@ public class EntidadServicio implements IEntidadServicio {
                 trabajo.setEntidad(entidad);
                 trabajo.setPensionado(pensionado);
                 trabajoRepositorio.save(trabajo);
+                cuotaParteServicio.registrarCuotaParte(trabajo);
                 entidad.getTrabajos().add(trabajo);
+                
             }
         }
     }
@@ -112,6 +123,10 @@ public class EntidadServicio implements IEntidadServicio {
         if (entidad.getTrabajos() != null) {
             List<Trabajo> trabajosActuales = trabajoRepositorio.findByEntidadNitEntidad(nid);
             for (Trabajo trabajo : trabajosActuales) {
+                Optional<CuotaParte> cuotaParteAnterior = cuotaParteRepositorio.findByTrabajoIdTrabajo(trabajo.getIdTrabajo());
+                CuotaParte aux = cuotaParteAnterior.get();
+                periodoRepositorio.deleteByCuotaParte_IdCuotaParte(aux.getIdCuotaParte());
+                cuotaParteAnterior.ifPresent(cuotaParteRepositorio::delete);
                 trabajoRepositorio.delete(trabajo);
             }
             entidadExistente.getTrabajos().clear();
@@ -126,6 +141,7 @@ public class EntidadServicio implements IEntidadServicio {
                 nuevoTrabajo.setEntidad(entidadExistente);
                 nuevoTrabajo.setPensionado(pensionado);
                 trabajoRepositorio.save(nuevoTrabajo);
+                cuotaParteServicio.registrarCuotaParte(nuevoTrabajo);
                 entidadExistente.getTrabajos().add(nuevoTrabajo);
             }
         }
@@ -189,6 +205,7 @@ public class EntidadServicio implements IEntidadServicio {
                     .sum();
             pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
             pensionadoRepositorio.save(pensionado);
+            cuotaParteServicio.recalcularCuotasPartesPorPensionado(pensionado);
         }
 
         // Eliminar los trabajos que no están en la lista actualizada
@@ -322,7 +339,6 @@ public class EntidadServicio implements IEntidadServicio {
                     .diasDeServicio(trabajo.getDiasDeServicio())
                     .nitEntidad(trabajo.getEntidad().getNitEntidad())
                     .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
-                    .entidadJubilacion(trabajo.getEntidad().getNombreEntidad())
                     .build())
                 .toList();
                 

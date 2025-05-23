@@ -1,14 +1,20 @@
 package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
+
+
 import org.springframework.stereotype.Service;
 
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.CuotaParte;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
+
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.CuotaParteRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.EntidadRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PensionadoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PersonaRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.TrabajoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPensionadoPeticion;
+
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.TrabajoRespuesta;
 
@@ -18,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
+
 @Service
 public class PensionadoServicio implements IPensionadoServicio {
 
@@ -25,15 +33,21 @@ public class PensionadoServicio implements IPensionadoServicio {
     private final PensionadoRepositorio pensionadoRepositorio;
     private final EntidadRepositorio entidadRepositorio;
     private final TrabajoRepositorio trabajoRepositorio;
+    private final CuotaParteServicio cuotaParteServicio;
+    private final CuotaParteRepositorio cuotaParteRepositorio;
 
     public PensionadoServicio(PersonaRepositorio personaRepositorio,
                                PensionadoRepositorio pensionadoRepositorio,
                                EntidadRepositorio entidadRepositorio,
-                               TrabajoRepositorio trabajoRepositorio) {
+                               TrabajoRepositorio trabajoRepositorio,
+                               CuotaParteServicio cuotaParteServicio, 
+                               CuotaParteRepositorio cuotaParteRepositorio) {
         this.personaRepositorio = personaRepositorio;
         this.pensionadoRepositorio = pensionadoRepositorio;
         this.entidadRepositorio = entidadRepositorio;
         this.trabajoRepositorio = trabajoRepositorio;
+        this.cuotaParteServicio = cuotaParteServicio;
+        this.cuotaParteRepositorio = cuotaParteRepositorio;
     }
     @Transactional
     @Override
@@ -51,25 +65,45 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionado.setTipoIdPersona(request.getTipoIdPersona());
         pensionado.setNombrePersona(request.getNombrePersona());
         pensionado.setApellidosPersona(request.getApellidosPersona());
-        pensionado.setFechaNacimientoPersona(request.getFechaNacimientoPersona());
-        pensionado.setFechaExpedicionDocumentoIdPersona(request.getFechaExpedicionDocumentoIdPersona());
+        pensionado.setFechaNacimientoPersona(request.getFechaNacimientoPersona().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+        pensionado.setFechaExpedicionDocumentoIdPersona(
+            request.getFechaExpedicionDocumentoIdPersona() != null
+                ? request.getFechaExpedicionDocumentoIdPersona().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                : null
+        );
         pensionado.setEstadoPersona(request.getEstadoPersona());
         pensionado.setGeneroPersona(request.getGeneroPersona());
         pensionado.setFechaInicioPension(request.getFechaInicioPension());
         pensionado.setValorInicialPension(request.getValorInicialPension());
         pensionado.setResolucionPension(request.getResolucionPension());
         pensionado.setEntidadJubilacion(entidad);
+        pensionado.setTotalDiasTrabajo(request.getDiasDeServicio());
 
         Trabajo trabajo = new Trabajo();
         trabajo.setDiasDeServicio(request.getDiasDeServicio());
         trabajo.setEntidad(entidad); 
         trabajo.setPensionado(pensionado); 
 
+    
         pensionado.setTotalDiasTrabajo(request.getDiasDeServicio());
-
         pensionadoRepositorio.save(pensionado);
-
         trabajoRepositorio.save(trabajo);
+        cuotaParteServicio.registrarCuotaParte(trabajo);
+        /*//Generamos automaticamente la cuota parte que va a estar relacionada a un trabajo
+
+        CuotaParte cuotaParte = new CuotaParte();
+        MonetaryAmount valorInicialPension = Money.of(request.getValorInicialPension(), Monetary.getCurrency("COP"));
+        BigDecimal porcentajeCuotaParte = BigDecimal.valueOf(request.getDiasDeServicio()/pensionado.getTotalDiasTrabajo());
+        MonetaryAmount valorCuotaParteMoney=Money.of(0, Monetary.getCurrency("COP"));
+        valorCuotaParteMoney = valorInicialPension.multiply(porcentajeCuotaParte);
+
+        cuotaParte.setTrabajo(trabajo);
+        cuotaParte.setValorCuotaParte(valorCuotaParteMoney.getNumber().numberValue(BigDecimal.class));
+        cuotaParte.setPorcentajeCuotaParte(porcentajeCuotaParte);
+        cuotaParte.setFechaGeneracion(LocalDate.now());
+        cuotaParte.setNotas("Si funiono la parte de registro de cuota Parte");
+
+        cuotaParteRepositorio.save(cuotaParte);*/
     }
 
     /**
@@ -98,24 +132,29 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionadoExistente.setFechaInicioPension(request.getFechaInicioPension());
         pensionadoExistente.setValorInicialPension(request.getValorInicialPension());
         pensionadoExistente.setResolucionPension(request.getResolucionPension());
+        if(pensionadoExistente.getEntidadJubilacion().getNitEntidad() != request.getEntidadJubilacion()){
+            Optional<Entidad> entidadAnterior = entidadRepositorio.findById(pensionadoExistente.getEntidadJubilacion().getNitEntidad());
+            Optional<Trabajo> trabajoAnterior = trabajoRepositorio.findByPensionadoAndEntidad(pensionadoExistente, entidadAnterior);
+            Trabajo trabajoExistente = trabajoAnterior.get();
+            Optional<CuotaParte> cuotaParteAnterior = cuotaParteRepositorio.findByTrabajoIdTrabajo(trabajoExistente.getIdTrabajo());
+            cuotaParteAnterior.ifPresent(cuotaParteRepositorio::delete);
+            trabajoAnterior.ifPresent(trabajoRepositorio::delete);
+        }
         pensionadoExistente.setEntidadJubilacion(entidad);
-
-
         pensionadoRepositorio.save(pensionadoExistente);
-        
         Optional<Trabajo> trabajoOptional = trabajoRepositorio.findByPensionadoAndEntidad(pensionadoExistente, entidad);
-        
         Trabajo trabajo;
         if (trabajoOptional.isPresent()) {
             trabajo = trabajoOptional.get();
         } else {
-            
             trabajo = new Trabajo();
             trabajo.setPensionado(pensionadoExistente);
             trabajo.setEntidad(entidad);
         }
 
         trabajo.setDiasDeServicio(request.getDiasDeServicio());
+        trabajo.setEntidad(entidad);
+
         trabajoRepositorio.save(trabajo);
 
         Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionadoExistente)
@@ -124,6 +163,7 @@ public class PensionadoServicio implements IPensionadoServicio {
                 .sum();
         pensionadoExistente.setTotalDiasTrabajo(totalDiasTrabajo);
         pensionadoRepositorio.save(pensionadoExistente);
+        cuotaParteServicio.registrarCuotaParte(trabajo);
     }
 
     @Override

@@ -1,14 +1,12 @@
 package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
 
-import java.util.List;
+import java.time.LocalDate;
 
-import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistrarPeriodoPeticion;
-import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PeriodoRespuesta;
+
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.CuotaParte;
+
 
 public interface IPeriodoServicio {
-    PeriodoRespuesta consultarPeriodoPorAnio(int anio);
-    void editarPeriodo(Long idPeriodo ,RegistrarPeriodoPeticion peticion); 
-    List<PeriodoRespuesta> listarPeriodos();   
-    void registrarPeriodo(RegistrarPeriodoPeticion peticion);
-    void eliminarPeriodo(Long idPeriodo);
+
+    void generarYCalcularPeriodos(LocalDate fechaInicioPension, CuotaParte cuotaParte);
 }
