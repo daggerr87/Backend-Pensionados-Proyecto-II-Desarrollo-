@@ -1,7 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.sql.Date;
 import java.time.LocalDate;
 
 import org.springdoc.core.converters.models.MonetaryAmount;
@@ -35,10 +35,10 @@ public class Periodo {
     @JoinColumn(name = "idCuotaParte")
     private CuotaParte cuotaParte;
 
-    @Column (name = "fechaInicioPeriodo", nullable = false)
+    @Column(name = "fechaInicioPeriodo", nullable = false)
     private LocalDate fechaInicioPeriodo;
 
-    @Column (name = "fechaFinPeriodo", nullable = false)
+    @Column(name = "fechaFinPeriodo", nullable = false)
     private LocalDate fechaFinPeriodo;
 
     @Column (name = "numeroMesadas", nullable = false)
@@ -53,7 +53,7 @@ public class Periodo {
     @Column (name = "cuotaParteTotalAnio", nullable = false, precision = 19, scale = 2)
     private BigDecimal cuotaParteTotalAnio;
 
-    @Column (name = "incrementoAdicionalLey476", nullable = true, precision = 19, scale = 2)
+    @Column (name = "incrementoLey476", nullable = true, precision = 19, scale = 2)
     private BigDecimal incrementoLey476;
 
     //Declaramos atributos de tipo JavaMoney para poder realizar calculos mas precisos
@@ -69,4 +69,4 @@ public class Periodo {
     @Transient
     private MonetaryAmount incrementoLey476Money;
     
-}
+}   

@@ -46,9 +46,9 @@ public class PensionadoControlador {
     }
 
     @PostMapping("/actualizar/{id}")
-    public ResponseEntity<?> actualizarPensionado(@RequestBody RegistroPensionadoPeticion peticion) {
+    public ResponseEntity<?> actualizarPensionado(@PathVariable Long id, @RequestBody RegistroPensionadoPeticion peticion) {
         try{
-            pensionadoServicio.actualizarPensionado(peticion.getNumeroIdPersona(), peticion);
+            pensionadoServicio.actualizarPensionado(id, peticion);
             return ResponseEntity.ok("Pensionado actualizado exitosamente");
         } catch (RuntimeException ex) {
             

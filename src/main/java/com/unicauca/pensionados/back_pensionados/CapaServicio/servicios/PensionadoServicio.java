@@ -19,7 +19,7 @@ import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.TrabajoRespuesta;
 
 import jakarta.transaction.Transactional;
-
+//import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -128,37 +128,45 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionadoExistente.setFechaInicioPension(request.getFechaInicioPension());
         pensionadoExistente.setValorInicialPension(request.getValorInicialPension());
         pensionadoExistente.setResolucionPension(request.getResolucionPension());
+
+        // Comparar correctamente los NIT (ambos son Long)
         if (!pensionadoExistente.getEntidadJubilacion().getNitEntidad().equals(request.getNitEntidad())) {
+            // Eliminar trabajo y cuota parte anteriores si cambia la entidad de jubilación
             Optional<Entidad> entidadAnterior = entidadRepositorio.findById(pensionadoExistente.getEntidadJubilacion().getNitEntidad());
-            Optional<Trabajo> trabajoAnterior = trabajoRepositorio.findByPensionadoAndEntidad(pensionadoExistente, entidadAnterior);
-            Trabajo trabajoExistente = trabajoAnterior.get();
-            Optional<CuotaParte> cuotaParteAnterior = cuotaParteRepositorio.findByTrabajoIdTrabajo(trabajoExistente.getIdTrabajo());
-            cuotaParteAnterior.ifPresent(cuotaParteRepositorio::delete);
-            trabajoAnterior.ifPresent(trabajoRepositorio::delete);
+            entidadAnterior.ifPresent(entAnt -> {
+                Optional<Trabajo> trabajoAnterior = trabajoRepositorio.findByPensionadoAndEntidad(pensionadoExistente, entAnt);
+                trabajoAnterior.ifPresent(trabajoExistente -> {
+                    Optional<CuotaParte> cuotaParteAnterior = cuotaParteRepositorio.findByTrabajoIdTrabajo(trabajoExistente.getIdTrabajo());
+                    cuotaParteAnterior.ifPresent(cuotaParteRepositorio::delete);
+                    trabajoRepositorio.delete(trabajoExistente);
+                });
+            });
         }
+
         pensionadoExistente.setEntidadJubilacion(entidad);
         pensionadoRepositorio.save(pensionadoExistente);
+
+        // Buscar o crear el trabajo actual
         Optional<Trabajo> trabajoOptional = trabajoRepositorio.findByPensionadoAndEntidad(pensionadoExistente, entidad);
-        Trabajo trabajo;
-        if (trabajoOptional.isPresent()) {
-            trabajo = trabajoOptional.get();
-        } else {
-            trabajo = new Trabajo();
-            trabajo.setPensionado(pensionadoExistente);
-            trabajo.setEntidad(entidad);
-        }
+        Trabajo trabajo = trabajoOptional.orElseGet(() -> {
+            Trabajo nuevoTrabajo = new Trabajo();
+            nuevoTrabajo.setPensionado(pensionadoExistente);
+            nuevoTrabajo.setEntidad(entidad);
+            return nuevoTrabajo;
+        });
 
         trabajo.setDiasDeServicio(request.getDiasDeServicio());
         trabajo.setEntidad(entidad);
-
         trabajoRepositorio.save(trabajo);
 
+        // Actualizar total de días de trabajo
         Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionadoExistente)
                 .stream()
                 .mapToLong(Trabajo::getDiasDeServicio)
                 .sum();
         pensionadoExistente.setTotalDiasTrabajo(totalDiasTrabajo);
         pensionadoRepositorio.save(pensionadoExistente);
+
         cuotaParteServicio.registrarCuotaParte(trabajo);
     }
 

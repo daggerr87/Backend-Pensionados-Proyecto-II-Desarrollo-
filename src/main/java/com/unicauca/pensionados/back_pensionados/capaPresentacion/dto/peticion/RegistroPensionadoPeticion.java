@@ -3,7 +3,7 @@ package com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion;
 import java.math.BigDecimal;
 //import java.time.LocalDate;
 import java.util.List;
-import java.util.Date;
+import java.sql.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

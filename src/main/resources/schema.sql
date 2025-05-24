@@ -120,7 +120,7 @@ CREATE TABLE CUOTA_PARTE (
    porcentajeCuotaParte DECIMAL(5,2) NOT NULL,
    fechaGeneracion DATE,
    notas VARCHAR(200) NOT NULL,
-   cuotaParteTotal DECIMAL (19,2) NOT NULL,
+   cuotaParteTotal DECIMAL (19,2),
    PRIMARY KEY (idCuotaParte),
    FOREIGN KEY (idTrabajo) REFERENCES TRABAJO(idTrabajo)
 );
@@ -138,7 +138,7 @@ CREATE TABLE PERIODO (
    valorPension DECIMAL (19,2) NOT NULL,
    cuotaParteMensual DECIMAL (19,2) NOT NULL,
    cuotaParteTotalAnio DECIMAL (19,2) NOT NULL,
-   incrementoAdicionalLey476 DECIMAL (19,2),
+   incrementoLey476 DECIMAL (19,2),
    PRIMARY KEY (idPeriodo),
    FOREIGN KEY (fechaIPC) REFERENCES IPC(fechaIPC), 
    FOREIGN KEY (idCuotaParte) REFERENCES CUOTA_PARTE(idCuotaParte)

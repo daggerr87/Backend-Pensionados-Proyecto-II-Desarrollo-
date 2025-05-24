@@ -87,12 +87,13 @@ public class EntidadServicio implements IEntidadServicio {
                 trabajo.setEntidad(entidad);
                 trabajo.setPensionado(pensionado);
                 trabajoRepositorio.save(trabajo);
-               Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado).stream()
-                .mapToLong(Trabajo::getDiasDeServicio)
-                .sum();
-
+                Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado)
+                    .stream()
+                    .mapToLong(Trabajo::getDiasDeServicio)
+                    .sum();
                 pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
                 pensionadoRepositorio.save(pensionado);
+
                 cuotaParteServicio.registrarCuotaParte(trabajo);
                 entidad.getTrabajos().add(trabajo);
                 
@@ -165,8 +166,7 @@ public class EntidadServicio implements IEntidadServicio {
      */
     @Transactional
     @Override
-    public void editarPensionadosDeEntidad(Long nitEntidad, 
-    List<RegistroTrabajoPeticion> trabajosActualizados) {
+    public void editarPensionadosDeEntidad(Long nitEntidad, List<RegistroTrabajoPeticion> trabajosActualizados) {
         // Buscar la entidad por su NIT
         Entidad entidad = entidadRepository.findById(nitEntidad)
                 .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nitEntidad));
