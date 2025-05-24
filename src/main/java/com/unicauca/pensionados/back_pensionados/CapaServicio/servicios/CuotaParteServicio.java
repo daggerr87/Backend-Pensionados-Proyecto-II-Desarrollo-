@@ -41,8 +41,57 @@ public class CuotaParteServicio implements ICuotaParteServicio {
         this.periodoServicio = periodoServicio;
         this.periodoRepositorio = periodoRepositorio;
     }
-
     @Transactional
+    @Override
+    public void registrarCuotaParte(Trabajo trabajo) {
+        if (trabajo == null) {
+            throw new IllegalArgumentException("El trabajo no puede ser null");
+        }
+        Pensionado pensionado = trabajo.getPensionado();
+        if (pensionado == null) {
+            throw new IllegalArgumentException("El trabajo no tiene pensionado asociado");
+        }
+        if (pensionado.getTotalDiasTrabajo() == null || pensionado.getTotalDiasTrabajo() == 0) {
+            throw new IllegalArgumentException("El total de días de trabajo del pensionado es 0 o null");
+        }
+        if (pensionado.getValorInicialPension() == null) {
+            throw new IllegalArgumentException("El valor inicial de pensión es null");
+        }
+        if (pensionado.getFechaInicioPension() == null) {
+            throw new IllegalArgumentException("La fecha de inicio de pensión es null");
+        }
+
+        BigDecimal diasDeServicio = BigDecimal.valueOf(trabajo.getDiasDeServicio());
+        BigDecimal totalDiasTrabajo = BigDecimal.valueOf(pensionado.getTotalDiasTrabajo());
+        BigDecimal porcentajeCuotaParte = diasDeServicio.divide(totalDiasTrabajo, 4, RoundingMode.HALF_UP);
+        MonetaryAmount valorInicialPension = Money.of(pensionado.getValorInicialPension(), Monetary.getCurrency("COP"));
+        MonetaryAmount valorCuotaParteMoney = valorInicialPension.multiply(porcentajeCuotaParte);
+
+        CuotaParte cuotaParte = new CuotaParte();
+        cuotaParte.setTrabajo(trabajo);
+        cuotaParte.setValorCuotaParte(valorCuotaParteMoney.getNumber().numberValue(BigDecimal.class));
+        cuotaParte.setPorcentajeCuotaParte(porcentajeCuotaParte);
+        cuotaParte.setFechaGeneracion(java.util.Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        cuotaParte.setNotas(porcentajeCuotaParte.toString());
+        cuotaParte.setValorTotalCuotaParte(cuotaParte.getValorCuotaParte());
+        cuotaParteRepositorio.save(cuotaParte);
+
+        // Elimina periodos anteriores si existen (opcional)
+        periodoRepositorio.deleteByCuotaParte_IdCuotaParte(cuotaParte.getIdCuotaParte());
+
+        // Conversión segura de fecha
+        Date fechaInicioPensionDate = pensionado.getFechaInicioPension();
+        LocalDate fechaInicioPension;
+        if (fechaInicioPensionDate instanceof java.sql.Date) {
+            fechaInicioPension = ((java.sql.Date) fechaInicioPensionDate).toLocalDate();
+        } else {
+            fechaInicioPension = fechaInicioPensionDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        }
+        periodoServicio.generarYCalcularPeriodos(fechaInicioPension, cuotaParte);
+    }
+    /*@Transactional
     @Override
     public void registrarCuotaParte(Trabajo trabajo){
 
@@ -59,12 +108,15 @@ public class CuotaParteServicio implements ICuotaParteServicio {
             MonetaryAmount valorCuotaParteMoney = valorInicialPension.multiply(porcentajeCuotaParte);cuotaParte.setTrabajo(trabajo);
             cuotaParte.setValorCuotaParte(valorCuotaParteMoney.getNumber().numberValue(BigDecimal.class));
             cuotaParte.setPorcentajeCuotaParte(porcentajeCuotaParte);
-            cuotaParte.setFechaGeneracion(LocalDate.now());
+            cuotaParte.setFechaGeneracion(java.util.Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
             cuotaParte.setNotas(porcentajeCuotaParte.toString());
+            cuotaParte.setValorTotalCuotaParte(cuotaParte.getValorCuotaParte());
             cuotaParteRepositorio.save(cuotaParte);
             periodoRepositorio.deleteByCuotaParte_IdCuotaParte(cuotaParte.getIdCuotaParte());
             Date fechaInicioPensionDate = trabajo.getPensionado().getFechaInicioPension();
-            LocalDate fechaInicioPension = ((java.sql.Date) fechaInicioPensionDate).toLocalDate();
+            LocalDate fechaInicioPension = fechaInicioPensionDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
             periodoServicio.generarYCalcularPeriodos(fechaInicioPension, cuotaParte);
             /* 
             MonetaryAmount valorInicialPension = Money.of(trabajo.getPensionado().getValorInicialPension(), Monetary.getCurrency("COP"));
@@ -80,14 +132,14 @@ public class CuotaParteServicio implements ICuotaParteServicio {
             cuotaParte.setTrabajo(trabajo);
             Date fechaInicioPensionDate = trabajo.getPensionado().getFechaInicioPension();
             LocalDate fechaInicioPension = ((java.sql.Date) fechaInicioPensionDate).toLocalDate();
-            periodoServicio.generarYCalcularPeriodos(fechaInicioPension, cuotaParte);*/
+            periodoServicio.generarYCalcularPeriodos(fechaInicioPension, cuotaParte);
             
-        }
+        }*/
         
-    }
+    
 
     public CuotaParte buscarPorTrabajoId(Long idTrabajo) {
-        return cuotaParteRepositorio.findById(idTrabajo)
+        return cuotaParteRepositorio.findByTrabajoIdTrabajo(idTrabajo)
             .orElseThrow(() -> new RuntimeException("CuotaParte no encontrada para trabajo id: " + idTrabajo));
     }
 
@@ -101,7 +153,13 @@ public class CuotaParteServicio implements ICuotaParteServicio {
     @Override
     public void actualizarCuotaParte(Trabajo trabajo) {
         if (trabajo != null) {
-            CuotaParte cuotaParte = buscarPorTrabajoId(trabajo.getIdTrabajo());
+             CuotaParte cuotaParte = cuotaParteRepositorio.findByTrabajoIdTrabajo(trabajo.getIdTrabajo())
+            .orElseGet(() -> {
+
+                CuotaParte nueva = new CuotaParte();
+                nueva.setTrabajo(trabajo);
+                return nueva;
+            });
             BigDecimal diasDeServicio = BigDecimal.valueOf(trabajo.getDiasDeServicio());
             BigDecimal totalDiasTrabajo = BigDecimal.valueOf(trabajo.getPensionado().getTotalDiasTrabajo());
     
@@ -116,11 +174,12 @@ public class CuotaParteServicio implements ICuotaParteServicio {
             cuotaParte.setTrabajo(trabajo);
             cuotaParte.setValorCuotaParte(valorCuotaParteMoney.getNumber().numberValue(BigDecimal.class));
             cuotaParte.setPorcentajeCuotaParte(porcentajeCuotaParte);
-            cuotaParte.setFechaGeneracion(LocalDate.now());
+            cuotaParte.setFechaGeneracion(java.util.Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
             cuotaParte.setNotas(porcentajeCuotaParte.toString());
+            cuotaParte.setValorTotalCuotaParte(cuotaParte.getValorCuotaParte());
             cuotaParteRepositorio.save(cuotaParte);
             periodoRepositorio.deleteByCuotaParte_IdCuotaParte(cuotaParte.getIdCuotaParte());
-            Date fechaInicioPensionDate = trabajo.getPensionado().getFechaInicioPension();
+           Date fechaInicioPensionDate = trabajo.getPensionado().getFechaInicioPension();
             LocalDate fechaInicioPension = ((java.sql.Date) fechaInicioPensionDate).toLocalDate();
             periodoServicio.generarYCalcularPeriodos(fechaInicioPension, cuotaParte);
         }

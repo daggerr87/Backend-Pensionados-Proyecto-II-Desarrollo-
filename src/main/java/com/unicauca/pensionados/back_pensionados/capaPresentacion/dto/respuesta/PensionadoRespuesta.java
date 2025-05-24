@@ -1,7 +1,6 @@
 package com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -20,11 +19,11 @@ public class PensionadoRespuesta {
     private String tipoIdPersona;
     private String nombrePersona;
     private String apellidosPersona;
-    private LocalDate fechaNacimientoPersona;
-    private LocalDate fechaExpedicionDocumentoIdPersona;
+    private Date fechaNacimientoPersona;
+    private Date fechaExpedicionDocumentoIdPersona;
     private String estadoPersona;
     private String generoPersona;
-    private LocalDate fechaDefuncionPersona;
+    private Date fechaDefuncionPersona;
     private Date fechaInicioPension;
     private BigDecimal valorInicialPension;
     private String resolucionPension;

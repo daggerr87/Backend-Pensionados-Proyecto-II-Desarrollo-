@@ -1,6 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +21,8 @@ import lombok.Setter;
 
 public class Sucesor extends Persona{
     @Column (name = "fechaInicioSucesion", nullable = false)
-    private LocalDate fechaInicioSucesion;
+    @Temporal(TemporalType.DATE)
+    private Date fechaInicioSucesion;
     
     @Column (name = "porcentajePension", nullable = false)
     private Double porcentajePension;

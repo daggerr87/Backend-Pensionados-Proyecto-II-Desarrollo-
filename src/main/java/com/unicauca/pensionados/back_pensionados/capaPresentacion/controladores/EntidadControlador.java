@@ -115,7 +115,7 @@ public class EntidadControlador {
         }
     }
 
-    @PutMapping("/editarPensionados/{nitEntidad}")
+    /*@PutMapping("/editarPensionados/{nitEntidad}")
     public ResponseEntity<?> editarPensionadosDeEntidad(@PathVariable Long nitEntidad, @RequestBody List<RegistroTrabajoPeticion> trabajosActualizados) {
         try {
             entidadService.editarPensionadosDeEntidad(nitEntidad, trabajosActualizados);
@@ -125,6 +125,20 @@ public class EntidadControlador {
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor: " + ex.getMessage());
         }
-    }
+    }*/
+
+    @PutMapping("/editarPensionados/{nitEntidad}")
+        public ResponseEntity<?> editarPensionadosDeEntidad(@PathVariable Long nitEntidad, @RequestBody List<RegistroTrabajoPeticion> trabajosActualizados) {
+            try {
+                entidadService.editarPensionadosDeEntidad(nitEntidad, trabajosActualizados);
+                return ResponseEntity.ok("Pensionados de la entidad actualizados exitosamente");
+            } catch (RuntimeException ex) {
+                ex.printStackTrace(); // <--- Agrega esto para ver el error real en consola
+                return ResponseEntity.badRequest().body("Error al actualizar pensionados: " + ex.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace(); // <--- Agrega esto también
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor: " + ex.getMessage());
+            }
+        }
 }
 

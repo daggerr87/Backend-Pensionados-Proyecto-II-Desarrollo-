@@ -1,7 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.util.Date;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class CuotaParte {
     private BigDecimal porcentajeCuotaParte;
 
     @Column(name = "fechaGeneracion", nullable = true)
-    private LocalDate fechaGeneracion;
+    private Date fechaGeneracion;
 
 
     @Column (name = "notas", nullable = true, length = 200)

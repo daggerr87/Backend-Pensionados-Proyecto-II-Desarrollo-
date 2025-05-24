@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Date;
 
 @Data
 @Builder
@@ -16,13 +17,13 @@ public class RegistroSucesorPeticion {
     private String tipoIdPersona;
     private String nombrePersona;
     private String apellidosPersona;
-    private LocalDate fechaNacimientoPersona;
-    private LocalDate fechaExpedicionDocumentoIdPersona;
+    private Date fechaNacimientoPersona;
+    private Date fechaExpedicionDocumentoIdPersona;
     private String estadoPersona;
     private String generoPersona;
 
     //Datos de Sucesor
-    LocalDate fechaInicioSucesion;
+    Date fechaInicioSucesion;
     Long pensionado; // Pensionado asociado al sucesor
     Double porcentajePension; // Porcentaje de la pensión que le corresponde al sucesor
 }

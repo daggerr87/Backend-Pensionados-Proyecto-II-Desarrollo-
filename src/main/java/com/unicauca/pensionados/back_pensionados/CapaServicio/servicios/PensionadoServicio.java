@@ -65,12 +65,8 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionado.setTipoIdPersona(request.getTipoIdPersona());
         pensionado.setNombrePersona(request.getNombrePersona());
         pensionado.setApellidosPersona(request.getApellidosPersona());
-        pensionado.setFechaNacimientoPersona(request.getFechaNacimientoPersona().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
-        pensionado.setFechaExpedicionDocumentoIdPersona(
-            request.getFechaExpedicionDocumentoIdPersona() != null
-                ? request.getFechaExpedicionDocumentoIdPersona().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-                : null
-        );
+        pensionado.setFechaNacimientoPersona(request.getFechaNacimientoPersona());
+        pensionado.setFechaExpedicionDocumentoIdPersona(request.getFechaExpedicionDocumentoIdPersona());
         pensionado.setEstadoPersona(request.getEstadoPersona());
         pensionado.setGeneroPersona(request.getGeneroPersona());
         pensionado.setFechaInicioPension(request.getFechaInicioPension());
@@ -125,16 +121,8 @@ public class PensionadoServicio implements IPensionadoServicio {
 
         pensionadoExistente.setNombrePersona(request.getNombrePersona());
         pensionadoExistente.setApellidosPersona(request.getApellidosPersona());
-        pensionadoExistente.setFechaNacimientoPersona(
-            request.getFechaNacimientoPersona() != null
-                ? request.getFechaNacimientoPersona().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-                : null
-        );
-        pensionadoExistente.setFechaExpedicionDocumentoIdPersona(
-            request.getFechaExpedicionDocumentoIdPersona() != null
-                ? request.getFechaExpedicionDocumentoIdPersona().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-                : null
-        );
+        pensionadoExistente.setFechaNacimientoPersona(request.getFechaNacimientoPersona());
+        pensionadoExistente.setFechaExpedicionDocumentoIdPersona(request.getFechaExpedicionDocumentoIdPersona());
         pensionadoExistente.setEstadoPersona(request.getEstadoPersona());
         pensionadoExistente.setGeneroPersona(request.getGeneroPersona());
         pensionadoExistente.setFechaInicioPension(request.getFechaInicioPension());
