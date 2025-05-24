@@ -113,43 +113,53 @@ public class EntidadServicio implements IEntidadServicio {
     @Transactional
     @Override
     public void actualizar(Long nid, RegistroEntidadPeticion entidad) {
-         Entidad entidadExistente = entidadRepository.findById(nid)
+        Entidad entidadExistente = entidadRepository.findById(nid)
             .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nid));
 
-            if (entidadRepository.existsByNombreEntidad(entidad.getNombreEntidad())
-                && !entidadExistente.getNombreEntidad().equals(entidad.getNombreEntidad())) {
-                throw new RuntimeException("Ya existe una entidad con el nombre: " + entidad.getNombreEntidad());
-            }
+        if (entidadRepository.existsByNombreEntidad(entidad.getNombreEntidad())
+            && !entidadExistente.getNombreEntidad().equals(entidad.getNombreEntidad())) {
+            throw new RuntimeException("Ya existe una entidad con el nombre: " + entidad.getNombreEntidad());
+        }
 
-            entidadExistente.setNombreEntidad(entidad.getNombreEntidad());
-            entidadExistente.setDireccionEntidad(entidad.getDireccionEntidad());
-            entidadExistente.setTelefonoEntidad(entidad.getTelefonoEntidad());
-            entidadExistente.setEmailEntidad(entidad.getEmailEntidad());
-            entidadExistente.setEstadoEntidad(entidad.getEstadoEntidad());
+        entidadExistente.setNombreEntidad(entidad.getNombreEntidad());
+        entidadExistente.setDireccionEntidad(entidad.getDireccionEntidad());
+        entidadExistente.setTelefonoEntidad(entidad.getTelefonoEntidad());
+        entidadExistente.setEmailEntidad(entidad.getEmailEntidad());
+        entidadExistente.setEstadoEntidad(entidad.getEstadoEntidad());
 
         if (entidad.getTrabajos() != null) {
             List<Trabajo> trabajosActuales = trabajoRepositorio.findByEntidadNitEntidad(nid);
-            for (Trabajo trabajo : trabajosActuales) {
-                Optional<CuotaParte> cuotaParteAnterior = cuotaParteRepositorio.findByTrabajoIdTrabajo(trabajo.getIdTrabajo());
-                CuotaParte aux = cuotaParteAnterior.get();
-                periodoRepositorio.deleteByCuotaParte_IdCuotaParte(aux.getIdCuotaParte());
-                cuotaParteAnterior.ifPresent(cuotaParteRepositorio::delete);
-                trabajoRepositorio.delete(trabajo);
-            }
-            entidadExistente.getTrabajos().clear();
+            Map<Long, Trabajo> mapaTrabajosActuales = trabajosActuales.stream()
+                .collect(Collectors.toMap(trabajo -> trabajo.getPensionado().getNumeroIdPersona(), trabajo -> trabajo));
 
             for (RegistroTrabajoPeticion trabajoPeticion : entidad.getTrabajos()) {
-                Pensionado pensionado = pensionadoRepositorio.findById(trabajoPeticion.getNumeroIdPersona())
+                Long numeroIdPersona = trabajoPeticion.getNumeroIdPersona();
+                Pensionado pensionado = pensionadoRepositorio.findById(numeroIdPersona)
                     .orElseThrow(() -> new RuntimeException(
-                        "El pensionado con ID: " + trabajoPeticion.getNumeroIdPersona() + " no está registrado"));
+                        "El pensionado con ID: " + numeroIdPersona + " no está registrado"));
 
-                Trabajo nuevoTrabajo = new Trabajo();
-                nuevoTrabajo.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
-                nuevoTrabajo.setEntidad(entidadExistente);
-                nuevoTrabajo.setPensionado(pensionado);
-                trabajoRepositorio.save(nuevoTrabajo);
-                cuotaParteServicio.registrarCuotaParte(nuevoTrabajo);
-                entidadExistente.getTrabajos().add(nuevoTrabajo);
+                Trabajo trabajo = mapaTrabajosActuales.get(numeroIdPersona);
+                if (trabajo != null) {
+                    trabajo.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
+                    trabajoRepositorio.save(trabajo);
+                    cuotaParteServicio.registrarCuotaParte(trabajo);
+                    mapaTrabajosActuales.remove(numeroIdPersona);
+                } else {
+                    Trabajo nuevoTrabajo = new Trabajo();
+                    nuevoTrabajo.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
+                    nuevoTrabajo.setEntidad(entidadExistente);
+                    nuevoTrabajo.setPensionado(pensionado);
+                    trabajoRepositorio.save(nuevoTrabajo);
+                    cuotaParteServicio.registrarCuotaParte(nuevoTrabajo);
+                    entidadExistente.getTrabajos().add(nuevoTrabajo);
+                }
+
+                Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado)
+                    .stream()
+                    .mapToLong(Trabajo::getDiasDeServicio)
+                    .sum();
+                pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
+                pensionadoRepositorio.save(pensionado);
             }
         }
 
@@ -167,69 +177,99 @@ public class EntidadServicio implements IEntidadServicio {
     @Transactional
     @Override
     public void editarPensionadosDeEntidad(Long nitEntidad, List<RegistroTrabajoPeticion> trabajosActualizados) {
-        // Buscar la entidad por su NIT
         Entidad entidad = entidadRepository.findById(nitEntidad)
                 .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nitEntidad));
 
-        // Obtener los trabajos actuales de la entidad
         List<Trabajo> trabajosActuales = trabajoRepositorio.findByEntidadNitEntidad(nitEntidad);
-
-        // Crear un mapa para acceder rápidamente a los trabajos actuales por ID del pensionado
         Map<Long, Trabajo> mapaTrabajosActuales = trabajosActuales.stream()
                 .collect(Collectors.toMap(trabajo -> trabajo.getPensionado().getNumeroIdPersona(), trabajo -> trabajo));
 
-        // Procesar la lista de trabajos actualizada
         for (RegistroTrabajoPeticion trabajoPeticion : trabajosActualizados) {
             Long numeroIdPersona = trabajoPeticion.getNumeroIdPersona();
-
-            // Verificar si el pensionado existe
             Pensionado pensionado = pensionadoRepositorio.findById(numeroIdPersona)
                     .orElseThrow(() -> new RuntimeException(
                             "El pensionado con ID: " + numeroIdPersona + " no está registrado"));
 
-            // Buscar trabajo existente por pensionado y entidad
             Optional<Trabajo> trabajoExistenteOpt = trabajoRepositorio.findByPensionadoAndEntidad(pensionado, entidad);
 
-            // Verificar si el trabajo ya existe
+            Trabajo trabajoModificado = null;
             if (trabajoExistenteOpt.isPresent()) {
                 Trabajo trabajoExistente = trabajoExistenteOpt.get();
-                trabajoExistente.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
-                trabajoRepositorio.save(trabajoExistente);
-                mapaTrabajosActuales.remove(numeroIdPersona); // Remover el trabajo del mapa para identificar los que no están en la lista actualizada
-            } else {
-                // Crear un nuevo trabajo si no existe
+                if (trabajoPeticion.getDiasDeServicio() == 0) {
+                    cuotaParteRepositorio.findByTrabajoIdTrabajo(trabajoExistente.getIdTrabajo())
+                        .ifPresent(cuotaParteRepositorio::delete);
+                    trabajoRepositorio.delete(trabajoExistente);
+                    entidad.getTrabajos().remove(trabajoExistente);
+
+                    Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado)
+                            .stream()
+                            .mapToLong(Trabajo::getDiasDeServicio)
+                            .sum();
+                    pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
+                    pensionadoRepositorio.save(pensionado);
+
+                    mapaTrabajosActuales.remove(numeroIdPersona);
+
+                    boolean tieneMasTrabajosEnEntidad = trabajoRepositorio.findByPensionadoAndEntidad(pensionado, entidad).isPresent();
+                    if (!tieneMasTrabajosEnEntidad) {
+                        entidad.getTrabajos().removeIf(t -> t.getPensionado().getNumeroIdPersona().equals(numeroIdPersona));
+                    }
+                    continue; 
+                } else {
+                    trabajoExistente.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
+                    trabajoRepositorio.save(trabajoExistente);
+                    trabajoModificado = trabajoExistente;
+                    mapaTrabajosActuales.remove(numeroIdPersona);
+                }
+            } else if (trabajoPeticion.getDiasDeServicio() > 0) {
                 Trabajo nuevoTrabajo = new Trabajo();
                 nuevoTrabajo.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
                 nuevoTrabajo.setEntidad(entidad);
                 nuevoTrabajo.setPensionado(pensionado);
                 trabajoRepositorio.save(nuevoTrabajo);
                 entidad.getTrabajos().add(nuevoTrabajo);
+                trabajoModificado = nuevoTrabajo;
             }
 
-            // Recalcular el total de días de trabajo del pensionado
-            Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado).stream()
+            Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado)
+                    .stream()
                     .mapToLong(Trabajo::getDiasDeServicio)
                     .sum();
             pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
             pensionadoRepositorio.save(pensionado);
-            cuotaParteServicio.recalcularCuotasPartesPorPensionado(pensionado);
+
+            if (trabajoModificado != null && totalDiasTrabajo > 0) {
+                cuotaParteServicio.registrarCuotaParte(trabajoModificado);
+            }
+
+            boolean tieneMasTrabajosEnEntidad = trabajoRepositorio.findByPensionadoAndEntidad(pensionado, entidad).isPresent();
+            if (!tieneMasTrabajosEnEntidad) {
+                entidad.getTrabajos().removeIf(t -> t.getPensionado().getNumeroIdPersona().equals(numeroIdPersona));
+            }
         }
 
         // Eliminar los trabajos que no están en la lista actualizada
         for (Trabajo trabajoAEliminar : mapaTrabajosActuales.values()) {
             Pensionado pensionado = trabajoAEliminar.getPensionado();
+            cuotaParteRepositorio.findByTrabajoIdTrabajo(trabajoAEliminar.getIdTrabajo())
+                .ifPresent(cuotaParteRepositorio::delete);
             trabajoRepositorio.delete(trabajoAEliminar);
             entidad.getTrabajos().remove(trabajoAEliminar);
 
-            // Recalcular el total de días de trabajo del pensionado después de eliminar el trabajo
-            Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado).stream()
+            // actualizamos total de días de trabajo después de eliminar
+            Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado)
+                    .stream()
                     .mapToLong(Trabajo::getDiasDeServicio)
                     .sum();
             pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
             pensionadoRepositorio.save(pensionado);
+
+            boolean tieneMasTrabajosEnEntidad = trabajoRepositorio.findByPensionadoAndEntidad(pensionado, entidad).isPresent();
+            if (!tieneMasTrabajosEnEntidad) {
+                entidad.getTrabajos().removeIf(t -> t.getPensionado().getNumeroIdPersona().equals(pensionado.getNumeroIdPersona()));
+            }
         }
 
-        // Guardar la entidad actualizada
         entidadRepository.save(entidad);
     }
     /**
