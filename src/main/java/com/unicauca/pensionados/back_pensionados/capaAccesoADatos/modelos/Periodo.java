@@ -41,7 +41,7 @@ public class Periodo {
     @Column(name = "fechaFinPeriodo", nullable = false)
     private LocalDate fechaFinPeriodo;
 
-    @Column (name = "numeroMesadas", nullable = false, precision = 19, scale = 2)
+    @Column (name = "numeroMesadas", nullable = false, precision = 5, scale = 2)
     private BigDecimal numeroMesadas;
 
     @Column (name = "valorPension", nullable = false, precision = 19, scale = 2)
