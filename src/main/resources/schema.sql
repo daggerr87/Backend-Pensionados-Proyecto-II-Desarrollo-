@@ -134,7 +134,7 @@ CREATE TABLE PERIODO (
    idCuotaParte BIGINT NOT NULL,
    fechaInicioPeriodo DATE NOT NULL,
    fechaFinPeriodo DATE NOT NULL,
-   numeroMesadas BIGINT NOT NULL,
+   numeroMesadas DECIMAL(5,2) NOT NULL,
    valorPension DECIMAL (19,2) NOT NULL,
    cuotaParteMensual DECIMAL (19,2) NOT NULL,
    cuotaParteTotalAnio DECIMAL (19,2) NOT NULL,
