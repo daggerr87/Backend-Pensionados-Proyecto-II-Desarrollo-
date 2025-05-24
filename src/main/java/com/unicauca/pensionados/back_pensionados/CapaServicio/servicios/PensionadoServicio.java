@@ -125,14 +125,22 @@ public class PensionadoServicio implements IPensionadoServicio {
 
         pensionadoExistente.setNombrePersona(request.getNombrePersona());
         pensionadoExistente.setApellidosPersona(request.getApellidosPersona());
-        pensionadoExistente.setFechaNacimientoPersona(request.getFechaNacimientoPersona());
-        pensionadoExistente.setFechaExpedicionDocumentoIdPersona(request.getFechaExpedicionDocumentoIdPersona());
+        pensionadoExistente.setFechaNacimientoPersona(
+            request.getFechaNacimientoPersona() != null
+                ? request.getFechaNacimientoPersona().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                : null
+        );
+        pensionadoExistente.setFechaExpedicionDocumentoIdPersona(
+            request.getFechaExpedicionDocumentoIdPersona() != null
+                ? request.getFechaExpedicionDocumentoIdPersona().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                : null
+        );
         pensionadoExistente.setEstadoPersona(request.getEstadoPersona());
         pensionadoExistente.setGeneroPersona(request.getGeneroPersona());
         pensionadoExistente.setFechaInicioPension(request.getFechaInicioPension());
         pensionadoExistente.setValorInicialPension(request.getValorInicialPension());
         pensionadoExistente.setResolucionPension(request.getResolucionPension());
-        if(pensionadoExistente.getEntidadJubilacion().getNitEntidad() != request.getEntidadJubilacion()){
+        if (!pensionadoExistente.getEntidadJubilacion().getNitEntidad().equals(request.getNitEntidad())) {
             Optional<Entidad> entidadAnterior = entidadRepositorio.findById(pensionadoExistente.getEntidadJubilacion().getNitEntidad());
             Optional<Trabajo> trabajoAnterior = trabajoRepositorio.findByPensionadoAndEntidad(pensionadoExistente, entidadAnterior);
             Trabajo trabajoExistente = trabajoAnterior.get();
