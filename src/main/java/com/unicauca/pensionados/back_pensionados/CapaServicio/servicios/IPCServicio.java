@@ -62,27 +62,39 @@ public class IPCServicio implements IIPCServicio {
     @Override
     public void registrarIPC(RegistroIPCPeticion peticion) {
         int anioActual = Year.now().getValue();
+
         if (peticion.getFechaIPC() == null || peticion.getValorIPC() == null) {
             throw new RuntimeException("Los campos fechaIPC y valorIPC son obligatorios");
         }
 
-        if(peticion.getFechaIPC() != anioActual){
+        if (peticion.getFechaIPC() != anioActual) {
             throw new RuntimeException("El año del IPC a registrar debe ser el año actual");
-        } 
-        // Validar que el IPC a registrar es el siguiente al último registrado
+        }
+
+        // Validar primero si ya existe un IPC para el año
+        Optional<IPC> existente = ipcRepositorio.findByFechaIPC(peticion.getFechaIPC());
+        if (existente.isPresent()) {
+            throw new RuntimeException("Ya existe un registro de IPC para el año " + peticion.getFechaIPC());
+        }
+
+        // Obtener todos los IPCs registrados
         List<IPC> ipcList = ipcRepositorio.findAll();
+
+        // Validar que el año a registrar sea el siguiente al último registrado
         if (!ipcList.isEmpty()) {
-            int maxAnio = ipcList.stream().mapToInt(IPC::getFechaIPC).max().orElse(anioActual);
+            int maxAnio = ipcList.stream().mapToInt(IPC::getFechaIPC).max().orElse(anioActual - 1);
             if (peticion.getFechaIPC() != maxAnio + 1) {
                 throw new RuntimeException("Debe registrar primero el IPC del año inmediatamente anterior (último registrado: " + maxAnio + ")");
             }
         }
-        ipcList = null; // liberar referencia
+
         IPC ipc = new IPC();
         ipc.setFechaIPC(peticion.getFechaIPC());
         ipc.setValorIPC(peticion.getValorIPC());
         ipcRepositorio.save(ipc);
     }
+
+
 
     /**
      * Actualiza el valor del IPC para el año dado.
