@@ -3,15 +3,16 @@ package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.money.Monetary;
 import javax.money.MonetaryAmount;
 
 import org.javamoney.moneta.Money;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.CuotaParte;
@@ -20,6 +21,10 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabaj
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.CuotaParteRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PeriodoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.TrabajoRepositorio;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.FiltroCuotaPartePeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.CuotaParteDTO;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoConCuotaParteDTO;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.ResultadoCobroPorPeriodoDTO;
 
 import jakarta.transaction.Transactional;
 
@@ -141,5 +146,68 @@ public class CuotaParteServicio implements ICuotaParteServicio {
         for(Trabajo trabajo : trabajos){
             actualizarCuotaParte(trabajo);
         }
+    }
+
+    @Transactional
+    public ResultadoCobroPorPeriodoDTO filtrarCuotasPartePorRango(FiltroCuotaPartePeticion filtro) {
+        if (filtro == null || filtro.getAnio() == null || filtro.getFechaInicio() == null || filtro.getFechaFin() == null) {
+            throw new IllegalArgumentException("Todos los parámetros de filtro son obligatorios");
+        }
+
+        int anio = filtro.getAnio();
+        int mesInicial = filtro.getFechaInicio();
+        int mesFinal = filtro.getFechaFin();
+
+        // Validar meses entre 1 y 12
+        if (mesInicial < 1 || mesInicial > 12 || mesFinal < 1 || mesFinal > 12 || mesInicial > mesFinal) {
+            throw new IllegalArgumentException("Los meses deben estar entre 1 y 12 y mes inicial debe ser menor o igual al mes final.");
+        }
+
+        // Definir rango de fechas
+        LocalDate fechaInicio = LocalDate.of(anio, mesInicial, 1);
+        LocalDate fechaFin = LocalDate.of(anio, mesFinal, 1).withDayOfMonth(
+                LocalDate.of(anio, mesFinal, 1).lengthOfMonth()
+        );
+
+        // Obtener todas las cuotas parte en el rango
+        List<CuotaParte> cuotasParteEnRango = cuotaParteRepositorio.findByFechaGeneracionBetween(fechaInicio, fechaFin);
+
+        // Agrupar por pensionado
+        Map<Long, PensionadoConCuotaParteDTO> mapPensionados = new HashMap<>();
+
+        for (CuotaParte cuota : cuotasParteEnRango) {
+            Pensionado pensionado = cuota.getTrabajo().getPensionado();
+            Long idPensionado = pensionado.getNumeroIdPersona();
+
+            PensionadoConCuotaParteDTO dto = mapPensionados.computeIfAbsent(idPensionado, k -> {
+                return new PensionadoConCuotaParteDTO(
+                        pensionado.getNumeroIdPersona().toString(),
+                        pensionado.getNombrePersona(),
+                        pensionado.getApellidosPersona(),
+                        new ArrayList<>(),
+                        BigDecimal.ZERO
+                );
+            });
+
+            CuotaParteDTO cpDto = new CuotaParteDTO(
+                    cuota.getIdCuotaParte(),
+                    cuota.getValorCuotaParte(),
+                    cuota.getFechaGeneracion()
+            );
+
+            dto.getCuotasParte().add(cpDto);
+
+            // Sumar al total
+            dto.setValorTotalCobro(dto.getValorTotalCobro().add(cuota.getValorCuotaParte()));
+        }
+
+        List<PensionadoConCuotaParteDTO> listaPensionados = new ArrayList<>(mapPensionados.values());
+
+        // Calcular total general
+        BigDecimal totalGeneral = listaPensionados.stream()
+                .map(PensionadoConCuotaParteDTO::getValorTotalCobro)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new ResultadoCobroPorPeriodoDTO(listaPensionados, totalGeneral);
     }
 }
