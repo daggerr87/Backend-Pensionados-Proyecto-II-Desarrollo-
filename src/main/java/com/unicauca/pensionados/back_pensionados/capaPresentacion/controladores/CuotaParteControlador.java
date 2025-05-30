@@ -7,7 +7,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.CuotaParteServicio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.FiltroCuotaPartePeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.ResultadoCobroPorPensionado;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.ResultadoCobroPorPeriodoDTO;
+
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/cuotaParte")
@@ -22,4 +25,10 @@ public class CuotaParteControlador {
     public ResultadoCobroPorPeriodoDTO filtrar(@RequestBody FiltroCuotaPartePeticion filtro) {
         return cuotaParteServicio.filtrarCuotasPartePorRango(filtro);
     }
+
+    @GetMapping("/liquidacion-por-cobrar/cobro-pensionado")
+    public ResultadoCobroPorPensionado obtenerCuotasParteUnicauca() {
+        return cuotaParteServicio.obtenerCuotasParteDeUniCauca();
+    }
+    
 }

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.money.Monetary;
 import javax.money.MonetaryAmount;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.CuotaParte;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Periodo;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.CuotaParteRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PeriodoRepositorio;
@@ -24,6 +26,7 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.T
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.FiltroCuotaPartePeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.CuotaParteDTO;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoConCuotaParteDTO;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.ResultadoCobroPorPensionado;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.ResultadoCobroPorPeriodoDTO;
 
 import jakarta.transaction.Transactional;
@@ -209,5 +212,65 @@ public class CuotaParteServicio implements ICuotaParteServicio {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new ResultadoCobroPorPeriodoDTO(listaPensionados, totalGeneral);
+    }
+
+    @Override
+    public ResultadoCobroPorPensionado obtenerCuotasParteDeUniCauca() {
+        // Obtener todas las cuotas parte (o puedes paginar si es necesario)
+        List<CuotaParte> todasLasCuotasParte = cuotaParteRepositorio.findAll();
+
+        // Agrupar por pensionado de UniCauca
+        Map<Long, PensionadoConCuotaParteDTO> mapPensionados = new HashMap<>();
+
+        for (CuotaParte cuota : todasLasCuotasParte) {
+            Pensionado pensionado = cuota.getTrabajo().getPensionado();
+
+            // Verificar si el pensionado pertenece a UniCauca
+            if (pensionado == null || 
+                !"Universidad del Cauca".equalsIgnoreCase(pensionado.getEntidadJubilacion().getNombreEntidad())) {
+                continue; // Saltar si no pertenece a UniCauca
+            }
+
+            // Calcular el valor total sumando los cuotaParteTotalAnio de todos los periodos
+            BigDecimal valorTotal = cuota.getPeriodos().stream()
+                .map(Periodo::getCuotaParteTotalAnio)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            // Asignar el valor total calculado a la cuota parte
+            cuota.setValorTotalCuotaParte(valorTotal);
+
+            Long idPensionado = pensionado.getNumeroIdPersona();
+
+            PensionadoConCuotaParteDTO dto = mapPensionados.computeIfAbsent(idPensionado, k -> {
+                return new PensionadoConCuotaParteDTO(
+                        pensionado.getNumeroIdPersona().toString(),
+                        pensionado.getNombrePersona(),
+                        pensionado.getApellidosPersona(),
+                        new ArrayList<>(),
+                        BigDecimal.ZERO
+                );
+            });
+
+            CuotaParteDTO cpDto = new CuotaParteDTO(
+                    cuota.getIdCuotaParte(),
+                    cuota.getValorCuotaParte(),
+                    cuota.getFechaGeneracion()
+            );
+
+            dto.getCuotasParte().add(cpDto);
+
+            // Sumar al total (usamos el valorTotal en lugar de valorCuotaParte)
+            dto.setValorTotalCobro(dto.getValorTotalCobro().add(valorTotal));
+        }
+
+        List<PensionadoConCuotaParteDTO> listaPensionados = new ArrayList<>(mapPensionados.values());
+
+        // Calcular total general
+        BigDecimal totalGeneral = listaPensionados.stream()
+                .map(PensionadoConCuotaParteDTO::getValorTotalCobro)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new ResultadoCobroPorPensionado(listaPensionados, totalGeneral);
     }
 }
