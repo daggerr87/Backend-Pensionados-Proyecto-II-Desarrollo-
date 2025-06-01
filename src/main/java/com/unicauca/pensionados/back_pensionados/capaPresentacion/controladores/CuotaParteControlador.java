@@ -21,9 +21,9 @@ public class CuotaParteControlador {
         this.cuotaParteServicio = cuotaParteServicio;
     }
 
-    @PostMapping("/filtrar-por-periodo")
+    @PostMapping("/liquidacion-por-cobrar/filtrar-por-periodo")
     public ResultadoCobroPorPeriodoDTO filtrar(@RequestBody FiltroCuotaPartePeticion filtro) {
-        return cuotaParteServicio.filtrarCuotasPartePorRango(filtro);
+        return cuotaParteServicio.obtenerCobroPorPeriodo(filtro);
     }
 
     @GetMapping("/liquidacion-por-cobrar/cobro-pensionado")

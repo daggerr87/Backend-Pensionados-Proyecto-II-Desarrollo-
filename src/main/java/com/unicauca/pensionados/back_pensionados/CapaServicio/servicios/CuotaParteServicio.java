@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.money.Monetary;
 import javax.money.MonetaryAmount;
@@ -151,68 +152,7 @@ public class CuotaParteServicio implements ICuotaParteServicio {
         }
     }
 
-    @Transactional
-    public ResultadoCobroPorPeriodoDTO filtrarCuotasPartePorRango(FiltroCuotaPartePeticion filtro) {
-        if (filtro == null || filtro.getAnio() == null || filtro.getFechaInicio() == null || filtro.getFechaFin() == null) {
-            throw new IllegalArgumentException("Todos los parámetros de filtro son obligatorios");
-        }
 
-        int anio = filtro.getAnio();
-        int mesInicial = filtro.getFechaInicio();
-        int mesFinal = filtro.getFechaFin();
-
-        // Validar meses entre 1 y 12
-        if (mesInicial < 1 || mesInicial > 12 || mesFinal < 1 || mesFinal > 12 || mesInicial > mesFinal) {
-            throw new IllegalArgumentException("Los meses deben estar entre 1 y 12 y mes inicial debe ser menor o igual al mes final.");
-        }
-
-        // Definir rango de fechas
-        LocalDate fechaInicio = LocalDate.of(anio, mesInicial, 1);
-        LocalDate fechaFin = LocalDate.of(anio, mesFinal, 1).withDayOfMonth(
-                LocalDate.of(anio, mesFinal, 1).lengthOfMonth()
-        );
-
-        // Obtener todas las cuotas parte en el rango
-        List<CuotaParte> cuotasParteEnRango = cuotaParteRepositorio.findByFechaGeneracionBetween(fechaInicio, fechaFin);
-
-        // Agrupar por pensionado
-        Map<Long, PensionadoConCuotaParteDTO> mapPensionados = new HashMap<>();
-
-        for (CuotaParte cuota : cuotasParteEnRango) {
-            Pensionado pensionado = cuota.getTrabajo().getPensionado();
-            Long idPensionado = pensionado.getNumeroIdPersona();
-
-            PensionadoConCuotaParteDTO dto = mapPensionados.computeIfAbsent(idPensionado, k -> {
-                return new PensionadoConCuotaParteDTO(
-                        pensionado.getNumeroIdPersona().toString(),
-                        pensionado.getNombrePersona(),
-                        pensionado.getApellidosPersona(),
-                        new ArrayList<>(),
-                        BigDecimal.ZERO
-                );
-            });
-
-            CuotaParteDTO cpDto = new CuotaParteDTO(
-                    cuota.getIdCuotaParte(),
-                    cuota.getValorCuotaParte(),
-                    cuota.getFechaGeneracion()
-            );
-
-            dto.getCuotasParte().add(cpDto);
-
-            // Sumar al total
-            dto.setValorTotalCobro(dto.getValorTotalCobro().add(cuota.getValorCuotaParte()));
-        }
-
-        List<PensionadoConCuotaParteDTO> listaPensionados = new ArrayList<>(mapPensionados.values());
-
-        // Calcular total general
-        BigDecimal totalGeneral = listaPensionados.stream()
-                .map(PensionadoConCuotaParteDTO::getValorTotalCobro)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return new ResultadoCobroPorPeriodoDTO(listaPensionados, totalGeneral);
-    }
 
     @Override
     public ResultadoCobroPorPensionado  cuotasPartesPorCobrarPensionado() {
@@ -234,7 +174,7 @@ public class CuotaParteServicio implements ICuotaParteServicio {
         
             Long nitEntidadCuota = cuota.getTrabajo().getEntidad().getNitEntidad();
             if (nitEntidadCuota != null && nitEntidadCuota.equals(8911500319L)) {
-                // Omitir esta cuota parte que pertenece a unicauca
+                // Omitir cuota parte que pertenece a unicauca
                 continue;
             }
     
@@ -270,5 +210,108 @@ public class CuotaParteServicio implements ICuotaParteServicio {
     
         return new ResultadoCobroPorPensionado(listaPensionados, totalGeneral);
     }
+    
+    public ResultadoCobroPorPeriodoDTO obtenerCobroPorPeriodo(FiltroCuotaPartePeticion filtro) {
+        List<CuotaParte> todasLasCuotasParte = cuotaParteRepositorio.findAll();
+        Map<Long, PensionadoConCuotaParteDTO> mapPensionados = new HashMap<>();
+        int anio = filtro.getAnio();
+        int mesInicio = 1;
+        if(filtro.getMesInicial() != null){
+            mesInicio = filtro.getMesInicial();
+        }
+        int mesFinal = 12;
+        if(filtro.getMesFinal() != null){
+            mesFinal = filtro.getMesFinal();
+        }
+        int mesada = calcularMesadas(mesInicio, mesFinal, anio);
+        BigDecimal mesadaDecimal = BigDecimal.valueOf(mesada);
+    
+        for (CuotaParte cuota : todasLasCuotasParte) {
+            Pensionado pensionado = cuota.getTrabajo().getPensionado();
+    
+            if (pensionado == null
+                || pensionado.getEntidadJubilacion() == null
+                || !"Universidad del Cauca".equalsIgnoreCase(pensionado.getEntidadJubilacion().getNombreEntidad())) {
+                continue;
+            }
+    
+            Long nitEntidadCuota = cuota.getTrabajo().getEntidad().getNitEntidad();
+            if (nitEntidadCuota != null && nitEntidadCuota.equals(8911500319L)) {
+                continue;
+            }
+    
+            List<Periodo> periodos = cuota.getPeriodos();
+            if (periodos == null || periodos.isEmpty()) {
+                continue;
+            }
+    
+            // Filtrar periodos por año y multiplicar cuotaParteMensual * numero de mesadas
+            BigDecimal totalPorAnio = periodos.stream()
+                .filter(p -> p.getFechaInicioPeriodo() != null && p.getFechaInicioPeriodo().getYear() == anio)
+                .map(Periodo::getCuotaParteMensual)
+                .filter(Objects::nonNull)
+                .map(cuotaMensual -> cuotaMensual.multiply(mesadaDecimal))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    
+            if (totalPorAnio.compareTo(BigDecimal.ZERO) == 0) {
+                continue;
+            }
+    
+            Long idPensionado = pensionado.getNumeroIdPersona();
+            PensionadoConCuotaParteDTO dto = mapPensionados.computeIfAbsent(idPensionado, k ->
+                new PensionadoConCuotaParteDTO(
+                    pensionado.getNumeroIdPersona().toString(),
+                    pensionado.getNombrePersona(),
+                    pensionado.getApellidosPersona(),
+                    new ArrayList<>(),
+                    BigDecimal.ZERO
+                )
+            );
+    
+            CuotaParteDTO cpDto = new CuotaParteDTO(
+                cuota.getIdCuotaParte(),
+                totalPorAnio,
+                cuota.getFechaGeneracion()
+            );
+    
+            dto.getCuotasParte().add(cpDto);
+            dto.setValorTotalCobro(dto.getValorTotalCobro().add(totalPorAnio));
+        }
+    
+        List<PensionadoConCuotaParteDTO> listaPensionados = new ArrayList<>(mapPensionados.values());
+    
+        BigDecimal totalGeneral = listaPensionados.stream()
+            .map(PensionadoConCuotaParteDTO::getValorTotalCobro)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    
+        return new ResultadoCobroPorPeriodoDTO(listaPensionados, totalGeneral);
+    }
+    
+    private int calcularMesadas(int mesInicio, int mesFinal, int anioPension) {
+        if (mesInicio < 1 || mesInicio > 12) {
+            throw new IllegalArgumentException("mesInicio debe estar entre 1 y 12");
+        }
+        if (mesFinal < 1 || mesFinal > 12) {
+            throw new IllegalArgumentException("mesFinal debe estar entre 1 y 12");
+        }
+        if (mesInicio > mesFinal) {
+            throw new IllegalArgumentException("mesInicio no puede ser mayor que mesFinal");
+        }
+    
+        int mesadasOrdinarias = mesFinal - mesInicio + 1;
+    
+        int adicionales = 0;
+        if (anioPension < 1993) {
+            if (mesFinal >= 11 && mesInicio <= 11) {
+                adicionales = 1;
+            }
+        } else {
+            if (mesFinal >= 6 && mesInicio <= 6) adicionales++;
+            if (mesFinal >= 11 && mesInicio <= 11) adicionales++;
+        }
+    
+        return mesadasOrdinarias + adicionales;
+    }
+    
     
 }
