@@ -11,5 +11,5 @@ public interface ICuotaParteServicio {
     void registrarCuotaParte (Trabajo trabajo);
     void actualizarCuotaParte(Trabajo trabajo);
     void recalcularCuotasPartesPorPensionado(Pensionado pensionado);
-    ResultadoCobroPorPensionado obtenerCuotasParteDeUniCauca();
+    ResultadoCobroPorPensionado cuotasPartesPorCobrarPensionado();
 }

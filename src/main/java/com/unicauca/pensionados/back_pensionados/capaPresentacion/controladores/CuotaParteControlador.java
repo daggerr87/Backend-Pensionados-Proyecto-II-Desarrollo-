@@ -28,7 +28,7 @@ public class CuotaParteControlador {
 
     @GetMapping("/liquidacion-por-cobrar/cobro-pensionado")
     public ResultadoCobroPorPensionado obtenerCuotasParteUnicauca() {
-        return cuotaParteServicio.obtenerCuotasParteDeUniCauca();
+        return cuotaParteServicio.cuotasPartesPorCobrarPensionado();
     }
     
 }
