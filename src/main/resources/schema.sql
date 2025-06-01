@@ -79,6 +79,7 @@ CREATE TABLE PENSIONADO (
    valorInicialPension DECIMAL (19,2) NOT NULL,
    resolucionPension  VARCHAR(200) NOT NULL,
    totalDiasTrabajo BIGINT,
+   aplicarIPCPrimerPeriodo BOOLEAN NOT NULL DEFAULT FALSE, 
    PRIMARY KEY (numeroIdPersona),
    FOREIGN KEY (numeroIdPersona) REFERENCES PERSONA(numeroIdPersona),
    FOREIGN KEY (nitEntidad) REFERENCES ENTIDAD(nitEntidad)
