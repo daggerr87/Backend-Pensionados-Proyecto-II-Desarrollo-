@@ -237,7 +237,7 @@ public class EntidadServicio implements IEntidadServicio {
                     .sum();
             pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
             pensionadoRepositorio.save(pensionado);
-
+            cuotaParteServicio.recalcularCuotasPartesPorPensionado(pensionado);
             if (trabajoModificado != null && totalDiasTrabajo > 0) {
                 cuotaParteServicio.registrarCuotaParte(trabajoModificado);
             }

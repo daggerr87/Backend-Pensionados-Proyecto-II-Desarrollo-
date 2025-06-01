@@ -21,6 +21,7 @@ public class RegistroSucesorPeticion {
     private Date fechaExpedicionDocumentoIdPersona;
     private String estadoPersona;
     private String generoPersona;
+    private Date fechaDefuncionPersona;
 
     //Datos de Sucesor
     Date fechaInicioSucesion;

@@ -40,6 +40,9 @@ public class Pensionado extends Persona{
     @Column (name = "totalDiasTrabajo", nullable = true)
     private Long totalDiasTrabajo;
 
+    @Column (name = "aplicarIPCPrimerPeriodo", nullable = false)
+    private boolean aplicarIPCPrimerPeriodo = false;
+
     //relacion entidad de Jubilacion
     @JsonBackReference //rompe el ciclo infinito de serializacion al mostrar el JSON
     @ManyToOne

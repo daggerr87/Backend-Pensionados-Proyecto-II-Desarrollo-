@@ -32,6 +32,7 @@ public class RegistroPensionadoPeticion {
     private BigDecimal valorInicialPension;
     private String resolucionPension;
     private Long totalDiasTrabajo;
+    private boolean aplicarIPCPrimerPeriodo = false;
 
     private Long nitEntidad; //Entidad de Jubilacion
     private Long diasDeServicio;

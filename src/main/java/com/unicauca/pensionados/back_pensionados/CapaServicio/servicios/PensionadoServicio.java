@@ -74,6 +74,8 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionado.setResolucionPension(request.getResolucionPension());
         pensionado.setEntidadJubilacion(entidad);
         pensionado.setTotalDiasTrabajo(request.getDiasDeServicio());
+        pensionado.setAplicarIPCPrimerPeriodo(request.isAplicarIPCPrimerPeriodo());
+        pensionado.setFechaDefuncionPersona(request.getFechaDefuncionPersona());
 
         Trabajo trabajo = new Trabajo();
         trabajo.setDiasDeServicio(request.getDiasDeServicio());
@@ -128,6 +130,8 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionadoExistente.setFechaInicioPension(request.getFechaInicioPension());
         pensionadoExistente.setValorInicialPension(request.getValorInicialPension());
         pensionadoExistente.setResolucionPension(request.getResolucionPension());
+        pensionadoExistente.setAplicarIPCPrimerPeriodo(request.isAplicarIPCPrimerPeriodo());
+        pensionadoExistente.setFechaDefuncionPersona(request.getFechaDefuncionPersona());
 
         // Comparar correctamente los NIT (ambos son Long)
         if (!pensionadoExistente.getEntidadJubilacion().getNitEntidad().equals(request.getNitEntidad())) {
