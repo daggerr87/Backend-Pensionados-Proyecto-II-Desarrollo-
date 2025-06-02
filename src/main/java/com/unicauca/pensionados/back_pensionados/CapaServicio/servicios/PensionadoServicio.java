@@ -14,7 +14,7 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.P
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PersonaRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.TrabajoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPensionadoPeticion;
-
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.EntidadCuotaParteRespuesta;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.TrabajoRespuesta;
 
@@ -325,5 +325,10 @@ public class PensionadoServicio implements IPensionadoServicio {
                 .diasDeServicio(diasDeServicioJubilacion)
                 .trabajos(trabajos)
                 .build();
+    }
+
+    @Override
+    public List<EntidadCuotaParteRespuesta> getEntidadesYCuotaParteByPensionadoId(Long pensionadoId) {
+        return pensionadoRepositorio.findEntidadesYCuotaParteByPensionadoId(pensionadoId);
     }
 }

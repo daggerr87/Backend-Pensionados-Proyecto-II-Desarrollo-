@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IPensionadoServicio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPensionadoPeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.EntidadCuotaParteRespuesta;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
 
 import java.util.List;
@@ -148,5 +149,12 @@ public class PensionadoControlador {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error interno: " + ex.getMessage());
         }
+    }
+
+    @GetMapping("/{pensionadoId}/entidades-cuotaparte")
+    public ResponseEntity<List<EntidadCuotaParteRespuesta>> getEntidadesYCuotaParteByPensionadoId(
+            @PathVariable Long pensionadoId) {
+        List<EntidadCuotaParteRespuesta> response = pensionadoServicio.getEntidadesYCuotaParteByPensionadoId(pensionadoId);
+        return ResponseEntity.ok(response);
     }
 }
