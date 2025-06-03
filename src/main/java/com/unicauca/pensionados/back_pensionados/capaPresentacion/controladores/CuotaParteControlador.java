@@ -46,8 +46,8 @@ public class CuotaParteControlador {
     }
 
 
-    @PostMapping("liquidacion-por-cobrar/cobro-pensionado/entidades-por-pensionado-y-periodo")
-    public ResponseEntity<?> obtenerEntidadesPorPensionadoYPeriodo(@RequestBody FiltroCuotaPartePeticion filtro,@RequestParam Long idPensionado) {
+    @PostMapping("liquidacion-por-cobrar/cobro-pensionado/{idPensionado}/entidades-por-pensionado-y-periodo")
+    public ResponseEntity<?> obtenerEntidadesPorPensionadoYPeriodo(@RequestBody FiltroCuotaPartePeticion filtro,@PathVariable Long idPensionado) {
         try {
             List<EntidadValorCuotaParteDTO> resultado = cuotaParteServicio
                     .listarEntidadesYValorPorPensionadoYRango(idPensionado, filtro);
