@@ -20,7 +20,25 @@ Asegúrate de instalar y configurar las siguientes herramientas para ejecutar co
 | **Postman**       | Última versión      | [Descargar Postman](https://www.postman.com/downloads/) |
 
 ---
-
+### 🌍 1.1 Configuración de Variables de Entorno (JAVA_HOME y MAVEN)
+🔹 JAVA_HOME
+   1. Asegúrate de que tengas instalado el JDK 17
+   2. Ve a:
+      Panel de Control > Sistema > Configuración avanzada del sistema > Variables de entorno
+   3. Crea una nueva variable de entorno:
+      - Nombre: JAVA_HOME
+      - Valor: Ruta de instalación del JDK (por ejemplo: C:\Program Files\Java\jdk-17)
+   4. En la variable Path, asegúrate de agregar:
+      ```perl
+         %JAVA_HOME%\bin
+🔹 MAVEN_HOME
+   1. Crea una variable:
+      - Nombre: MAVEN_HOME
+      - Valor: Ruta de instalación de Maven (por ejemplo: C:\apache-maven-3.9.4)
+   2. En la variable Path, agrega:
+      ```perl
+      %MAVEN_HOME%\bin
+---
 ## ⚙️ 2. Configuración del entorno
 
 ### 2.1 Verificar instalación de Java
