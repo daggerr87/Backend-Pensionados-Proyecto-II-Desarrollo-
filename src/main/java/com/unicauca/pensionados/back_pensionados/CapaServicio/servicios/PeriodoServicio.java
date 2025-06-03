@@ -5,12 +5,11 @@ import org.springframework.stereotype.Service;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.CuotaParte;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.IPC;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Periodo;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.IPCRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PeriodoRepositorio;
-import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.EditarPeriodoPeticion;
-//import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PeriodoRespuesta;
-import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PeriodoRespuesta;
+
 
 import jakarta.transaction.Transactional;
 
@@ -20,9 +19,9 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,10 +42,13 @@ public class PeriodoServicio implements IPeriodoServicio {
         int anioInicio = fechaInicioPension.getYear();
         int anioActual = fechaActual.getYear();
 
-        // Obtener los IPC desde el año de inicio
-        List<IPC> IPCApartirFechaPension = ipcRepositorio.findByFechaIPCGreaterThanEqual(anioInicio);
+        Pensionado pensionado = cuotaParte.getTrabajo().getPensionado();
+        BigDecimal valorPensionAnterior = pensionado.getValorInicialPension();
+        boolean aplicarIPCPrimerPeriodo = pensionado.isAplicarIPCPrimerPeriodo();
+        BigDecimal porcentajeCuotaParte = cuotaParte.getPorcentajeCuotaParte(); 
 
-        // Mapa de acceso por año
+        // Obtener los IPC desde el año de inicio
+        List<IPC> IPCApartirFechaPension = ipcRepositorio.findByFechaIPCGreaterThanEqual(anioInicio - 1);
         Map<Integer, IPC> ipcPorAnio = IPCApartirFechaPension.stream()
             .collect(Collectors.toMap(IPC::getFechaIPC, Function.identity()));
 
@@ -59,37 +61,57 @@ public class PeriodoServicio implements IPeriodoServicio {
                 finPeriodo = LocalDate.of(anio, 12, 31);
             } else if (anio == anioActual) {
                 inicioPeriodo = LocalDate.of(anio, 1, 1);
-                finPeriodo = fechaActual; // ← Usa la fecha actual exacta
+                finPeriodo = fechaActual;
             } else {
                 inicioPeriodo = LocalDate.of(anio, 1, 1);
                 finPeriodo = LocalDate.of(anio, 12, 31);
             }
 
-            // Calcular mesadas
             BigDecimal numeroMesadas = calcularMesadas(inicioPeriodo, finPeriodo);
 
+            // Obtener IPC de ese año
+            IPC ipc = ipcPorAnio.get(anio - 1);
+            BigDecimal valorIPC = ipc != null ? ipc.getValorIPC()
+                .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
+            // Calcular valor de pension actual
+            BigDecimal valorPension;
+
+            if (anio == anioInicio && aplicarIPCPrimerPeriodo) {
+                valorPension = valorPensionAnterior.add(valorPensionAnterior.multiply(valorIPC));
+            } else if (anio != anioInicio) {
+                valorPension = valorPensionAnterior.add(valorPensionAnterior.multiply(valorIPC));
+            } else {
+                valorPension = valorPensionAnterior;
+            }
+
+
+            if(anio >= 1993 && anio <= 1997){
+                valorPension = reajuste1993_1997(anio, pensionado, valorPension);
+            }
+
+
+            // Calcular cuota parte mensual y anual
+            BigDecimal cuotaParteMensual = valorPension.multiply(porcentajeCuotaParte);
+            BigDecimal cuotaParteTotalAnio = cuotaParteMensual.multiply(numeroMesadas);
+
+            // Crear y agregar el periodo
             Periodo periodo = new Periodo();
             periodo.setFechaInicioPeriodo(inicioPeriodo);
             periodo.setFechaFinPeriodo(finPeriodo);
             periodo.setNumeroMesadas(numeroMesadas);
-
-            IPC ipc = ipcPorAnio.get(anio);
-            periodo.setIPC(ipc);  // Puede ser null si no se encuentra
-
-            // Valores aleatorios
-            //CAMBIAR AQUI PARA EL CALCULO CORRECTO DE CADA PERIODO
-            BigDecimal valorPension = BigDecimal.valueOf(ThreadLocalRandom.current().nextInt(10000, 100000));
-            BigDecimal cuotaParteMensual = BigDecimal.valueOf(ThreadLocalRandom.current().nextInt(10000, 100000));
-            BigDecimal cuotaParteTotalAnio = BigDecimal.valueOf(ThreadLocalRandom.current().nextInt(10000, 100000));
-            BigDecimal incrementoLey476 = BigDecimal.valueOf(ThreadLocalRandom.current().nextInt(10000, 100000));
-
             periodo.setValorPension(valorPension);
             periodo.setCuotaParteMensual(cuotaParteMensual);
             periodo.setCuotaParteTotalAnio(cuotaParteTotalAnio);
-            periodo.setIncrementoLey476(incrementoLey476);
+            periodo.setIncrementoLey476(ipc.getValorIPC()); 
+            periodo.setIPC(ipc);
             periodo.setCuotaParte(cuotaParte);
 
             periodos.add(periodo);
+
+            // Preparar valor de pensión para el próximo año
+            valorPensionAnterior = valorPension;
         }
 
         periodoRepositorio.saveAll(periodos);
@@ -154,5 +176,40 @@ public class PeriodoServicio implements IPeriodoServicio {
         }
         return totalMesadas.setScale(2, RoundingMode.HALF_UP);
     }
+
+    public BigDecimal reajuste1993_1997(int anio, Pensionado pensionado, BigDecimal valorPension) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(pensionado.getFechaInicioPension());
+        int anioInicioPension = cal.get(Calendar.YEAR);
+        if (anio == 1993 || anio == 1994) {
+            if (anioInicioPension <= 1981 ) {
+                valorPension = valorPension.multiply(new BigDecimal("0.12")).add(valorPension);
+            }else if(anioInicioPension > 1981 && anioInicioPension <= 1988){
+                valorPension = valorPension.multiply(new BigDecimal("0.07")).add(valorPension);
+            }
+            if(anio == 1994){
+                valorPension = valorPension.multiply(new BigDecimal("0.3025").add(valorPension));
+            }
+            return valorPension;
+        }
+
+        if (anio == 1995){
+            if(anioInicioPension <= 1991){
+                valorPension = valorPension.multiply(new BigDecimal("0.04")).add(valorPension);
+            }
+            valorPension = valorPension.multiply(new BigDecimal("0.02")).add(valorPension);
+            return valorPension;
+        }
+
+
+        if (anio == 1996 || anio == 1997){
+            valorPension = valorPension.multiply(new BigDecimal("0.01")).add(valorPension);
+            return valorPension;
+        }
+
+        return valorPension;
+    }
+
+    
 
 }
