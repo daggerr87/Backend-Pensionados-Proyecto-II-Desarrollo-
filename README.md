@@ -225,7 +225,7 @@ Luego, ve a GitHub y crea un Pull Request hacia la rama main.
     </dependency>
 </dependencies>
 ```
-8. 🧑‍💻 Equipo de desarrollo:
+## 8. 🧑‍💻 Equipo de desarrollo:
    
 Proyecto desarrollado por estudiantes de la Universidad del Cauca.
 
