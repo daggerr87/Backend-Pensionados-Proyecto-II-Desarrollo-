@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IPensionadoServicio;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.FiltroCuotaPartePeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPensionadoPeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.EntidadCuotaParteRespuesta;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
@@ -157,4 +158,5 @@ public class PensionadoControlador {
         List<EntidadCuotaParteRespuesta> response = pensionadoServicio.getEntidadesYCuotaParteByPensionadoId(pensionadoId);
         return ResponseEntity.ok(response);
     }
+
 }

@@ -3,6 +3,8 @@ package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 import java.time.LocalDate;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -30,5 +32,6 @@ public class Sucesor extends Persona{
 
     @ManyToOne
     @JoinColumn(name = "numeroIdPensionado", nullable = false)
+    @JsonBackReference("pensionado-sucesor")
     private Pensionado pensionado;
 }

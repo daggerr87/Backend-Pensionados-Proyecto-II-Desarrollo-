@@ -17,4 +17,6 @@ public interface IPensionadoServicio {
     PensionadoRespuesta buscarPensionadoPorId(Long id);
     void desactivarPensionado(Long id);
     List<EntidadCuotaParteRespuesta> getEntidadesYCuotaParteByPensionadoId(Long pensionadoId);
+
+
 }

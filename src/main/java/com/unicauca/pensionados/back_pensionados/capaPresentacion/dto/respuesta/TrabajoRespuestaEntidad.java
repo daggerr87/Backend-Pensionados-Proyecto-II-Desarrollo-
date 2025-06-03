@@ -10,10 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TrabajoRespuestaEntidad {
 
-        //private Long idTrabajo;
         private Long nitEntidad;
         private Long numeroIdPersona;
-        //private String nombreEntidad;
         private Long diasDeServicio;
   }
     
