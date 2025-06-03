@@ -107,11 +107,16 @@ git clone https://github.com/Cuotas-Partes/back-pensionados.git
   
   4. Asegúrate de tener MySQL corriendo con la base de datos creada.
   
-  5. Ejecuta la clase principal que contiene la anotación @SpringBootApplication.
+  5. Construimos el proyecto maven
+      ```
+      mvn clean install
+  6. Ejecutamo la aplicación
+     ```
+     mvn spring-boot:run
   
-  6. La aplicación se ejecutará en el puerto 8080 (por defecto).
+  8. La aplicación se ejecutará en el puerto 8080 (por defecto).
   
-  7. Puedes probar los endpoints utilizando Postman o algún cliente REST.
+  9. Puedes probar los endpoints utilizando Postman o algún cliente REST.
 
 ##📤 6. Pasos para subir cambios
    ```bash
@@ -220,7 +225,7 @@ Luego, ve a GitHub y crea un Pull Request hacia la rama main.
     </dependency>
 </dependencies>
 ```
-8. Equipo de desarrollo
+8. 🧑‍💻 Equipo de desarrollo
 Proyecto desarrollado por estudiantes de la Universidad del Cauca.
 
 
