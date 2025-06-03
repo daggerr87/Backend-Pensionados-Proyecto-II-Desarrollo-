@@ -335,99 +335,70 @@ public class CuotaParteServicio implements ICuotaParteServicio {
      * Devuelve una lista de DTOs con NIT, nombre y valor a cobrar.
      */
     @Transactional
-        public List<EntidadValorCuotaParteDTO> listarEntidadesYValorPorPensionadoYRango(Long idPensionado, FiltroCuotaPartePeticion filtro) {
-            logger.info("Inicio de listarEntidadesYValorPorPensionadoYRango - idPensionado: {}, filtro: {}", idPensionado, filtro);
-            if (idPensionado == null || filtro == null || filtro.getAnio() == null || filtro.getMesInicial() == null || filtro.getMesFinal() == null) {
-                throw new IllegalArgumentException("Todos los parámetros son obligatorios");
-            }
+    public List<EntidadValorCuotaParteDTO> listarEntidadesYValorPorPensionadoYRango(Long idPensionado, FiltroCuotaPartePeticion filtro) {
+        logger.info("Inicio de listarEntidadesYValorPorPensionadoYRango - idPensionado: {}, filtro: {}", idPensionado, filtro);
 
-            int anio = filtro.getAnio();
-            int mesInicio = filtro.getMesInicial();
-            int mesFinal = filtro.getMesFinal();
-            logger.info("Filtrando por año {}, desde mes {} hasta mes {}", anio, mesInicio, mesFinal);
-            if (mesInicio < 1 || mesInicio > 12 || mesFinal < 1 || mesFinal > 12 || mesInicio > mesFinal) {
-                throw new IllegalArgumentException("Los meses deben estar entre 1 y 12 y mes inicial debe ser menor o igual al mes final.");
-            }
+        if (idPensionado == null || filtro == null || filtro.getAnio() == null) {
+            throw new IllegalArgumentException("Todos los parámetros son obligatorios");
+        }
 
-            // Definir rango fechas con LocalDate para filtrar fechas
-            LocalDate fechaInicio = LocalDate.of(filtro.getAnio(), filtro.getMesInicial(), 1);
-            LocalDate fechaFin = fechaInicio
-                .withMonth(filtro.getMesFinal())
-                .withDayOfMonth(YearMonth.of(filtro.getAnio(), filtro.getMesFinal()).lengthOfMonth());
-            
-            List<CuotaParte> cuotasParte = cuotaParteRepositorio.findCuotasParteByPeriodoEnRango(fechaInicio, fechaFin);
+        int anio = filtro.getAnio();
+        int mesInicio = filtro.getMesInicial() != null ? filtro.getMesInicial() : 1;
+        int mesFinal = filtro.getMesFinal() != null ? filtro.getMesFinal() : 12;
 
-            
-            Map<Long, EntidadValorCuotaParteDTO> entidadValorMap = new HashMap<>();
-            logger.info("Cuotas encontradas en rango: {}", cuotasParte.size());
-            for (CuotaParte  cuota : cuotasParte) {
-                Pensionado pensionado = cuota.getTrabajo().getPensionado();
+        if (mesInicio < 1 || mesInicio > 12 || mesFinal < 1 || mesFinal > 12 || mesInicio > mesFinal) {
+            throw new IllegalArgumentException("Meses fuera de rango o mal definidos.");
+        }
 
-                // Filtrar por pensionado id y validar entidad jubilación
-                if (pensionado == null || !idPensionado.equals(pensionado.getNumeroIdPersona())
+        int mesadas = calcularMesadas(mesInicio, mesFinal, anio);
+        BigDecimal mesadasDecimal = BigDecimal.valueOf(mesadas);
+
+        List<CuotaParte> cuotasParte = cuotaParteRepositorio.findAll(); // Reemplazar con query más específica si se desea
+
+        Map<Long, EntidadValorCuotaParteDTO> entidadValorMap = new HashMap<>();
+
+        for (CuotaParte cuota : cuotasParte) {
+            Pensionado pensionado = cuota.getTrabajo().getPensionado();
+
+            if (pensionado == null || !idPensionado.equals(pensionado.getNumeroIdPersona())
                     || pensionado.getEntidadJubilacion() == null
                     || !"Universidad del Cauca".equalsIgnoreCase(pensionado.getEntidadJubilacion().getNombreEntidad())) {
-                logger.debug("Cuota descartada: no pertenece al pensionado o jubilación no es Unicauca");
                 continue;
-                }
-
-                // Excluir entidad con nit 8911500319L
-                Long nitEntidad = cuota.getTrabajo().getEntidad().getNitEntidad();
-                if (nitEntidad != null && nitEntidad.equals(8911500319L)) {
-                    continue;
-                }
-
-                // Filtrar los periodos asociados a la cuota para sumar solo los que estén dentro del rango de meses y año
-                List<Periodo> periodos = cuota.getPeriodos();
-                if (periodos == null || periodos.isEmpty()) {
-                    logger.debug("Cuota sin periodos, se omite");
-                    continue;
-                }
-
-            BigDecimal totalPorAnio = periodos.stream()
-                .filter(p -> p.getFechaInicioPeriodo() != null && p.getFechaFinPeriodo() != null)
-                .map(p -> {
-            LocalDate inicioPeriodo = p.getFechaInicioPeriodo();
-            LocalDate finPeriodo = p.getFechaFinPeriodo();
-
-            // Rango de fechas del filtro
-            LocalDate inicioFiltro = LocalDate.of(anio, mesInicio, 1);
-            LocalDate finFiltro = LocalDate.of(anio, mesFinal, YearMonth.of(anio, mesFinal).lengthOfMonth());
-
-            // Intersección entre periodo y filtro
-            LocalDate inicio = inicioPeriodo.isAfter(inicioFiltro) ? inicioPeriodo : inicioFiltro;
-            LocalDate fin = finPeriodo.isBefore(finFiltro) ? finPeriodo : finFiltro;
-
-            if (inicio.isAfter(fin)) {
-                return BigDecimal.ZERO;
             }
 
-            long meses = ChronoUnit.MONTHS.between(YearMonth.from(inicio), YearMonth.from(fin)) + 1;
-            return p.getCuotaParteMensual() != null
-                ? p.getCuotaParteMensual().multiply(BigDecimal.valueOf(meses))
-                : BigDecimal.ZERO;
-            })
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-
-                if (totalPorAnio.compareTo(BigDecimal.ZERO) <= 0) {
-                    logger.debug("Total cuota parte 0, se omite");
-                    continue;
-                }
-
-                EntidadValorCuotaParteDTO dto = entidadValorMap.get(nitEntidad);
-                if (dto == null) {
-                    dto = new EntidadValorCuotaParteDTO(String.valueOf(nitEntidad),
-                            cuota.getTrabajo().getEntidad().getNombreEntidad(),
-                            BigDecimal.ZERO);
-                }
-
-                dto.setValorACobrar(dto.getValorACobrar().add(totalPorAnio));
-                entidadValorMap.put(nitEntidad, dto);
-                logger.debug("Entidad {} - valor acumulado: {}", dto.getNombre(), dto.getValorACobrar());
+            Long nitEntidad = cuota.getTrabajo().getEntidad().getNitEntidad();
+            if (nitEntidad != null && nitEntidad.equals(8911500319L)) {
+                continue;
             }
-            logger.info("Total entidades procesadas: {}", entidadValorMap.size());
-            return new ArrayList<>(entidadValorMap.values());
+
+            List<Periodo> periodos = cuota.getPeriodos();
+            if (periodos == null || periodos.isEmpty()) {
+                continue;
+            }
+
+            BigDecimal totalPorEntidad = periodos.stream()
+                .filter(p -> p.getFechaInicioPeriodo() != null && p.getFechaInicioPeriodo().getYear() == anio)
+                .map(Periodo::getCuotaParteMensual)
+                .filter(Objects::nonNull)
+                .map(cuotaMensual -> cuotaMensual.multiply(mesadasDecimal))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            if (totalPorEntidad.compareTo(BigDecimal.ZERO) <= 0) {
+                continue;
+            }
+
+            EntidadValorCuotaParteDTO dto = entidadValorMap.computeIfAbsent(nitEntidad, k ->
+                new EntidadValorCuotaParteDTO(
+                    String.valueOf(nitEntidad),
+                    cuota.getTrabajo().getEntidad().getNombreEntidad(),
+                    BigDecimal.ZERO
+                )
+            );
+
+            dto.setValorACobrar(dto.getValorACobrar().add(totalPorEntidad));
         }
+
+        return new ArrayList<>(entidadValorMap.values());
+    }
 
 }
