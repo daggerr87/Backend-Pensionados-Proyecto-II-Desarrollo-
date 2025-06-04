@@ -7,9 +7,9 @@ import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.CuotaP
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.IPC;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Periodo;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.CuotaParteRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.IPCRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PeriodoRepositorio;
-
 
 import jakarta.transaction.Transactional;
 
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,9 @@ public class PeriodoServicio implements IPeriodoServicio {
 
     @Autowired
     private IPCRepositorio ipcRepositorio;
+
+    @Autowired
+    private CuotaParteRepositorio cuotaParteRepositorio;
 
     @Override
     @Transactional
@@ -69,7 +73,7 @@ public class PeriodoServicio implements IPeriodoServicio {
 
             BigDecimal numeroMesadas = calcularMesadas(inicioPeriodo, finPeriodo);
 
-            // Obtener IPC de ese año
+            // Obtener IPC del año anterior 
             IPC ipc = ipcPorAnio.get(anio - 1);
             BigDecimal valorIPC = ipc != null ? ipc.getValorIPC()
                 .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)
@@ -107,14 +111,19 @@ public class PeriodoServicio implements IPeriodoServicio {
             periodo.setIncrementoLey476(ipc.getValorIPC()); 
             periodo.setIPC(ipc);
             periodo.setCuotaParte(cuotaParte);
-
             periodos.add(periodo);
-
-            // Preparar valor de pensión para el próximo año
             valorPensionAnterior = valorPension;
         }
 
         periodoRepositorio.saveAll(periodos);
+
+        BigDecimal sumaPeriodos = periodos.stream()
+        .map(Periodo::getCuotaParteTotalAnio)
+        .filter(Objects::nonNull)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+        cuotaParte.setValorTotalCuotaParte(sumaPeriodos);
+        cuotaParteRepositorio.save(cuotaParte);
+
     }
 
     public BigDecimal calcularMesadas(LocalDate inicio, LocalDate fin) {
@@ -209,7 +218,5 @@ public class PeriodoServicio implements IPeriodoServicio {
 
         return valorPension;
     }
-
-    
 
 }

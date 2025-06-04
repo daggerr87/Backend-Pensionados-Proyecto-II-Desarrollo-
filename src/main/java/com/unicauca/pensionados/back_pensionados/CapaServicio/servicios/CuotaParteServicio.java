@@ -204,17 +204,21 @@ public class CuotaParteServicio implements ICuotaParteServicio {
                     BigDecimal.ZERO
                 )
             );
-    
+            BigDecimal totalPeriodos = cuota.getPeriodos().stream()
+            .map(Periodo::getCuotaParteTotalAnio) 
+            .filter(Objects::nonNull)             
+            .reduce(BigDecimal.ZERO, BigDecimal::add); 
             CuotaParteDTO cpDto = new CuotaParteDTO(
                 cuota.getIdCuotaParte(),
-                cuota.getValorCuotaParte(),
+                totalPeriodos,
                 cuota.getFechaGeneracion()
             );
-    
+
             dto.getCuotasParte().add(cpDto);
-    
+            
+
             // Sumar el valor de la cuota parte al total del pensionado
-            dto.setValorTotalCobro(dto.getValorTotalCobro().add(cuota.getValorCuotaParte()));
+            dto.setValorTotalCobro(dto.getValorTotalCobro().add(totalPeriodos));
         }
     
         List<PensionadoConCuotaParteDTO> listaPensionados = new ArrayList<>(mapPensionados.values());
