@@ -216,6 +216,8 @@ public class PensionadoServicio implements IPensionadoServicio {
                 .nitEntidad(pensionado.getEntidadJubilacion().getNitEntidad())
                 .entidadJubilacion(pensionado.getEntidadJubilacion().getNombreEntidad())
                 .totalDiasTrabajo(pensionado.getTotalDiasTrabajo())
+                .fechaDefuncionPersona(pensionado.getFechaDefuncionPersona())
+                .aplicarIPCPrimerPeriodo(pensionado.isAplicarIPCPrimerPeriodo())
                 .diasDeServicio(pensionado.getTrabajos().stream()
                         .filter(trabajo -> trabajo.getEntidad().getNitEntidad()
                                 .equals(pensionado.getEntidadJubilacion().getNitEntidad()))
@@ -346,6 +348,8 @@ public class PensionadoServicio implements IPensionadoServicio {
                 .nitEntidad(pensionado.getEntidadJubilacion().getNitEntidad())
                 .entidadJubilacion(pensionado.getEntidadJubilacion().getNombreEntidad())
                 .totalDiasTrabajo(totalDiasTrabajo)
+                .fechaDefuncionPersona(pensionado.getFechaDefuncionPersona())
+                .aplicarIPCPrimerPeriodo(pensionado.isAplicarIPCPrimerPeriodo())
                 .diasDeServicio(diasDeServicioJubilacion)
                 .trabajos(trabajos)
                 .build();
