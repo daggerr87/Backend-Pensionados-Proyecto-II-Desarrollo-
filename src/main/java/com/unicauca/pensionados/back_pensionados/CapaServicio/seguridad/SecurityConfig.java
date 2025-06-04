@@ -36,7 +36,14 @@ public class SecurityConfig {
                     .authenticationEntryPoint(customAuthEntryPoint)
                     .accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(authRequest -> authRequest
-                    .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers(  "/auth/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/swagger-ui/index.html",
+                    "/swagger-ui/index.html/**",    // Por si acaso
+                    "/swagger-resources/**",
+                    "/webjars/**").permitAll()
                     .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManager -> 
