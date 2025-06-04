@@ -77,7 +77,7 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionado.setEntidadJubilacion(entidad);
         pensionado.setTotalDiasTrabajo(request.getDiasDeServicio());
         pensionado.setAplicarIPCPrimerPeriodo(request.isAplicarIPCPrimerPeriodo());
-        pensionado.setFechaDefuncionPersona(request.getFechaDefuncionPersona());
+        //pensionado.setFechaDefuncionPersona(request.getFechaDefuncionPersona());
 
         Trabajo trabajo = new Trabajo();
         trabajo.setDiasDeServicio(request.getDiasDeServicio());
@@ -332,6 +332,26 @@ public class PensionadoServicio implements IPensionadoServicio {
                         .entidadJubilacion(trabajo.getEntidad().getNombreEntidad())
                         .build())
                 .toList();
+        
+        // Mapeo de Sucesores
+        List<SucesorRespuesta> sucesoresRespuesta = new ArrayList<>();
+        if (pensionado.getSucesores() != null) {
+            sucesoresRespuesta = pensionado.getSucesores().stream()
+                .map(sucesor -> SucesorRespuesta.builder()
+                    .numeroIdPersona(sucesor.getNumeroIdPersona())
+                    .tipoIdPersona(sucesor.getTipoIdPersona())
+                    .nombrePersona(sucesor.getNombrePersona())
+                    .apellidosPersona(sucesor.getApellidosPersona())
+                    .fechaNacimientoPersona(sucesor.getFechaNacimientoPersona())
+                    .fechaExpedicionDocumentoIdPersona(sucesor.getFechaExpedicionDocumentoIdPersona())
+                    .estadoPersona(sucesor.getEstadoPersona())
+                    .generoPersona(sucesor.getGeneroPersona())
+                    .fechaDefuncionPersona(sucesor.getFechaDefuncionPersona())
+                    .fechaInicioSucesion(sucesor.getFechaInicioSucesion())
+                    .porcentajePension(sucesor.getPorcentajePension())
+                    .build())
+                .collect(Collectors.toList());
+        }
 
         return PensionadoRespuesta.builder()
                 .numeroIdPersona(pensionado.getNumeroIdPersona())
@@ -352,6 +372,7 @@ public class PensionadoServicio implements IPensionadoServicio {
                 .aplicarIPCPrimerPeriodo(pensionado.isAplicarIPCPrimerPeriodo())
                 .diasDeServicio(diasDeServicioJubilacion)
                 .trabajos(trabajos)
+                .sucesores(sucesoresRespuesta)
                 .build();
     }
 
