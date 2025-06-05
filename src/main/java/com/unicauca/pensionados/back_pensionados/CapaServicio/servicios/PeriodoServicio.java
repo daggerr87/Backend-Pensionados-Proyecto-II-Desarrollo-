@@ -197,7 +197,7 @@ public class PeriodoServicio implements IPeriodoServicio {
                 valorPension = valorPension.multiply(new BigDecimal("0.07")).add(valorPension);
             }
             if(anio == 1994){
-                valorPension = valorPension.multiply(new BigDecimal("0.3025").add(valorPension));
+                valorPension = valorPension.multiply(new BigDecimal("0.3025")).add(valorPension);
             }
             return valorPension;
         }
