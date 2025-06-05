@@ -10,6 +10,13 @@ import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.R
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.EntidadCuotaParteRespuesta;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.List;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
 
@@ -24,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/pensionado")
+@Tag(name = "Pensionado Management", description = "APIs para la gestión de pensionados")
 public class PensionadoControlador {
     private final IPensionadoServicio pensionadoServicio;
 
@@ -32,7 +40,17 @@ public class PensionadoControlador {
     }
 
     @PostMapping("/registrar")
-    public ResponseEntity<?> registrarPensionado(@RequestBody RegistroPensionadoPeticion peticion) {
+    @Operation(summary = "Registrar un nuevo pensionado", description = "Registra un nuevo pensionado en el sistema.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pensionado registrado exitosamente",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Error al registrar pensionado",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+    })
+    public ResponseEntity<?> registrarPensionado(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos del pensionado a registrar", required = true,
+            content = @Content(schema = @Schema(implementation = RegistroPensionadoPeticion.class))) @RequestBody RegistroPensionadoPeticion peticion) {
         try{
             pensionadoServicio.registrarPensionado(peticion);
         return ResponseEntity.ok("Pensionado registrado exitosamente");
@@ -48,7 +66,21 @@ public class PensionadoControlador {
     }
 
     @PostMapping("/actualizar/{id}")
-    public ResponseEntity<?> actualizarPensionado(@PathVariable Long id, @RequestBody RegistroPensionadoPeticion peticion) {
+    @Operation(summary = "Actualizar un pensionado existente", description = "Actualiza los datos de un pensionado existente identificado por su ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pensionado actualizado exitosamente",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Error al actualizar pensionado",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "404", description = "Pensionado no encontrado",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))), 
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+    })
+    public ResponseEntity<?> actualizarPensionado(
+            @io.swagger.v3.oas.annotations.Parameter(description = "ID del pensionado a actualizar", required = true) @PathVariable Long id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Nuevos datos del pensionado", required = true,
+                    content = @Content(schema = @Schema(implementation = RegistroPensionadoPeticion.class))) @RequestBody RegistroPensionadoPeticion peticion) {
         try{
             pensionadoServicio.actualizarPensionado(id, peticion);
             return ResponseEntity.ok("Pensionado actualizado exitosamente");
@@ -63,6 +95,15 @@ public class PensionadoControlador {
     }
 
     @GetMapping("/listar")
+    @Operation(summary = "Listar todos los pensionados", description = "Obtiene una lista de todos los pensionados registrados en el sistema.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de pensionados obtenida exitosamente",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PensionadoRespuesta.class, type = "array"))),
+            @ApiResponse(responseCode = "400", description = "Error al listar pensionados",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+    })
     public ResponseEntity<?> listarPensionados() {
         try {
             List<PensionadoRespuesta> pensionados = pensionadoServicio.listarPensionados();
@@ -78,7 +119,15 @@ public class PensionadoControlador {
     
  
     @GetMapping("/buscar/id/{id}")
-    public ResponseEntity<?> buscarPensionadoPorId(@PathVariable Long id) {
+    @Operation(summary = "Buscar pensionado por ID", description = "Busca un pensionado específico utilizando su ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pensionado encontrado",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PensionadoRespuesta.class))),
+            @ApiResponse(responseCode = "404", description = "Pensionado no encontrado",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+    })
+    public ResponseEntity<?> buscarPensionadoPorId(
+            @io.swagger.v3.oas.annotations.Parameter(description = "ID del pensionado a buscar", required = true) @PathVariable Long id) {
         try {
             PensionadoRespuesta pensionadoDTO = pensionadoServicio.buscarPensionadoPorId(id);
             return ResponseEntity.ok(pensionadoDTO);
@@ -92,8 +141,17 @@ public class PensionadoControlador {
 
 
     @GetMapping("/buscar/nombre")
+    @Operation(summary = "Buscar pensionados por nombre", description = "Busca pensionados cuyo nombre coincida (parcial o totalmente) con el término proporcionado.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pensionados encontrados",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pensionado.class, type = "array"))),
+            @ApiResponse(responseCode = "400", description = "El parámetro 'nombre' no puede estar vacío",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+    })
     public ResponseEntity<?> buscarPensionadosPorNombre(
-            @RequestParam(required = false) String nombre) {
+            @io.swagger.v3.oas.annotations.Parameter(description = "Nombre o parte del nombre del pensionado a buscar", required = false) @RequestParam(required = false) String nombre) {
         try {
             if (nombre == null || nombre.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
@@ -108,8 +166,17 @@ public class PensionadoControlador {
     }
 
     @GetMapping("/buscar/apellido")
+    @Operation(summary = "Buscar pensionados por apellido", description = "Busca pensionados cuyo apellido coincida (parcial o totalmente) con el término proporcionado.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pensionados encontrados",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pensionado.class, type = "array"))),
+            @ApiResponse(responseCode = "400", description = "El parámetro 'apellido' no puede estar vacío",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+    })
     public ResponseEntity<?> buscarPensionadosPorApellido(
-            @RequestParam(required = false) String apellido) {
+            @io.swagger.v3.oas.annotations.Parameter(description = "Apellido o parte del apellido del pensionado a buscar", required = false) @RequestParam(required = false) String apellido) {
         try {
             if (apellido == null || apellido.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
@@ -124,8 +191,17 @@ public class PensionadoControlador {
     }
 
     @GetMapping("/buscar")
+    @Operation(summary = "Buscar pensionados por criterio", description = "Busca pensionados por un criterio general (nombre, apellido o cédula). El término de búsqueda se aplica a estos campos.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pensionados encontrados",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pensionado.class, type = "array"))),
+            @ApiResponse(responseCode = "400", description = "Error en la búsqueda",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+    })
     public ResponseEntity<?> buscarPensionadosPorCriterio(
-            @RequestParam(required = false) String query) {
+            @io.swagger.v3.oas.annotations.Parameter(description = "Término de búsqueda para nombre, apellido o cédula", required = false) @RequestParam(required = false) String query) {
         try {
             List<Pensionado> pensionados = pensionadoServicio.buscarPensionadosPorCriterio(query);
             return ResponseEntity.ok(pensionados);
@@ -139,7 +215,17 @@ public class PensionadoControlador {
     }
 
     @PatchMapping("/desactivar/{id}")
-    public ResponseEntity<?> desactivarPensionado(@PathVariable Long id) {
+    @Operation(summary = "Desactivar un pensionado", description = "Marca un pensionado como inactivo en el sistema utilizando su ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pensionado desactivado exitosamente",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "404", description = "Pensionado no encontrado",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class)))
+    })
+    public ResponseEntity<?> desactivarPensionado(
+            @io.swagger.v3.oas.annotations.Parameter(description = "ID del pensionado a desactivar", required = true) @PathVariable Long id) {
         try {
             pensionadoServicio.desactivarPensionado(id);
             return ResponseEntity.ok("Pensionado desactivado exitosamente");
@@ -153,7 +239,19 @@ public class PensionadoControlador {
     }
 
     @GetMapping("/{pensionadoId}/entidades-cuotaparte")
+    @Operation(summary = "Obtener entidades y cuotas parte por ID de pensionado",
+               description = "Recupera una lista de entidades y sus respectivas cuotas parte asociadas a un pensionado específico, identificado por su ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Entidades y cuotas parte obtenidas exitosamente",
+                    content = @Content(mediaType = "application/json", 
+                                       schema = @Schema(implementation = EntidadCuotaParteRespuesta.class, type = "array"))),
+            @ApiResponse(responseCode = "404", description = "Pensionado no encontrado o sin entidades asociadas", // Assuming the service might return empty or handle not found
+                    content = @Content(mediaType = "application/json", schema = @Schema(type = "array", implementation = EntidadCuotaParteRespuesta.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))) // Assuming error message as plain text
+    })
     public ResponseEntity<List<EntidadCuotaParteRespuesta>> getEntidadesYCuotaParteByPensionadoId(
+            @io.swagger.v3.oas.annotations.Parameter(description = "ID del pensionado para consultar sus entidades y cuotas parte", required = true)
             @PathVariable Long pensionadoId) {
         List<EntidadCuotaParteRespuesta> response = pensionadoServicio.getEntidadesYCuotaParteByPensionadoId(pensionadoId);
         return ResponseEntity.ok(response);
