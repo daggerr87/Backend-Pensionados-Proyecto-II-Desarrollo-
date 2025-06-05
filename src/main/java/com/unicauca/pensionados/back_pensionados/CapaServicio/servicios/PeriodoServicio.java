@@ -74,7 +74,7 @@ public class PeriodoServicio implements IPeriodoServicio {
             BigDecimal numeroMesadas = calcularMesadas(inicioPeriodo, finPeriodo);
 
             // Obtener IPC del año anterior 
-            IPC ipc = ipcPorAnio.get(anio - 1);
+            IPC ipc = ipcPorAnio.get(anio-1);
             BigDecimal valorIPC = ipc != null ? ipc.getValorIPC()
                 .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
@@ -197,7 +197,7 @@ public class PeriodoServicio implements IPeriodoServicio {
                 valorPension = valorPension.multiply(new BigDecimal("0.07")).add(valorPension);
             }
             if(anio == 1994){
-                valorPension = valorPension.multiply(new BigDecimal("0.3025")).add(valorPension);
+                valorPension = valorPension.multiply(new BigDecimal("0.03025")).add(valorPension);
             }
             return valorPension;
         }
