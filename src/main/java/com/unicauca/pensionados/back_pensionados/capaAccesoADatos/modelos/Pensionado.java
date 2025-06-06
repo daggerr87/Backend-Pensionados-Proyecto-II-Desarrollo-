@@ -31,7 +31,7 @@ public class Pensionado extends Persona{
     @Temporal(TemporalType.DATE)
     private Date fechaInicioPension;
     
-    @Column (name = "valorInicialPension", nullable = false, precision = 19, scale = 2)
+    @Column (name = "valorInicialPension", nullable = false, precision = 19, scale = 0)
     private BigDecimal valorInicialPension;
 
     @Column (name = "resolucionPension", nullable =false , length = 50)
