@@ -96,6 +96,8 @@ public class EntidadServicio implements IEntidadServicio {
 
                 cuotaParteServicio.registrarCuotaParte(trabajo);
                 entidad.getTrabajos().add(trabajo);
+
+                cuotaParteServicio.recalcularCuotasPartesPorPensionado(pensionado);
                 
             }
         }
