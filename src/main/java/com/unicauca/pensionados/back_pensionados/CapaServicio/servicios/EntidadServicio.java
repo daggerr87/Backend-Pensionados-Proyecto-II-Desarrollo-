@@ -3,14 +3,22 @@ package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.CuotaParte;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.CuotaParteRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.EntidadRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PensionadoRepositorio;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PeriodoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.TrabajoRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.EntidadConPensionadosRespuesta;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoRespuesta;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.TrabajoRespuesta;
+
+import java.util.Objects;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +36,12 @@ public class EntidadServicio implements IEntidadServicio {
     private PensionadoRepositorio pensionadoRepositorio;
     @Autowired
     private TrabajoRepositorio trabajoRepositorio;
+    @Autowired
+    private CuotaParteServicio cuotaParteServicio;
+    @Autowired
+    private CuotaParteRepositorio cuotaParteRepositorio;
+    @Autowired
+    private PeriodoRepositorio periodoRepositorio;
 
     /**
      * Registra una nueva entidad en la base de datos junto con sus pensionados y trabajos asociados.
@@ -39,17 +53,14 @@ public class EntidadServicio implements IEntidadServicio {
     @Transactional
     @Override
     public void registrarEntidad(RegistroEntidadPeticion request) {
-        // Validar si ya existe una entidad con el mismo NIT
         if (entidadRepository.existsByNitEntidad(request.getNitEntidad())) {
             throw new RuntimeException("Ya existe una entidad con el NIT: " + request.getNitEntidad());
         }
 
-        // Validar si ya existe una entidad con el mismo nombre
         if (entidadRepository.existsByNombreEntidad(request.getNombreEntidad())) {
             throw new RuntimeException("Ya existe una entidad con el nombre: " + request.getNombreEntidad());
         }
 
-        // Crear la entidad
         Entidad entidad = new Entidad();
         entidad.setNitEntidad(request.getNitEntidad());
         entidad.setNombreEntidad(request.getNombreEntidad());
@@ -58,13 +69,11 @@ public class EntidadServicio implements IEntidadServicio {
         entidad.setEmailEntidad(request.getEmailEntidad());
         entidad.setEstadoEntidad(request.getEstadoEntidad());
 
-        // Inisializar la lista de trabajos si esta vacia
         if (entidad.getTrabajos() == null) {
             entidad.setTrabajos(new ArrayList<>());
         }
         entidadRepository.save(entidad);
 
-        //Verificar si en la peticion se enviaron pensionados que trabajaron en la entidad
         if (request.getTrabajos() != null && !request.getTrabajos().isEmpty()) {
             for (RegistroTrabajoPeticion registroTrabajoPeticion : request.getTrabajos()) {
                 Pensionado pensionado = pensionadoRepositorio.findById(registroTrabajoPeticion.getNumeroIdPersona())
@@ -72,14 +81,22 @@ public class EntidadServicio implements IEntidadServicio {
                         "El pensionado con ID: " + registroTrabajoPeticion.getNumeroIdPersona() + " no está registrado"));
 
                 Trabajo trabajo = new Trabajo();
-                Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), pensionado.getNumeroIdPersona());
 
-                trabajo.setId(trabajoId);
+               //trabajo.setId(trabajoId);
                 trabajo.setDiasDeServicio(registroTrabajoPeticion.getDiasDeServicio());
                 trabajo.setEntidad(entidad);
                 trabajo.setPensionado(pensionado);
                 trabajoRepositorio.save(trabajo);
+                Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado)
+                    .stream()
+                    .mapToLong(Trabajo::getDiasDeServicio)
+                    .sum();
+                pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
+                pensionadoRepositorio.save(pensionado);
+
+                cuotaParteServicio.registrarCuotaParte(trabajo);
                 entidad.getTrabajos().add(trabajo);
+                
             }
         }
     }
@@ -96,18 +113,56 @@ public class EntidadServicio implements IEntidadServicio {
     @Transactional
     @Override
     public void actualizar(Long nid, RegistroEntidadPeticion entidad) {
-        // Buscar la entidad por su NIT
         Entidad entidadExistente = entidadRepository.findById(nid)
-                .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nid));
+            .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nid));
 
-        // Actualizar los campos de la entidad
+        if (entidadRepository.existsByNombreEntidad(entidad.getNombreEntidad())
+            && !entidadExistente.getNombreEntidad().equals(entidad.getNombreEntidad())) {
+            throw new RuntimeException("Ya existe una entidad con el nombre: " + entidad.getNombreEntidad());
+        }
+
         entidadExistente.setNombreEntidad(entidad.getNombreEntidad());
         entidadExistente.setDireccionEntidad(entidad.getDireccionEntidad());
         entidadExistente.setTelefonoEntidad(entidad.getTelefonoEntidad());
         entidadExistente.setEmailEntidad(entidad.getEmailEntidad());
         entidadExistente.setEstadoEntidad(entidad.getEstadoEntidad());
 
-        // Guardar la entidad actualizada
+        if (entidad.getTrabajos() != null) {
+            List<Trabajo> trabajosActuales = trabajoRepositorio.findByEntidadNitEntidad(nid);
+            Map<Long, Trabajo> mapaTrabajosActuales = trabajosActuales.stream()
+                .collect(Collectors.toMap(trabajo -> trabajo.getPensionado().getNumeroIdPersona(), trabajo -> trabajo));
+
+            for (RegistroTrabajoPeticion trabajoPeticion : entidad.getTrabajos()) {
+                Long numeroIdPersona = trabajoPeticion.getNumeroIdPersona();
+                Pensionado pensionado = pensionadoRepositorio.findById(numeroIdPersona)
+                    .orElseThrow(() -> new RuntimeException(
+                        "El pensionado con ID: " + numeroIdPersona + " no está registrado"));
+
+                Trabajo trabajo = mapaTrabajosActuales.get(numeroIdPersona);
+                if (trabajo != null) {
+                    trabajo.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
+                    trabajoRepositorio.save(trabajo);
+                    cuotaParteServicio.registrarCuotaParte(trabajo);
+                    mapaTrabajosActuales.remove(numeroIdPersona);
+                } else {
+                    Trabajo nuevoTrabajo = new Trabajo();
+                    nuevoTrabajo.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
+                    nuevoTrabajo.setEntidad(entidadExistente);
+                    nuevoTrabajo.setPensionado(pensionado);
+                    trabajoRepositorio.save(nuevoTrabajo);
+                    cuotaParteServicio.registrarCuotaParte(nuevoTrabajo);
+                    entidadExistente.getTrabajos().add(nuevoTrabajo);
+                }
+
+                Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado)
+                    .stream()
+                    .mapToLong(Trabajo::getDiasDeServicio)
+                    .sum();
+                pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
+                pensionadoRepositorio.save(pensionado);
+            }
+        }
+
         entidadRepository.save(entidadExistente);
     }
 
@@ -122,68 +177,167 @@ public class EntidadServicio implements IEntidadServicio {
     @Transactional
     @Override
     public void editarPensionadosDeEntidad(Long nitEntidad, List<RegistroTrabajoPeticion> trabajosActualizados) {
-        // Buscar la entidad por su NIT
         Entidad entidad = entidadRepository.findById(nitEntidad)
                 .orElseThrow(() -> new RuntimeException("No se encontró la entidad con NIT: " + nitEntidad));
 
-        // Obtener los trabajos actuales de la entidad
         List<Trabajo> trabajosActuales = trabajoRepositorio.findByEntidadNitEntidad(nitEntidad);
-
-        // Crear un mapa para acceder rápidamente a los trabajos actuales por ID del pensionado
         Map<Long, Trabajo> mapaTrabajosActuales = trabajosActuales.stream()
                 .collect(Collectors.toMap(trabajo -> trabajo.getPensionado().getNumeroIdPersona(), trabajo -> trabajo));
 
-        // Procesar la lista de trabajos actualizada
         for (RegistroTrabajoPeticion trabajoPeticion : trabajosActualizados) {
             Long numeroIdPersona = trabajoPeticion.getNumeroIdPersona();
-
-            // Verificar si el pensionado existe
             Pensionado pensionado = pensionadoRepositorio.findById(numeroIdPersona)
                     .orElseThrow(() -> new RuntimeException(
                             "El pensionado con ID: " + numeroIdPersona + " no está registrado"));
 
-            // Verificar si el trabajo ya existe
-            if (mapaTrabajosActuales.containsKey(numeroIdPersona)) {
-                // Actualizar los días de servicio si el trabajo ya existe
-                Trabajo trabajoExistente = mapaTrabajosActuales.get(numeroIdPersona);
-                trabajoExistente.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
-                trabajoRepositorio.save(trabajoExistente);
+            Optional<Trabajo> trabajoExistenteOpt = trabajoRepositorio.findByPensionadoAndEntidad(pensionado, entidad);
 
-                // Remover el trabajo del mapa para identificar los que no están en la lista actualizada
-                mapaTrabajosActuales.remove(numeroIdPersona);
-            } else {
-                // Crear un nuevo trabajo si no existe
+            Trabajo trabajoModificado = null;
+            if (trabajoExistenteOpt.isPresent()) {
+                Trabajo trabajoExistente = trabajoExistenteOpt.get();
+                if (trabajoPeticion.getDiasDeServicio() == 0) {
+                    cuotaParteRepositorio.findByTrabajoIdTrabajo(trabajoExistente.getIdTrabajo())
+                        .ifPresent(cuotaParteRepositorio::delete);
+                    trabajoRepositorio.delete(trabajoExistente);
+                    entidad.getTrabajos().remove(trabajoExistente);
+
+                    Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado)
+                            .stream()
+                            .mapToLong(Trabajo::getDiasDeServicio)
+                            .sum();
+                    pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
+                    pensionadoRepositorio.save(pensionado);
+
+                    mapaTrabajosActuales.remove(numeroIdPersona);
+
+                    boolean tieneMasTrabajosEnEntidad = trabajoRepositorio.findByPensionadoAndEntidad(pensionado, entidad).isPresent();
+                    if (!tieneMasTrabajosEnEntidad) {
+                        entidad.getTrabajos().removeIf(t -> t.getPensionado().getNumeroIdPersona().equals(numeroIdPersona));
+                    }
+                    continue; 
+                } else {
+                    trabajoExistente.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
+                    trabajoRepositorio.save(trabajoExistente);
+                    trabajoModificado = trabajoExistente;
+                    mapaTrabajosActuales.remove(numeroIdPersona);
+                }
+            } else if (trabajoPeticion.getDiasDeServicio() > 0) {
                 Trabajo nuevoTrabajo = new Trabajo();
-                Trabajo.TrabajoId trabajoId = new Trabajo.TrabajoId(entidad.getNitEntidad(), numeroIdPersona);
-
-                nuevoTrabajo.setId(trabajoId);
                 nuevoTrabajo.setDiasDeServicio(trabajoPeticion.getDiasDeServicio());
                 nuevoTrabajo.setEntidad(entidad);
                 nuevoTrabajo.setPensionado(pensionado);
-
                 trabajoRepositorio.save(nuevoTrabajo);
                 entidad.getTrabajos().add(nuevoTrabajo);
+                trabajoModificado = nuevoTrabajo;
+            }
+
+            Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado)
+                    .stream()
+                    .mapToLong(Trabajo::getDiasDeServicio)
+                    .sum();
+            pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
+            pensionadoRepositorio.save(pensionado);
+            cuotaParteServicio.recalcularCuotasPartesPorPensionado(pensionado);
+            if (trabajoModificado != null && totalDiasTrabajo > 0) {
+                cuotaParteServicio.registrarCuotaParte(trabajoModificado);
+            }
+
+            boolean tieneMasTrabajosEnEntidad = trabajoRepositorio.findByPensionadoAndEntidad(pensionado, entidad).isPresent();
+            if (!tieneMasTrabajosEnEntidad) {
+                entidad.getTrabajos().removeIf(t -> t.getPensionado().getNumeroIdPersona().equals(numeroIdPersona));
             }
         }
 
         // Eliminar los trabajos que no están en la lista actualizada
         for (Trabajo trabajoAEliminar : mapaTrabajosActuales.values()) {
+            Pensionado pensionado = trabajoAEliminar.getPensionado();
+            cuotaParteRepositorio.findByTrabajoIdTrabajo(trabajoAEliminar.getIdTrabajo())
+                .ifPresent(cuotaParteRepositorio::delete);
             trabajoRepositorio.delete(trabajoAEliminar);
             entidad.getTrabajos().remove(trabajoAEliminar);
+
+            // actualizamos total de días de trabajo después de eliminar
+            Long totalDiasTrabajo = trabajoRepositorio.findByPensionado(pensionado)
+                    .stream()
+                    .mapToLong(Trabajo::getDiasDeServicio)
+                    .sum();
+            pensionado.setTotalDiasTrabajo(totalDiasTrabajo);
+            pensionadoRepositorio.save(pensionado);
+
+            boolean tieneMasTrabajosEnEntidad = trabajoRepositorio.findByPensionadoAndEntidad(pensionado, entidad).isPresent();
+            if (!tieneMasTrabajosEnEntidad) {
+                entidad.getTrabajos().removeIf(t -> t.getPensionado().getNumeroIdPersona().equals(pensionado.getNumeroIdPersona()));
+            }
         }
 
-        // Guardar la entidad actualizada
         entidadRepository.save(entidad);
     }
-
     /**
      * Lista todas las entidades ordenadas por NIT ascendente.
      * 
      * @return una lista de objetos Entidad
      */
     @Override
-    public List<Entidad> listarTodos() {
-        return entidadRepository.findAllByOrderByNitEntidadAsc();
+    public List<EntidadConPensionadosRespuesta> listarTodos() {
+        List<Entidad> entidades = entidadRepository.findAllByOrderByNitEntidadAsc();
+
+        return entidades.stream().map(entidad -> {
+            List<TrabajoRespuesta> trabajos = entidad.getTrabajos().stream()
+                .map(trabajo -> TrabajoRespuesta.builder()
+                    .diasDeServicio(trabajo.getDiasDeServicio())
+                    .nitEntidad(trabajo.getEntidad().getNitEntidad())
+                    .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                    .idTrabajo(trabajo.getIdTrabajo())
+                    .entidadJubilacion(trabajo.getEntidad().getNombreEntidad())
+                    .build())
+                .toList();
+                List<PensionadoRespuesta> pensionados = entidad.getTrabajos().stream()
+                .map(Trabajo::getPensionado) // <-- tipo inferido: Pensionado
+                .filter(Objects::nonNull)
+                .distinct()
+                .map((Pensionado p) -> PensionadoRespuesta.builder()
+                    .numeroIdPersona(p.getNumeroIdPersona())
+                    .tipoIdPersona(p.getTipoIdPersona())
+                    .nombrePersona(p.getNombrePersona())
+                    .apellidosPersona(p.getApellidosPersona())
+                    .fechaNacimientoPersona(p.getFechaNacimientoPersona())
+                    .fechaExpedicionDocumentoIdPersona(p.getFechaExpedicionDocumentoIdPersona())
+                    .estadoPersona(p.getEstadoPersona())
+                    .generoPersona(p.getGeneroPersona())
+                    //.fechaDefuncionPersona(p.getFechaDefuncionPersona())
+                    .fechaInicioPension(p.getFechaInicioPension())
+                    .valorInicialPension(p.getValorInicialPension())
+                    .resolucionPension(p.getResolucionPension())
+                    .entidadJubilacion(entidad.getNombreEntidad())
+                    .totalDiasTrabajo(entidad.getTrabajos().stream()
+                        .map(Trabajo::getDiasDeServicio)
+                        .reduce(0L, Long::sum))
+                    .diasDeServicio(trabajoRepositorio.findByPensionadoAndEntidad(p, entidad).get().getDiasDeServicio())
+                    .nitEntidad(entidad.getNitEntidad())
+                    .trabajos(p.getTrabajos().stream()
+                        .map((Trabajo trabajo) -> TrabajoRespuesta.builder()
+                            .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                            .nitEntidad(trabajo.getEntidad().getNitEntidad())
+                            .idTrabajo(trabajo.getIdTrabajo())
+                            .entidadJubilacion(trabajo.getEntidad().getNombreEntidad())
+                            .diasDeServicio(trabajo.getDiasDeServicio())
+                            .build())
+                        .toList())
+                    .build())
+                .toList();
+
+
+            return EntidadConPensionadosRespuesta.builder()
+                .nitEntidad(entidad.getNitEntidad())
+                .nombreEntidad(entidad.getNombreEntidad())
+                .direccionEntidad(entidad.getDireccionEntidad())
+                .telefonoEntidad(entidad.getTelefonoEntidad())
+                .emailEntidad(entidad.getEmailEntidad())
+                .estadoEntidad(entidad.getEstadoEntidad())
+                .trabajos(trabajos)
+                .pensionados(pensionados)
+                .build();
+        }).toList();
     }
 
     /**
@@ -205,26 +359,84 @@ public class EntidadServicio implements IEntidadServicio {
      * @param query el criterio de búsqueda (nombre, NIT o dirección)
      * @return una lista de objetos Entidad
      */
-    @Override
-    public List<Entidad> buscarEntidadesPorCriterio(String query) {
-        List<Entidad> resultado = new ArrayList<>();
+      @Override
+        public List<EntidadConPensionadosRespuesta> buscarEntidadesPorCriterio(String query) {
+            List<Entidad> entidades = new ArrayList<>();
 
-        try {
-            Long nit = Long.parseLong(query);
-            resultado.addAll(entidadRepository.findByNitEntidadIs(nit));
-        } catch (NumberFormatException e) {
-            // Ignorar errores de formato para búsqueda por NIT
-        }
+            // Buscar entidades por NIT o criterios de texto
+            try {
+                Long nit = Long.parseLong(query);
+                entidades.addAll(entidadRepository.findByNitEntidadIs(nit));
+            } catch (NumberFormatException e) {
+                // Si no es un número, buscar por nombre, dirección o email
+                entidades.addAll(entidadRepository.findByNombreEntidadContainingIgnoreCase(query));
+                entidades.addAll(entidadRepository.findByDireccionEntidadContainingIgnoreCase(query));
+                entidades.addAll(entidadRepository.findByEmailEntidadContainingIgnoreCase(query));
+            }
 
-        resultado.addAll(entidadRepository.findByNombreEntidadContainingIgnoreCase(query));
-        resultado.addAll(entidadRepository.findByDireccionEntidadContainingIgnoreCase(query));
-        resultado.addAll(entidadRepository.findByEmailEntidadContainingIgnoreCase(query));
+            // Eliminar duplicados
+            entidades = entidades.stream().distinct().toList();
 
-        // Eliminar duplicados
-        return resultado.stream()
+            // Mapear las entidades a DTOs
+            return entidades.stream().map(entidad -> {
+                // Mapear los trabajos asociados a la entidad
+                List<TrabajoRespuesta> trabajos = entidad.getTrabajos().stream()
+                .map((Trabajo trabajo) -> TrabajoRespuesta.builder()
+                    .idTrabajo(trabajo.getIdTrabajo())
+                    .diasDeServicio(trabajo.getDiasDeServicio())
+                    .nitEntidad(trabajo.getEntidad().getNitEntidad())
+                    .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                    .build())
+                .toList();
+                
+                List<PensionadoRespuesta> pensionados = entidad.getTrabajos().stream()
+                .map(Trabajo::getPensionado) 
+                .filter(Objects::nonNull)
                 .distinct()
-                .collect(Collectors.toList());
-    }
+                .map((Pensionado p) -> PensionadoRespuesta.builder()
+                    .numeroIdPersona(p.getNumeroIdPersona())
+                    .tipoIdPersona(p.getTipoIdPersona())
+                    .nombrePersona(p.getNombrePersona())
+                    .apellidosPersona(p.getApellidosPersona())
+                    .fechaNacimientoPersona(p.getFechaNacimientoPersona())
+                    .fechaExpedicionDocumentoIdPersona(p.getFechaExpedicionDocumentoIdPersona())
+                    .estadoPersona(p.getEstadoPersona())
+                    .generoPersona(p.getGeneroPersona())
+                    //.fechaDefuncionPersona(p.getFechaDefuncionPersona())
+                    .fechaInicioPension(p.getFechaInicioPension())
+                    .valorInicialPension(p.getValorInicialPension())
+                    .resolucionPension(p.getResolucionPension())
+                    .entidadJubilacion(entidad.getNombreEntidad())
+                    .nitEntidad(entidad.getNitEntidad())
+                    .totalDiasTrabajo(entidad.getTrabajos().stream()
+                        .map(Trabajo::getDiasDeServicio)
+                        .reduce(0L, Long::sum))
+                    .diasDeServicio(trabajoRepositorio.findByPensionadoAndEntidad(p, entidad).get().getDiasDeServicio())
+                    .trabajos(p.getTrabajos().stream()
+                        .map((Trabajo trabajo) -> TrabajoRespuesta.builder()
+                            .nitEntidad(trabajo.getEntidad().getNitEntidad())
+                            .numeroIdPersona(trabajo.getPensionado().getNumeroIdPersona())
+                            .idTrabajo(trabajo.getIdTrabajo())
+                            .diasDeServicio(trabajo.getDiasDeServicio())
+                            .entidadJubilacion(trabajo.getEntidad().getNombreEntidad())
+                            .build())
+                        .toList())
+                    .build())
+                .toList();
+
+                return EntidadConPensionadosRespuesta.builder()
+                    .nitEntidad(entidad.getNitEntidad())
+                    .nombreEntidad(entidad.getNombreEntidad())
+                    .direccionEntidad(entidad.getDireccionEntidad())
+                    .telefonoEntidad(entidad.getTelefonoEntidad())
+                    .emailEntidad(entidad.getEmailEntidad())
+                    .estadoEntidad(entidad.getEstadoEntidad())
+                    .pensionados(pensionados)
+                    .trabajos(trabajos)
+                    .build();
+            }).toList();
+        }
+     
 
     /**
      * Activa una entidad cambiando su estado a "Activa".

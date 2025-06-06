@@ -1,6 +1,6 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
-import java.sql.Date;
+import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,6 +9,8 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,9 +34,11 @@ public abstract class Persona {
     private String apellidosPersona;
 
     @Column (name = "fechaNacimientoPersona", nullable = false)
+    @Temporal(TemporalType.DATE)
     private Date fechaNacimientoPersona;
 
     @Column(name = "fechaExpedicionDocumentoIdPersona", nullable = false)
+    @Temporal(TemporalType.DATE)
     private Date fechaExpedicionDocumentoIdPersona;
 
     @Column (name = "estadoPersona", nullable = false, length = 50)
@@ -42,5 +46,9 @@ public abstract class Persona {
 
     @Column (name = "generoPersona", length = 50, nullable = true)
     private String generoPersona;
+
+    @Column (name = "fechaDefuncionPersona", length = 50)
+    @Temporal(TemporalType.DATE)
+    private Date fechaDefuncionPersona;
 
 }

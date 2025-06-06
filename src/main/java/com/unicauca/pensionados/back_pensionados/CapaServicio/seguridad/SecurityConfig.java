@@ -13,13 +13,30 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-
+@OpenAPIDefinition(
+    info = @Info(title = "Cuotas Partes API", version = "v1", description = "API para la gestión de Cuotas Partes y Pensionados"),
+    security = {@SecurityRequirement(name = "bearerAuth")}
+)
+@SecurityScheme(
+    name = "bearerAuth",
+    description = "JWT auth description",
+    scheme = "bearer",
+    type = SecuritySchemeType.HTTP,
+    bearerFormat = "JWT",
+    in = SecuritySchemeIn.HEADER
+)
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -36,7 +53,14 @@ public class SecurityConfig {
                     .authenticationEntryPoint(customAuthEntryPoint)
                     .accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(authRequest -> authRequest
-                    .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers(  "/auth/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/swagger-ui/index.html",
+                    "/swagger-ui/index.html/**",    // Por si acaso
+                    "/swagger-resources/**",
+                    "/webjars/**").permitAll()
                     .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManager -> 

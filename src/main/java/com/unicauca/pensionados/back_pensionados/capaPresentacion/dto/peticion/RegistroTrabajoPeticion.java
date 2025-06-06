@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegistroTrabajoPeticion {
+    private Long nitEntidad;
+    private String nombreEntidad;
     private Long numeroIdPersona;
     private Long diasDeServicio;
 }

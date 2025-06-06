@@ -1,23 +1,38 @@
 package com.unicauca.pensionados.back_pensionados.capaPresentacion.controladores;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IEntidadServicio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroEntidadPeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroTrabajoPeticion;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.EntidadConPensionadosRespuesta;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/entidad")
+@Tag(name = "Entidades", description = "Gestión de entidades pensionadas")
 public class EntidadControlador {
+
     @Autowired
     private IEntidadServicio entidadService;
 
     @PostMapping("/registrar")
+    @Operation(summary = "Registrar una nueva entidad", description = "Permite registrar una nueva entidad en el sistema.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Entidad registrada exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+        })
     public ResponseEntity<?> registrarEntidad(@RequestBody RegistroEntidadPeticion entidad) {
         try{
             entidadService.registrarEntidad(entidad);
@@ -30,16 +45,38 @@ public class EntidadControlador {
     }
 
     @GetMapping("/buscar")
-    public List<Entidad> buscarPorCriterio(@RequestParam(required = false) String query) {
+    @Operation(summary = "Buscar entidades por criterio", description = "Busca entidades según un término de búsqueda.", 
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Lista de entidades encontradas", 
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = EntidadConPensionadosRespuesta.class))),
+            @ApiResponse(responseCode = "204", description = "No se encontraron entidades"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+        })
+    public List<EntidadConPensionadosRespuesta> buscarPorCriterio(
+        @Parameter(description = "Término de búsqueda (opcional)", example = "Unicauca") 
+        @RequestParam(required = false) String query) {
         if (query == null || query.trim().isEmpty()) {
             return entidadService.listarTodos();
         }
         query = query.replace("\"", "").trim(); // elimina comillas
         return entidadService.buscarEntidadesPorCriterio(query);
     }
-    
+
     @GetMapping("/buscarPorNombre")
-    public ResponseEntity<List<Entidad>> buscarPorNombre(@RequestParam String nombre) {
+    @Operation(summary = "Buscar entidades por nombre", description = "Devuelve todas las entidades cuyo nombre coincida parcialmente.", 
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Lista de entidades encontradas", 
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = Entidad.class))),
+            @ApiResponse(responseCode = "204", description = "No se encontraron entidades"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+        })
+    public ResponseEntity<List<Entidad>> buscarPorNombre(
+        @Parameter(description = "Nombre de la entidad a buscar", required = true)
+        @RequestParam String nombre) {
         if (nombre == null || nombre.trim().isEmpty()) {
             return ResponseEntity.badRequest().build(); // Devuelve un error 400 si el nombre está vacío
         }
@@ -48,7 +85,17 @@ public class EntidadControlador {
     }
 
     @GetMapping("/buscarPorNit/{nit}")
-    public ResponseEntity<Entidad> buscarPorNit(@PathVariable Long nit) {
+    @Operation(summary = "Buscar entidad por NIT", description = "Devuelve una entidad basada en su número de identificación tributaria (NIT).", 
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Entidad encontrada", 
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = Entidad.class))),
+            @ApiResponse(responseCode = "404", description = "Entidad no encontrada"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+        })
+    public ResponseEntity<Entidad> buscarPorNit(
+        @Parameter(description = "Número de Identificación Tributaria (NIT)", example = "9001234567")
+        @PathVariable Long nit) {
         try {
             Entidad entidad = entidadService.buscarPorNit(nit);
             return ResponseEntity.ok(entidad);
@@ -60,7 +107,15 @@ public class EntidadControlador {
     }
 
     @GetMapping("/listar")
-    public List<Entidad> listarTodos() {
+    @Operation(summary = "Listar todas las entidades", description = "Devuelve una lista de todas las entidades junto con sus pensionados.", 
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Lista de entidades encontradas", 
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = EntidadConPensionadosRespuesta.class))),
+            @ApiResponse(responseCode = "204", description = "No se encontraron entidades"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+        })
+    public List<EntidadConPensionadosRespuesta> listarTodos() {
         try {
             return entidadService.listarTodos();
         } catch (RuntimeException ex) {
@@ -71,7 +126,17 @@ public class EntidadControlador {
     }
 
     @PutMapping("/actualizar/{nid}")
-    public ResponseEntity<?> actualizarEntidad(@PathVariable("nid") Long id, @RequestBody RegistroEntidadPeticion entidad) {
+    @Operation(summary = "Actualizar una entidad", description = "Actualiza los datos de una entidad existente.", 
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Entidad actualizada exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud"),
+            @ApiResponse(responseCode = "404", description = "Entidad no encontrada"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+        })
+    public ResponseEntity<?> actualizarEntidad(
+        @Parameter(description = "Identificador único de la entidad", example = "9001234567")
+        @PathVariable("nid") Long id,
+        @RequestBody RegistroEntidadPeticion entidad) {
         try {
             entidadService.actualizar(id, entidad);
             return ResponseEntity.ok("Entidad actualizada exitosamente");
@@ -83,7 +148,15 @@ public class EntidadControlador {
     }
 
     @PutMapping("/activar/{nid}")
-    public ResponseEntity<?> activarEntidad(@PathVariable Long nid) {
+    @Operation(summary = "Activar una entidad", description = "Activa una entidad previamente desactivada.",    
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Entidad activada exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Entidad no encontrada"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+        })
+    public ResponseEntity<?> activarEntidad(
+        @Parameter(description = "Número de Identificación Tributaria (NIT)", example = "9001234567")
+        @PathVariable Long nid) {
         try {
             boolean resultado = entidadService.activarEntidad(nid);
             if (resultado) {
@@ -99,7 +172,15 @@ public class EntidadControlador {
     }
 
     @PutMapping("/desactivar/{nid}")
-    public ResponseEntity<?> desactivarEntidad(@PathVariable Long nid) {
+    @Operation(summary = "Desactivar una entidad", description = "Desactiva una entidad sin eliminarla del sistema.", 
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Entidad desactivada exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Entidad no encontrada"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+        })
+    public ResponseEntity<?> desactivarEntidad(
+        @Parameter(description = "Número de Identificación Tributaria (NIT)", example = "9001234567")
+        @PathVariable Long nid) {
         try {
             boolean resultado = entidadService.desactivarEntidad(nid);
             if (resultado) {
@@ -115,7 +196,16 @@ public class EntidadControlador {
     }
 
     @PutMapping("/editarPensionados/{nitEntidad}")
-    public ResponseEntity<?> editarPensionadosDeEntidad(@PathVariable Long nitEntidad, @RequestBody List<RegistroTrabajoPeticion> trabajosActualizados) {
+    @Operation(summary = "Editar pensionados de una entidad", description = "Permite actualizar la lista de pensionados asociados a una entidad.",  
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Pensionados de la entidad actualizados exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+        })
+    public ResponseEntity<?> editarPensionadosDeEntidad(
+        @Parameter(description = "Número de Identificación Tributaria (NIT) de la entidad", example = "9001234567")
+        @PathVariable Long nitEntidad,
+        @RequestBody List<RegistroTrabajoPeticion> trabajosActualizados) {
         try {
             entidadService.editarPensionadosDeEntidad(nitEntidad, trabajosActualizados);
             return ResponseEntity.ok("Pensionados de la entidad actualizados exitosamente");
@@ -126,4 +216,3 @@ public class EntidadControlador {
         }
     }
 }
-

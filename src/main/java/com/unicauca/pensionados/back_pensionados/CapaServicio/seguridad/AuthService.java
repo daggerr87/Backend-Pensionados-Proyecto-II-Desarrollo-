@@ -45,10 +45,15 @@ public class AuthService {
 
     public AuthRespuesta register(RegistroPeticion request){
 
+        usuarioRepositorio.findByUsername(request.getUsername())
+        .ifPresent(username ->{
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"El correo ya esta registrado");
+        });
+
         Usuario usuario = Usuario.builder()
+    
             .username(request.getUsername())
             .password(passwordEncoder.encode(request.getPassword()))
-            .email(request.getEmail())
             .nombre(request.getNombre())
             .apellido(request.getApellido())
             //.role(Rol.USER)
