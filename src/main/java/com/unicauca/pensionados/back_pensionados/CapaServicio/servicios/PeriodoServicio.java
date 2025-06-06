@@ -91,7 +91,7 @@ public class PeriodoServicio implements IPeriodoServicio {
             }
 
 
-            if(anio >= 1993 && anio <= 1997){
+            if(anio >= 1993 && anio <= 1997 && fechaInicioPension.getMonth().getValue() <= 7){
                 valorPension = reajuste1993_1997(anio, pensionado, valorPension);
             }
 
@@ -203,7 +203,7 @@ public class PeriodoServicio implements IPeriodoServicio {
         }
 
         if (anio == 1995){
-            if(anioInicioPension <= 1991){
+            if(anioInicioPension <= 1981){
                 valorPension = valorPension.multiply(new BigDecimal("0.04")).add(valorPension);
             }
             valorPension = valorPension.multiply(new BigDecimal("0.02")).add(valorPension);

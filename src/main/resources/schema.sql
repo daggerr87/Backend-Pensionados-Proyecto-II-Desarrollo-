@@ -118,7 +118,7 @@ CREATE TABLE CUOTA_PARTE (
    idCuotaParte BIGINT NOT NULL AUTO_INCREMENT,
    idTrabajo BIGINT NOT NULL,
    valorCuotaParte DECIMAL (19,2) NOT NULL,
-   porcentajeCuotaParte DECIMAL(5,2) NOT NULL,
+   porcentajeCuotaParte DECIMAL(5,4) NOT NULL,
    fechaGeneracion DATE,
    notas VARCHAR(200) NOT NULL,
    cuotaParteTotal DECIMAL (19,2),

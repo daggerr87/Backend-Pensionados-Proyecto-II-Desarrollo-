@@ -39,7 +39,7 @@ public class CuotaParte {
     @Column (name = "valorCuotaParte", nullable = false,precision = 19, scale = 2 )
     private BigDecimal valorCuotaParte;
 
-    @Column (name = "porcentajeCuotaParte", nullable = false, precision = 5, scale = 2)
+    @Column (name = "porcentajeCuotaParte", nullable = false, precision = 5, scale = 4)
     private BigDecimal porcentajeCuotaParte;
 
     @Column(name = "fechaGeneracion", nullable = true)
