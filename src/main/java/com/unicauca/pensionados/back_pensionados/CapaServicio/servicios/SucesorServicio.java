@@ -1,7 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
 
 import java.util.List;
-
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.PersonaRepositorio;
@@ -16,7 +16,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ServicioSucesor implements IServicioSucesor {
+public class SucesorServicio implements ISucesorServicio {
     @Autowired
     private PersonaRepositorio personaRepositorio;
     @Autowired
@@ -54,6 +54,7 @@ public class ServicioSucesor implements IServicioSucesor {
         sucesor.setEstadoPersona(request.getEstadoPersona());
         sucesor.setGeneroPersona(request.getGeneroPersona());
         sucesor.setFechaInicioSucesion(request.getFechaInicioSucesion());
+        sucesor.setPorcentajePension(request.getPorcentajePension());
         sucesor.setPensionado(pensionado);
         // Guardar el sucesor
         sucesorRepositorio.save(sucesor);
@@ -79,6 +80,7 @@ public class ServicioSucesor implements IServicioSucesor {
             request.setGeneroPersona(sucesor.getGeneroPersona());
             request.setFechaInicioSucesion(sucesor.getFechaInicioSucesion());
             request.setPensionado(sucesor.getPensionado().getNumeroIdPersona());
+            request.setPorcentajePension(sucesor.getPorcentajePension());
             return request;
         }).toList();
     }
@@ -109,6 +111,7 @@ public class ServicioSucesor implements IServicioSucesor {
         request.setGeneroPersona(sucesor.getGeneroPersona());
         request.setFechaInicioSucesion(sucesor.getFechaInicioSucesion());
         request.setPensionado(sucesor.getPensionado().getNumeroIdPersona());
+        request.setPorcentajePension(sucesor.getPorcentajePension());
 
         return request;
     }
