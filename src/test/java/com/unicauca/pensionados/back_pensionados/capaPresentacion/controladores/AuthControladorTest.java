@@ -13,8 +13,6 @@ import com.jayway.jsonpath.JsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.http.MediaType;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -23,28 +21,6 @@ public class AuthControladorTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Test
-    void loginDebeRetornar200() throws Exception {
-        String json = """
-            {
-              "username": "pensiones@unicauca.edu.co",
-              "password": "pensiones"
-            }
-        """;
-
-        ResultActions response = mockMvc.perform(post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists());
-
-        String token = JsonPath.read(
-            response.andReturn().getResponse().getContentAsString(), "$.token"
-        );
-        System.out.println("Token recibido: " + token);
-
-    }
 
     @Test
     void registerDebeRetornar200() throws Exception {
@@ -75,5 +51,27 @@ public class AuthControladorTest {
         }
 
         System.out.println(resultado);
+    }
+
+    @Test
+    void loginDebeRetornar200() throws Exception {
+        String json = """
+            {
+              "username": "prueba_pensiones@unicauca.edu.co",
+              "password": "pensiones"
+            }
+        """;
+
+        ResultActions response = mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").exists());
+
+        String token = JsonPath.read(
+            response.andReturn().getResponse().getContentAsString(), "$.token"
+        );
+        System.out.println("Token recibido: " + token);
+
     }
 }
