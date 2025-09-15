@@ -2,20 +2,24 @@ name: CI - Maven Tests
 
 on:
   push:
-    branches: [ 'main', 'master', 'develop' ]
+    branches: [ 'schanchi', 'ci/add-github-actions' ]
   pull_request:
-    branches: [ 'main', 'master', 'develop' ]
-  workflow_dispatch:    # permite ejecutar manualmente desde UI
+    branches: [ 'schanchi', 'ci/add-github-actions' ]
+  workflow_dispatch:
 
 jobs:
   test:
     name: Run unit tests
     runs-on: ubuntu-latest
 
-    env:        # 🌱 variables globales disponibles en todos los steps
+    env:
       SPRING_PROFILES_ACTIVE: test
-      DB_HOST: localhost
+      # Definicion de variables auxiliares
+      DB_HOST: 127.0.0.1
       DB_PORT: 3306
+      DB_NAME: cuotapartes_pensionados_db
+      DB_USER: root
+      DB_PASSWORD: root
 
     services:
       mysql:
@@ -23,13 +27,13 @@ jobs:
         ports:
           - 3306:3306
         env:
-          MYSQL_DATABASE: cuotapartes_pensionados_db
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ${{ env.DB_NAME }}
+          MYSQL_ROOT_PASSWORD: ${{ env.DB_PASSWORD }}
         options: >-
           --health-cmd="mysqladmin ping --silent"
-          --health-interval=20s
-          --health-timeout=10s
-          --health-retries=5
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       - name: Checkout repository
@@ -59,9 +63,9 @@ jobs:
 
       - name: Run unit tests (Maven)
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:${{ env.DB_PORT }}/cuotapartes_pensionados_db
-          SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: root
+          SPRING_DATASOURCE_URL: jdbc:mysql://${{ env.DB_HOST }}:${{ env.DB_PORT }}/${{ env.DB_NAME }}
+          SPRING_DATASOURCE_USERNAME: ${{ env.DB_USER }}
+          SPRING_DATASOURCE_PASSWORD: ${{ env.DB_PASSWORD }}
         run: |
           if [ -f mvnw ]; then ./mvnw -B -V -e test; else mvn -B -V -e test; fi
 
