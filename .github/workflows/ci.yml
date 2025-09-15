@@ -12,19 +12,24 @@ jobs:
     name: Run unit tests
     runs-on: ubuntu-latest
 
+    env:        # 🌱 variables globales disponibles en todos los steps
+      SPRING_PROFILES_ACTIVE: test
+      DB_HOST: localhost
+      DB_PORT: 3306
+
     services:
       mysql:
         image: mysql:8.0
         ports:
           - 3306:3306
         env:
-          MYSQL_DATABASE: root
+          MYSQL_DATABASE: cuotapartes_pensionados_db
           MYSQL_ROOT_PASSWORD: root
         options: >-
           --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
+          --health-interval=20s
+          --health-timeout=10s
+          --health-retries=5
 
     steps:
       - name: Checkout repository
@@ -54,7 +59,7 @@ jobs:
 
       - name: Run unit tests (Maven)
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/pensionados
+          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:${{ env.DB_PORT }}/cuotapartes_pensionados_db
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root
         run: |
