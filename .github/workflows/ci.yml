@@ -1,0 +1,40 @@
+name: CI - Maven Tests
+
+on:
+  push:
+    branches: [ 'main', 'master', 'develop' ]
+  pull_request:
+    branches: [ 'main', 'master', 'develop' ]
+  workflow_dispatch:    # permite ejecutar manualmente desde UI
+
+jobs:
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 and cache Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Make mvnw executable (if present)
+        run: |
+          if [ -f mvnw ]; then chmod +x mvnw; fi
+
+      - name: Run unit tests (Maven)
+        # usa mvnw si existe, si no usa mvn del runner
+        run: |
+          if [ -f mvnw ]; then ./mvnw -B -V -e test; else mvn -B -V -e test; fi
+
+      - name: Upload surefire reports (so you can download them)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
