@@ -12,23 +12,51 @@ jobs:
     name: Run unit tests
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_DATABASE: root
+          MYSQL_ROOT_PASSWORD: root
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17 and cache Maven
+      - name: Set up JDK 21 and cache Maven
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
           cache: 'maven'
 
       - name: Make mvnw executable (if present)
         run: |
           if [ -f mvnw ]; then chmod +x mvnw; fi
 
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h"127.0.0.1" --password=root --silent; then
+              echo "MySQL is up!"
+              break
+            fi
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
       - name: Run unit tests (Maven)
-        # usa mvnw si existe, si no usa mvn del runner
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/pensionados
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: root
         run: |
           if [ -f mvnw ]; then ./mvnw -B -V -e test; else mvn -B -V -e test; fi
 
