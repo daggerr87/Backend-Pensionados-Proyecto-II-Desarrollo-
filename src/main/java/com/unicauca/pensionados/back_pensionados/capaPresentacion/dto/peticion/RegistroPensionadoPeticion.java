@@ -1,13 +1,14 @@
 package com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion;
 
 import java.math.BigDecimal;
-//import java.time.LocalDate;
 import java.time.LocalDate;
 import java.util.List;
-import java.sql.Date;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.util.MultiDateDeserializer;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.EstadoPersona;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.GeneroPersona;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.TipoIdPersona;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,7 @@ public class RegistroPensionadoPeticion {
     @Schema(description = "Número de identificación de la persona", example = "1061777777")
     private Long numeroIdPersona;
     @Schema(description = "Tipo de identificación de la persona", example = "CC")
-    private String tipoIdPersona;
+    private TipoIdPersona tipoIdPersona;
     @Schema(description = "Nombre de la persona", example = "Juan")
     private String nombrePersona;
     @Schema(description = "Apellidos de la persona", example = "Perez")
@@ -35,10 +36,10 @@ public class RegistroPensionadoPeticion {
     @Schema(description = "Fecha de expedición del documento de identidad de la persona", example = "1970-01-15")
     @JsonDeserialize(using =  MultiDateDeserializer.class)
     private LocalDate fechaExpedicionDocumentoIdPersona;
-    @Schema(description = "Estado de la persona (Activo, Fallecido)", example = "Activo")
-    private String estadoPersona;
-    @Schema(description = "Género de la persona", example = "Masculino")
-    private String generoPersona;
+    @Schema(description = "Estado de la persona (ACTIVO, FALLECIDO, INACTIVO)", example = "ACTIVO")
+    private EstadoPersona estadoPersona;
+    @Schema(description = "Género de la persona", example = "MASCULINO")
+    private GeneroPersona generoPersona;
     @Schema(description = "Fecha de defunción de la persona (si aplica)", example = "null")
     @JsonDeserialize(using =  MultiDateDeserializer.class)
     private LocalDate fechaDefuncionPersona;
@@ -54,6 +55,7 @@ public class RegistroPensionadoPeticion {
     @Schema(description = "Total de días trabajados para la pensión", example = "7500")
     private Long totalDiasTrabajo;
     @Schema(description = "Indica si se debe aplicar IPC al primer periodo", example = "false")
+    @lombok.Builder.Default
     private boolean aplicarIPCPrimerPeriodo = false;
 
     @Schema(description = "NIT de la entidad de jubilación", example = "800123456")

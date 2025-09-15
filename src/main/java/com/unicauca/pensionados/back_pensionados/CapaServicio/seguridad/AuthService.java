@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Rol;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Usuario;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.RolRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.UsuarioRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.LoginPeticion;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.peticion.RegistroPeticion;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
     
     private final UsuarioRepositorio usuarioRepositorio;
+    private final RolRepositorio rolRepositorio;
     private final JwtService jwtService; 
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -50,13 +52,17 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"El correo ya esta registrado");
         });
 
+        // Rol por defecto INVITADO si no se especifica
+        Rol rolInvitado = rolRepositorio.findByNombre("INVITADO")
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se encontró el rol INVITADO en la base de datos"));
+
         Usuario usuario = Usuario.builder()
     
             .username(request.getUsername())
             .password(passwordEncoder.encode(request.getPassword()))
             .nombre(request.getNombre())
             .apellido(request.getApellido())
-            //.role(Rol.USER)
+            .rol(rolInvitado)
             .build();
 
             usuarioRepositorio.save(usuario);

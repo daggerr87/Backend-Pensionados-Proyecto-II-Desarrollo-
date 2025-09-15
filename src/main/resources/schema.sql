@@ -53,13 +53,13 @@ CREATE TABLE USUARIO (
 /*==============================================================*/
 CREATE TABLE PERSONA (
    numeroIdPersona BIGINT NOT NULL,
-   tipoIdPersona VARCHAR(50) NOT NULL,
+   tipoIdPersona INT NOT NULL,
    nombrePersona VARCHAR(50) NOT NULL,
    apellidosPersona VARCHAR(50) NOT NULL,
    fechaNacimientoPersona DATE NOT NULL,
    fechaExpedicionDocumentoIdPersona DATE NOT NULL,
-   estadoPersona VARCHAR(50) NOT NULL,
-   generoPersona VARCHAR(50),
+   estadoPersona INT NOT NULL,
+   generoPersona INT,
    fechaDefuncionPersona DATE,
    PRIMARY KEY (numeroIdPersona)
 );
