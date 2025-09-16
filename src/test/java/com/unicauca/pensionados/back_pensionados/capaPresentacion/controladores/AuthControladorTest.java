@@ -1,5 +1,6 @@
 package com.unicauca.pensionados.back_pensionados.capaPresentacion.controladores;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -22,22 +23,43 @@ public class AuthControladorTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
-    void registerDebeRetornar200() throws Exception {
-        String json = """
+
+    private ResultActions response;
+
+    @BeforeEach
+    void setup() throws Exception {
+        String registro = """
             {
-              "username": "prueba_pensiones@unicauca.edu.co",
-              "password": "pensiones",
-              "nombre": "Juan",
-              "apellido": "Pérez"
+            "username": "prueba_pensiones@unicauca.edu.co",
+            "password": "pensiones",
+            "nombre": "Juan",
+            "apellido": "Pérez"
             }
         """;
 
-        ResultActions response = mockMvc.perform(post("/auth/register")
+        response = mockMvc.perform(post("/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(registro))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").exists());
+    }
+
+    @Test
+    void registerDebeRetornar200() throws Exception {
+        // String json = """
+        //     {
+        //       "username": "prueba_pensiones@unicauca.edu.co",
+        //       "password": "pensiones",
+        //       "nombre": "Juan",
+        //       "apellido": "Pérez"
+        //     }
+        // """;
+
+        // ResultActions response = mockMvc.perform(post("/auth/register")
+        //         .contentType(MediaType.APPLICATION_JSON)
+        //         .content(json))
+        //         .andExpect(status().isOk())
+        //         .andExpect(jsonPath("$.token").exists());
 
         String jsonResponse = response.andReturn().getResponse().getContentAsString();
         String resultado;

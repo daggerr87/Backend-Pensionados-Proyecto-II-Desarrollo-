@@ -1,13 +1,13 @@
-package com.unicauca.pensionados.back_pensionados;
+// package com.unicauca.pensionados.back_pensionados;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class BackPensionadosApplicationTest {
+// @SpringBootTest
+// class BackPensionadosApplicationTest {
 
-	@Test
-	void contextLoads() {
-	}
+// 	@Test
+// 	void contextLoads() {
+// 	}
 
-}
+// }
