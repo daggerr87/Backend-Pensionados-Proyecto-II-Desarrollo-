@@ -3,6 +3,7 @@ package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
+
 import java.util.List;
 
 import org.springdoc.core.converters.models.MonetaryAmount;
@@ -31,6 +32,7 @@ public class Pensionado extends Persona{
     @Column (name = "fechaInicioPension", nullable = true)
     @Temporal(TemporalType.DATE)
     private LocalDate fechaInicioPension;
+
     
     @Column (name = "valorInicialPension", nullable = false, precision = 19, scale = 0)
     private BigDecimal valorInicialPension;

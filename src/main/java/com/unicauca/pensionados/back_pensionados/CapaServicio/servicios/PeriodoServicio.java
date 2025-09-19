@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -185,6 +186,7 @@ public class PeriodoServicio implements IPeriodoServicio {
     public BigDecimal reajuste1993_1997(int anio, Pensionado pensionado, BigDecimal valorPension) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(java.sql.Date.valueOf(pensionado.getFechaInicioPension()));
+
         int anioInicioPension = cal.get(Calendar.YEAR);
         if (anio == 1993 || anio == 1994) {
             if (anioInicioPension <= 1981 ) {

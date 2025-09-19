@@ -22,7 +22,9 @@ public interface PensionadoRepositorio extends JpaRepository<Pensionado, Long>{
     "JOIN CuotaParte cp ON t.idTrabajo = cp.trabajo.idTrabajo " +
     "JOIN Periodo p ON cp.idCuotaParte = p.cuotaParte.idCuotaParte " +
     "WHERE pn.numeroIdPersona = :pensionadoId " +
-    "AND e.nitEntidad != 8911500319L " +
+
+    "AND e.nitEntidad != unicaucaNit " +
     "GROUP BY e.nitEntidad, e.nombreEntidad")
-    List<EntidadCuotaParteRespuesta> findEntidadesYCuotaParteByPensionadoId(@Param("pensionadoId") Long pensionadoId);
+    List<EntidadCuotaParteRespuesta> findEntidadesYCuotaParteByPensionadoId(@Param("pensionadoId") Long pensionadoId, @Param("unicaucaNit") Long unicaucaNit);
+
 }
