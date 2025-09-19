@@ -12,13 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * Clase que representa a un usuario dentro del sistema.
- * Esta clase es una entidad de JPA que se mapea a la tabla "usuario"
- * y también implementa la interfaz UserDetails para integrarse con Spring Security.
- */
 @Data
 @Builder
 @AllArgsConstructor
@@ -28,7 +22,6 @@ import java.util.stream.Collectors;
 @Table(name="usuario", uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})})
 public class Usuario implements UserDetails{
     
-  // Identificador único (primary key) de la tabla
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
@@ -36,57 +29,38 @@ public class Usuario implements UserDetails{
     @Column(nullable = false)
     String username;
     String password;
+    //String email;
     String nombre;
     String apellido;
 
     /** Rol asignado al usuario. */
-    // La carga EAGER es importante aquí para que los permisos estén disponibles al autenticar
-    @ManyToOne(fetch = FetchType.EAGER, optional = false) 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){
-        // Tomamos la lista de "Acciones" del objeto Rol
-        // y las convertimos en "GrantedAuthority" que Spring Security entiende.
-        return this.rol.getAcciones().stream()
-                .map(accion -> new SimpleGrantedAuthority(accion.name()))
-                .collect(Collectors.toList());
+        return List.of();
     }
 
-    /**
-     * Indica si la cuenta no ha expirado.
-     * Por ahora, siempre devuelve true. A futuro, se podría ligar a un campo en la BD.
-     */
     @Override
     public boolean isAccountNonExpired() {
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * Indica si la cuenta no está bloqueada.
-     * Por ahora, siempre devuelve true. A futuro, se podría ligar a un campo en la BD.
-     */
     @Override
     public boolean isAccountNonLocked() {
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * Indica si las credenciales (contraseña) no han expirado.
-     * Siempre devuelve true.
-     */
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * Indica si la cuenta está habilitada.
-     * Por ahora, siempre devuelve true. A futuro, se podría ligar a un campo en la BD.
-     */
-    @Override
+	
+	@Override
     public boolean isEnabled() {
-        return true;
-    }
+		return true;
+	}
 }
