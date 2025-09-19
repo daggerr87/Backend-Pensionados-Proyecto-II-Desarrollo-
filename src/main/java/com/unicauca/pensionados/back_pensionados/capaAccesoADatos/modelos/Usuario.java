@@ -6,6 +6,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,6 +45,8 @@ public class Usuario implements UserDetails{
     // La carga EAGER es importante aquí para que los permisos estén disponibles al autenticar
     @ManyToOne(fetch = FetchType.EAGER, optional = false) 
     @JoinColumn(name = "rol_id", nullable = false)
+    //Muestra los datos del usuario y el rol
+    @JsonBackReference
     private Rol rol;
 
     @Override
