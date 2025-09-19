@@ -34,6 +34,7 @@ CREATE TABLE ROL (
    UNIQUE (nombre)
 );
 /*==============================================================*/
+
 /* Table: USUARIO                                               */
 /*==============================================================*/
 CREATE TABLE USUARIO (
@@ -43,9 +44,11 @@ CREATE TABLE USUARIO (
    /*email VARCHAR(100) NOT NULL,*/
    username VARCHAR(100) NOT NULL,
    password VARCHAR(200) NOT NULL,
+
    rol_id BIGINT NOT NULL,
    PRIMARY KEY (id),
    FOREIGN KEY (rol_id) REFERENCES ROL(id)
+
 );
 
 /*==============================================================*/
@@ -96,7 +99,9 @@ CREATE TABLE PENSIONADO (
    valorInicialPension DECIMAL (19,0) NOT NULL,
    resolucionPension  VARCHAR(200) NOT NULL,
    totalDiasTrabajo BIGINT,
+
    aplicarIPCPrimerPeriodo BOOLEAN NOT NULL DEFAULT FALSE,
+
    PRIMARY KEY (numeroIdPersona),
    FOREIGN KEY (numeroIdPersona) REFERENCES PERSONA(numeroIdPersona),
    FOREIGN KEY (nitEntidad) REFERENCES ENTIDAD(nitEntidad)
@@ -199,5 +204,6 @@ CREATE TABLE LOG_CAMBIO (
    INDEX idx_log_usuario (usuario_id),
    INDEX idx_log_fecha (fecha)
 );
+
 
 

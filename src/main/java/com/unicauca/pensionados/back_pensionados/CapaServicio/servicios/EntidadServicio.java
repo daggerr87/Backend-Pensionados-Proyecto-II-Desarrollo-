@@ -3,6 +3,7 @@ package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.enums.EstadoEntidad;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.CuotaParte;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
@@ -452,7 +453,7 @@ public class EntidadServicio implements IEntidadServicio {
 
         if (entidadOptional.isPresent()) {
             Entidad entidad = entidadOptional.get();
-            entidad.setEstadoEntidad("Activa");
+            entidad.setEstadoEntidad(EstadoEntidad.ACTIVA);
             entidadRepository.save(entidad);
             return true;
         } else {
@@ -472,7 +473,9 @@ public class EntidadServicio implements IEntidadServicio {
 
         if (entidadOptional.isPresent()) {
             Entidad entidad = entidadOptional.get();
-            entidad.setEstadoEntidad("No Activa");
+
+            entidad.setEstadoEntidad(EstadoEntidad.NO_ACTIVA);
+
             entidadRepository.save(entidad);
             return true;
         } else {
