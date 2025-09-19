@@ -67,7 +67,7 @@ public class Rol {
         actualizadoEn = LocalDateTime.now(); }
 
     /**
-     * Enum que define las acciones posibles del dominio.
+     * Enum que define las acciones posibles que el usurio puede realizar.
      */
     public enum Accion {
         EJECUCION_PAGOS,       // Ejecutar pagos
