@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class DTF {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idDtf", nullable = false, unique = true)
     private Long idDtf;
 
     @Column(name = "mes", nullable = false)
