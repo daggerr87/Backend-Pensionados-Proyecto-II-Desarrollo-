@@ -45,13 +45,14 @@ public class CuotaAnualServicio implements ICuotaAnualServicio{
 
     @Override
     public CuotaAnualDTO obtenerCuotaAnualPorAnio(Long anio) {
-
-        return modelMapper.map(cuotaAnualRepositorio.findByAnio(anio), CuotaAnualDTO.class);
+        CuotaAnual cuotaAnual = cuotaAnualRepositorio.findByAnio(anio);
+        return cuotaAnual == null ? null : modelMapper.map(cuotaAnual, CuotaAnualDTO.class);
     }
 
     @Override
     public CuotaAnualDTO obtenerCuotaAnualPorId(Long id) {
-        return modelMapper.map(cuotaAnualRepositorio.findById(id), CuotaAnualDTO.class);
+        CuotaAnual cuotaAnual = cuotaAnualRepositorio.findById(id).orElse(null);
+        return cuotaAnual == null ? null : modelMapper.map(cuotaAnual, CuotaAnualDTO.class);
     }
 
     @Override

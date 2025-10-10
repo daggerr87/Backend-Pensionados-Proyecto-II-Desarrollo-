@@ -1,9 +1,6 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "CUOTA_ANUAL")
 public class CuotaAnual {
 
     @Column(name = "idCuotaAnual", nullable = false, unique = true)
@@ -31,7 +29,7 @@ public class CuotaAnual {
     private Double salarioMinimoVigente;
 
     @Column(name = "fechaRegistro", nullable = false, length = 50)
-    private String fechaRegistro;
+    private String fechaRegistro = java.time.LocalDate.now().toString();
 
     @Column(name = "uvt", nullable = false)
     private Double UVT;
