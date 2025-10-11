@@ -1,6 +1,8 @@
 package com.unicauca.pensionados.back_pensionados.capaPresentacion.controladores;
 
 import com.unicauca.pensionados.back_pensionados.CapaServicio.servicios.IDeudaServicio;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Deuda;
+import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.DeudaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,15 +11,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/deudas")
+@RequestMapping("/deuda")
 public class DeudaControlador {
 
     @Autowired
     private IDeudaServicio deudaServicio;
 
     @GetMapping
-    public ResponseEntity<?> listarDeudas() {
+    public ResponseEntity<?> listarDeudas(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) Deuda.TipoDeuda tipoDeuda,
+            @RequestParam(required = false) Deuda.EstadoDeuda estadoDeuda,
+            @RequestParam(required = false) Long idPersona
+    ) {
         try{
+            if(id != null)
+                return ResponseEntity.ok(deudaServicio.obtenerDeudaPorId(id));
+            if(tipoDeuda != null || estadoDeuda != null || idPersona != null)
+                return ResponseEntity.ok(deudaServicio.obtenerDeudasPorTipoEstadoPersona(tipoDeuda, estadoDeuda, idPersona));
             return ResponseEntity.ok(deudaServicio.listarDeudas());
         } catch (Exception e) {
             Map<String, String> response = new HashMap<>();
@@ -28,12 +39,18 @@ public class DeudaControlador {
     }
 
     @PutMapping
-    public ResponseEntity<?> actualizarDeuda(@org.springframework.web.bind.annotation.RequestBody com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.DeudaDTO deudaDTO) {
+    public ResponseEntity<?> actualizarDeuda(@RequestBody DeudaDTO deudaDTO) {
+        Map<String, String> response = new HashMap<>();
         try {
+            if(deudaDTO.getIdDeuda() == null) throw new RuntimeException("El id de la deuda es obligatorio para actualizar");
             deudaServicio.actualizarDeuda(deudaDTO);
             return ResponseEntity.ok(deudaDTO);
-        } catch (Exception e) {
-            Map<String, String> response = new HashMap<>();
+        }catch (RuntimeException e){
+            response.put("estado", "error");
+            response.put("mensaje", e.getMessage());
+            return ResponseEntity.status(400).body(response);
+        }
+        catch (Exception e) {
             response.put("estado", "error");
             response.put("mensaje", "Error al actualizar la deuda: " + e.getMessage());
             return ResponseEntity.status(500).body(response);

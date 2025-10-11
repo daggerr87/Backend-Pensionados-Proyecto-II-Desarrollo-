@@ -20,7 +20,7 @@ public class DeudaDTO {
     private Deuda.TipoDeuda tipoDeuda;
     private Deuda.EstadoDeuda estadoDeuda;
     private Persona persona;
-    private Pensionado pensionado;
+    // private Pensionado pensionado;
     private Double montoDeuda;
     private String fechaCreacion = java.time.LocalDate.now().toString();
     private String fechaVencimiento;

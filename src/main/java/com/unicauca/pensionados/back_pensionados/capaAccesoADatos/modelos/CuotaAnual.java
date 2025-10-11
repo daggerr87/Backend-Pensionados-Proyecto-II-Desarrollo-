@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "CUOTA_ANUAL")
 public class CuotaAnual {
 
+    @Id
     @Column(name = "idCuotaAnual", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idCuotaAnual;

@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface ICuotaAnualServicio {
 
-    void guardarCuotaAnual(CuotaAnualDTO cuotaAnual);
-    void actualizarCuotaAnual(CuotaAnualDTO cuotaAnual);
+    CuotaAnualDTO guardarCuotaAnual(CuotaAnualDTO cuotaAnual);
+    CuotaAnualDTO actualizarCuotaAnual(CuotaAnualDTO cuotaAnual);
     void eliminarCuotaAnual(Long id);
 
     CuotaAnualDTO obtenerCuotaAnualPorAnio(Long ano);

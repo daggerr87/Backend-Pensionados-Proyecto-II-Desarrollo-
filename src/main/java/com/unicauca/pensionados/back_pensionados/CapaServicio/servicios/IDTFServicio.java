@@ -6,12 +6,12 @@ import java.util.List;
 
 public interface IDTFServicio {
 
-    void guardarDTF(DTFDTO dtf);
-    void actualizarDTF(DTFDTO dtf);
+    DTFDTO guardarDTF(DTFDTO dtf);
+    DTFDTO actualizarDTF(DTFDTO dtf);
     void eliminarDTF(Long id);
 
     DTFDTO obtenerDTFPorId(Long id);
-    DTFDTO obtenerDTFPorMesAnio(Long mes, Long anio);
+    List<DTFDTO> obtenerDTFPorMesAnio(Long mes, Long anio);
 
     List<DTFDTO> listarDTFs();
 }

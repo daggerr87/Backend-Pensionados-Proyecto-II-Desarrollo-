@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "DEUDA")
 public class Deuda {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idDeuda", nullable = false, unique = true)
     private Long idDeuda;
@@ -23,12 +24,12 @@ public class Deuda {
     private EstadoDeuda estadoDeuda;
 
     @OneToOne
-    @Column(name = "idPersona")
+    @JoinColumn(name = "idPersona", referencedColumnName = "numeroIdPersona")
     private Persona persona;
 
-    @OneToOne
-    @Column(name = "idPensionado")
-    private Pensionado pensionado;
+//    @OneToOne
+//    @JoinColumn(name = "idPensionado", referencedColumnName = "idPensionado")
+//    private Pensionado pensionado;
 
     @Column(name = "montoDeuda", nullable = false)
     private Double montoDeuda;
