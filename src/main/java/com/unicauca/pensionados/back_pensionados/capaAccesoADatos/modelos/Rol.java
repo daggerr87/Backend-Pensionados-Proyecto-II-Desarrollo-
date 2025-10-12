@@ -5,6 +5,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 /**
  * Entidad que representa un Rol dentro del sistema de seguridad.
  * Un Rol puede estar asociado a muchos usuarios y tener un conjunto de acciones (permisos) permitidas.
@@ -41,6 +43,8 @@ public class Rol {
      * Un rol puede tener muchos usuarios.
      */
     @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
+    //Evita la Referencia Ciclica
+    @JsonManagedReference
     private List<Usuario> usuarios = new ArrayList<>();
 
     /**
