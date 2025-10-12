@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.CuotaParte;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Entidad;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.EstadoPersona;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Trabajo;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.CuotaParteRepositorio;
@@ -302,7 +303,7 @@ public class PensionadoServicio implements IPensionadoServicio {
         Pensionado pensionado = pensionadoRepositorio.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pensionado no encontrado con ID: " + id));
         
-        pensionado.setEstadoPersona("Inactivo");
+        pensionado.setEstadoPersona(EstadoPersona.INACTIVO);
         pensionadoRepositorio.save(pensionado);
     }
 

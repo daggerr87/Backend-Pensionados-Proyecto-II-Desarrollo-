@@ -3,9 +3,11 @@ package com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import java.util.Date;
 import java.util.List;
 
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.EstadoPersona;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.GeneroPersona;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.TipoIdPersona;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +24,7 @@ public class PensionadoRespuesta {
     @Schema(description = "Número de identificación de la persona", example = "1061777777")
     private Long numeroIdPersona;
     @Schema(description = "Tipo de identificación de la persona", example = "CC")
-    private String tipoIdPersona;
+    private TipoIdPersona tipoIdPersona;
     @Schema(description = "Nombre de la persona", example = "Juan")
     private String nombrePersona;
     @Schema(description = "Apellidos de la persona", example = "Perez")
@@ -33,10 +35,10 @@ public class PensionadoRespuesta {
     @Schema(description = "Fecha de expedición del documento de identidad de la persona", example = "1970-01-15")
     private LocalDate fechaExpedicionDocumentoIdPersona;
 
-    @Schema(description = "Estado de la persona (Activo, Fallecido)", example = "Activo")
-    private String estadoPersona;
-    @Schema(description = "Género de la persona", example = "Masculino")
-    private String generoPersona;
+    @Schema(description = "Estado de la persona (ACTIVO, FALLECIDO, INACTIVO)", example = "ACTIVO")
+    private EstadoPersona estadoPersona;
+    @Schema(description = "Género de la persona", example = "MASCULINO")
+    private GeneroPersona generoPersona;
     @Schema(description = "Fecha de defunción de la persona (si aplica)", example = "null")
 
     private LocalDate fechaDefuncionPersona;

@@ -2,17 +2,14 @@ package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.time.LocalDate;
 
-import java.util.Date;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,12 +19,21 @@ import lombok.Setter;
 @Inheritance(strategy =InheritanceType.JOINED)
 @Getter @Setter @NoArgsConstructor
 public abstract class Persona {
+    /**
+     * Representa la información básica y esencial de un individuo dentro del sistema de pensiones.
+     * 
+     * Reglas:
+     * - tipoIdPersona, estadoPersona y generoPersona se modelan como enums y se persisten como INT (ORDINAL).
+     * - Las fechas se manejan como LocalDate y se esperan en formato ISO-8601 (yyyy-MM-dd).
+     */
     @Id
     @Column(name = "numeroIdPersona")
     private Long numeroIdPersona;
     
-    @Column (name =  "tipoIdPersona", nullable = false, length = 50)
-    private String tipoIdPersona;
+    /** Tipo de identificación de la persona (almacenado como entero en BD). */
+    @Column (name =  "tipoIdPersona", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    private TipoIdPersona tipoIdPersona;
 
     @Column (name = "nombrePersona", nullable = false, length = 50)
     private String nombrePersona;
@@ -36,23 +42,24 @@ public abstract class Persona {
     private String apellidosPersona;
 
     @Column (name = "fechaNacimientoPersona", nullable = false)
-    @Temporal(TemporalType.DATE)
     private LocalDate fechaNacimientoPersona;
 
     @Column(name = "fechaExpedicionDocumentoIdPersona", nullable = false)
-    @Temporal(TemporalType.DATE)
     private LocalDate fechaExpedicionDocumentoIdPersona;
 
 
-    @Column (name = "estadoPersona", nullable = false, length = 50)
-    private String estadoPersona;
+    /** Estado de la persona (almacenado como entero en BD). */
+    @Column (name = "estadoPersona", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    private EstadoPersona estadoPersona;
 
-    @Column (name = "generoPersona", length = 50, nullable = true)
-    private String generoPersona;
+    /** Género de la persona (almacenado como entero en BD, opcional). */
+    @Column (name = "generoPersona", nullable = true)
+    @Enumerated(EnumType.ORDINAL)
+    private GeneroPersona generoPersona;
 
-    @Column (name = "fechaDefuncionPersona", length = 50)
-    @Temporal(TemporalType.DATE)
 
+    @Column (name = "fechaDefuncionPersona")
     private LocalDate fechaDefuncionPersona;
 
 
