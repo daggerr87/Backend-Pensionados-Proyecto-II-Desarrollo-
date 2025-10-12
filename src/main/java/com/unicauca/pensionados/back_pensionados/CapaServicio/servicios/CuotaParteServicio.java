@@ -15,6 +15,7 @@ import javax.money.MonetaryAmount;
 
 import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.CuotaParte;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.Pensionado;
@@ -30,11 +31,12 @@ import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.PensionadoConCuotaParteDTO;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.ResultadoCobroPorPensionado;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.ResultadoCobroPorPeriodoDTO;
+import com.unicauca.pensionados.back_pensionados.config.EntidadProperties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.transaction.Transactional;
+//import jakarta.transaction.Transactional;
 
 @Service
 public class CuotaParteServicio implements ICuotaParteServicio {
@@ -51,12 +53,18 @@ public class CuotaParteServicio implements ICuotaParteServicio {
 
     private final PensionadoRepositorio pensionadoRepositorio;
 
-    public CuotaParteServicio (CuotaParteRepositorio cuotaParteRepositorio, TrabajoRepositorio trabajoRepositorio, PeriodoServicio periodoServicio, PeriodoRepositorio periodoRepositorio, PensionadoRepositorio pensionadoRepositorio){
+
+    private final EntidadProperties entidadProperties;
+
+    public CuotaParteServicio (CuotaParteRepositorio cuotaParteRepositorio, TrabajoRepositorio trabajoRepositorio, PeriodoServicio periodoServicio, PeriodoRepositorio periodoRepositorio, PensionadoRepositorio pensionadoRepositorio, EntidadProperties entidadProperties){
+
         this.cuotaParteRepositorio = cuotaParteRepositorio;
         this.trabajoRepositorio = trabajoRepositorio;
         this.periodoServicio = periodoServicio;
         this.periodoRepositorio = periodoRepositorio;
         this.pensionadoRepositorio = pensionadoRepositorio;
+        this.entidadProperties = entidadProperties;
+
     }
 
     @Transactional
@@ -86,8 +94,11 @@ public class CuotaParteServicio implements ICuotaParteServicio {
             cuotaParte.setNotas(porcentajeCuotaParte.toString());
             cuotaParteRepositorio.save(cuotaParte);
             periodoRepositorio.deleteByCuotaParte_IdCuotaParte(cuotaParte.getIdCuotaParte());
+
+
             LocalDate fechaInicioPensionDate = trabajo.getPensionado().getFechaInicioPension();
             LocalDate fechaInicioPension =  fechaInicioPensionDate;
+
             periodoServicio.generarYCalcularPeriodos(fechaInicioPension, cuotaParte);
             /* 
             MonetaryAmount valorInicialPension = Money.of(trabajo.getPensionado().getValorInicialPension(), Monetary.getCurrency("COP"));
@@ -143,8 +154,10 @@ public class CuotaParteServicio implements ICuotaParteServicio {
             cuotaParte.setNotas(porcentajeCuotaParte.toString());
             cuotaParteRepositorio.save(cuotaParte);
             periodoRepositorio.deleteByCuotaParte_IdCuotaParte(cuotaParte.getIdCuotaParte());
+
             LocalDate fechaInicioPensionDate = trabajo.getPensionado().getFechaInicioPension();
             LocalDate fechaInicioPension = fechaInicioPensionDate;
+
             periodoServicio.generarYCalcularPeriodos(fechaInicioPension, cuotaParte);
         }
     }
@@ -173,7 +186,9 @@ public class CuotaParteServicio implements ICuotaParteServicio {
     
             if (pensionado == null
                 || pensionado.getEntidadJubilacion() == null
-                || !"Universidad del Cauca".equalsIgnoreCase(pensionado.getEntidadJubilacion().getNombreEntidad())) {
+
+                || !entidadProperties.getNombre().equalsIgnoreCase(pensionado.getEntidadJubilacion().getNombreEntidad())) {
+
                 // Ignorar pensionados que no sean de UniCauca
                 continue;
             }
@@ -181,16 +196,19 @@ public class CuotaParteServicio implements ICuotaParteServicio {
             // revisamos la entidad de la CUOTA PARTE para omitir las cuotas de entidad con nit 8911500319L que pertenecen a unicauca
         
             Long nitEntidadCuota = cuota.getTrabajo().getEntidad().getNitEntidad();
-            if (nitEntidadCuota != null && nitEntidadCuota.equals(8911500319L)) {
+
+            if (nitEntidadCuota != null && nitEntidadCuota.equals(entidadProperties.getNit())) {
+
                 // Omitir cuota parte que pertenece a unicauca
                 continue;
             }
     
-            Long idPensionado = pensionado.getNumeroIdPersona();
+            Long idPensionado = pensionado.getIdPersona();
     
             PensionadoConCuotaParteDTO dto = mapPensionados.computeIfAbsent(idPensionado, k ->
                 new PensionadoConCuotaParteDTO(
-                    pensionado.getNumeroIdPersona().toString(),
+                    pensionado.getTipoIdentificacion().name(), // Se añade el tipo de ID
+                    pensionado.getNumeroIdentificacion(),      // Se usa el nuevo getter
                     pensionado.getNombrePersona(),
                     pensionado.getApellidosPersona(),
                     new ArrayList<>(),
@@ -243,12 +261,16 @@ public class CuotaParteServicio implements ICuotaParteServicio {
     
             if (pensionado == null
                 || pensionado.getEntidadJubilacion() == null
-                || !"Universidad del Cauca".equalsIgnoreCase(pensionado.getEntidadJubilacion().getNombreEntidad())) {
+
+                || !entidadProperties.getNombre().equalsIgnoreCase(pensionado.getEntidadJubilacion().getNombreEntidad())) {
+
                 continue;
             }
     
             Long nitEntidadCuota = cuota.getTrabajo().getEntidad().getNitEntidad();
-            if (nitEntidadCuota != null && nitEntidadCuota.equals(8911500319L)) {
+
+            if (nitEntidadCuota != null && nitEntidadCuota.equals(entidadProperties.getNit())) {
+
                 continue;
             }
     
@@ -269,10 +291,11 @@ public class CuotaParteServicio implements ICuotaParteServicio {
                 continue;
             }
     
-            Long idPensionado = pensionado.getNumeroIdPersona();
+            Long idPensionado = pensionado.getIdPersona();
             PensionadoConCuotaParteDTO dto = mapPensionados.computeIfAbsent(idPensionado, k ->
                 new PensionadoConCuotaParteDTO(
-                    pensionado.getNumeroIdPersona().toString(),
+                    pensionado.getTipoIdentificacion().name(), // Se añade el tipo de ID
+                    pensionado.getNumeroIdentificacion(),      // Se usa el nuevo getter
                     pensionado.getNombrePersona(),
                     pensionado.getApellidosPersona(),
                     new ArrayList<>(),
@@ -357,14 +380,18 @@ public class CuotaParteServicio implements ICuotaParteServicio {
         for (CuotaParte cuota : cuotasParte) {
             Pensionado pensionado = cuota.getTrabajo().getPensionado();
 
-            if (pensionado == null || !idPensionado.equals(pensionado.getNumeroIdPersona())
+            if (pensionado == null || !idPensionado.equals(pensionado.getIdPersona())
                     || pensionado.getEntidadJubilacion() == null
-                    || !"Universidad del Cauca".equalsIgnoreCase(pensionado.getEntidadJubilacion().getNombreEntidad())) {
+
+                    || !entidadProperties.getNombre().equalsIgnoreCase(pensionado.getEntidadJubilacion().getNombreEntidad())) {
+
                 continue;
             }
 
             Long nitEntidad = cuota.getTrabajo().getEntidad().getNitEntidad();
-            if (nitEntidad != null && nitEntidad.equals(8911500319L)) {
+
+            if (nitEntidad != null && nitEntidad.equals(entidadProperties.getNit())) {
+
                 continue;
             }
 

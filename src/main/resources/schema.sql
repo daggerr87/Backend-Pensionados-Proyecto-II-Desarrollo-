@@ -43,25 +43,32 @@ CREATE TABLE USUARIO (
    /*email VARCHAR(100) NOT NULL,*/
    username VARCHAR(100) NOT NULL,
    password VARCHAR(200) NOT NULL,
+
+
    rol_id BIGINT NOT NULL,
    PRIMARY KEY (id),
    FOREIGN KEY (rol_id) REFERENCES ROL(id)
+
 );
 
 /*==============================================================*/
 /* Table: PERSONA                                               */
 /*==============================================================*/
 CREATE TABLE PERSONA (
-   numeroIdPersona BIGINT NOT NULL,
-   tipoIdPersona VARCHAR(50) NOT NULL,
+
+   idPersona BIGINT NOT NULL AUTO_INCREMENT,              -- 1. Nuevo ID para la persona (llave primaria)
+   numeroIdentificacion BIGINT NOT NULL,                  -- 2. Renombrado desde numeroIdPersona
+   tipoIdentificacion VARCHAR(50) NOT NULL,               -- 3. Renombrado desde tipoIdPersona
    nombrePersona VARCHAR(50) NOT NULL,
    apellidosPersona VARCHAR(50) NOT NULL,
    fechaNacimientoPersona DATE NOT NULL,
    fechaExpedicionDocumentoIdPersona DATE NOT NULL,
    estadoPersona VARCHAR(50) NOT NULL,
    generoPersona VARCHAR(50),
+   estadoCivil VARCHAR(50) NOT NULL,                      -- 4. Nuevo campo Estado Civil
    fechaDefuncionPersona DATE,
-   PRIMARY KEY (numeroIdPersona)
+   PRIMARY KEY (idPersona),                               -- 5. Se establece el nuevo ID como llave primaria
+   UNIQUE KEY uk_identificacion (tipoIdentificacion, numeroIdentificacion) -- 6. Se unifican los campos de identificacion
 );
 
 /*==============================================================*/
@@ -90,28 +97,31 @@ CREATE TABLE IPC (
 /* Table: PENSIONADO                                            */
 /*==============================================================*/
 CREATE TABLE PENSIONADO (
-   numeroIdPersona BIGINT NOT NULL,
+   idPersona BIGINT NOT NULL, -- Cambiado de numeroIdPersona
    nitEntidad BIGINT NOT NULL,
    fechaInicioPension DATE,
    valorInicialPension DECIMAL (19,0) NOT NULL,
    resolucionPension  VARCHAR(200) NOT NULL,
    totalDiasTrabajo BIGINT,
+
    aplicarIPCPrimerPeriodo BOOLEAN NOT NULL DEFAULT FALSE,
-   PRIMARY KEY (numeroIdPersona),
-   FOREIGN KEY (numeroIdPersona) REFERENCES PERSONA(numeroIdPersona),
+
+   PRIMARY KEY (idPersona), -- Cambiado de numeroIdPersona
+   FOREIGN KEY (idPersona) REFERENCES PERSONA(idPersona), -- Apunta a la nueva llave primaria
    FOREIGN KEY (nitEntidad) REFERENCES ENTIDAD(nitEntidad)
 );
+
 
 /*==============================================================*/
 /* Table: TRABAJO                                               */
 /*==============================================================*/
 CREATE TABLE TRABAJO (
    idTrabajo BIGINT NOT NULL AUTO_INCREMENT,
-   numeroIdPersona BIGINT NOT NULL,
+   idPersona BIGINT NOT NULL, -- Cambiado de numeroIdPersona
    nitEntidad BIGINT NOT NULL,
    diasDeServicio BIGINT NOT NULL,
    PRIMARY KEY (idTrabajo),
-   FOREIGN KEY (numeroIdPersona) REFERENCES PENSIONADO(numeroIdPersona),
+   FOREIGN KEY (idPersona) REFERENCES PERSONA(idPersona), -- Apunta a la nueva llave primaria de Persona
    FOREIGN KEY (nitEntidad) REFERENCES ENTIDAD(nitEntidad)
 );
 
@@ -119,13 +129,13 @@ CREATE TABLE TRABAJO (
 /* Table: SUCESOR                                               */
 /*==============================================================*/
 CREATE TABLE SUCESOR (
-    numeroIdPersona BIGINT NOT NULL,
-    numeroIdPensionado BIGINT NOT NULL,
-    fechaInicioSucesion DATE NOT NULL,
-    porcentajePension DOUBLE NOT NULL,
-    PRIMARY KEY (numeroIdPersona),
-    FOREIGN KEY (numeroIdPersona) REFERENCES PERSONA(numeroIdPersona),
-    FOREIGN KEY (numeroIdPensionado) REFERENCES PENSIONADO(numeroIdPersona)
+   idPersona BIGINT NOT NULL, -- Cambiado de numeroIdPersona
+   idPensionado BIGINT NOT NULL, -- Renombrado por claridad (era numeroIdPensionado)
+   fechaInicioSucesion DATE NOT NULL,
+   porcentajePension DOUBLE NOT NULL,
+   PRIMARY KEY (idPersona), -- Cambiado de numeroIdPersona
+   FOREIGN KEY (idPersona) REFERENCES PERSONA(idPersona), -- Apunta a la nueva llave primaria
+   FOREIGN KEY (idPensionado) REFERENCES PENSIONADO(idPersona) -- Apunta a la llave primaria de Pensionado
 );
 
 /*==============================================================*/
