@@ -4,5 +4,6 @@ public enum EstadoPersona {
     ACTIVO,
     SUSPENDIDO,
     RETIRADO,
-    FALLECIDO
+    FALLECIDO,
+    INACTIVO
 }
