@@ -343,7 +343,7 @@ public class EntidadServicio implements IEntidadServicio {
                     // Se usa el getter para el número de identificación.
                     .numeroIdentificacion(p.getNumeroIdentificacion())
                     // Se convierte el enum a String.
-                    .tipoIdentificacion(p.getTipoIdentificacion().name())
+                    .tipoIdentificacion(p.getTipoIdentificacion())
                     .nombrePersona(p.getNombrePersona())
                     .apellidosPersona(p.getApellidosPersona())
                     // Se añade el nuevo campo 'estadoCivil' y se convierte el enum a String.
@@ -351,9 +351,9 @@ public class EntidadServicio implements IEntidadServicio {
                     .fechaNacimientoPersona(p.getFechaNacimientoPersona())
                     .fechaExpedicionDocumentoIdPersona(p.getFechaExpedicionDocumentoIdPersona())
                     // Se convierte el enum a String.
-                    .estadoPersona(p.getEstadoPersona().name())
+                    .estadoPersona(p.getEstadoPersona())
                     // Se convierte el enum a String, manejando el caso de que sea nulo.
-                    .generoPersona(p.getGeneroPersona() != null ? p.getGeneroPersona().name() : null)
+                    .generoPersona(p.getGeneroPersona())
                     .fechaDefuncionPersona(p.getFechaDefuncionPersona())
                     .fechaInicioPension(p.getFechaInicioPension())
                     .valorInicialPension(p.getValorInicialPension())
@@ -448,14 +448,14 @@ public class EntidadServicio implements IEntidadServicio {
                     // Se usan todos los campos nuevos y correctos del DTO y la entidad.
                     .idPersona(p.getIdPersona())
                     .numeroIdentificacion(p.getNumeroIdentificacion())
-                    .tipoIdentificacion(p.getTipoIdentificacion().name())
+                    .tipoIdentificacion(p.getTipoIdentificacion())
                     .nombrePersona(p.getNombrePersona())
                     .apellidosPersona(p.getApellidosPersona())
                     .estadoCivil(p.getEstadoCivil().name())
                     .fechaNacimientoPersona(p.getFechaNacimientoPersona())
                     .fechaExpedicionDocumentoIdPersona(p.getFechaExpedicionDocumentoIdPersona())
-                    .estadoPersona(p.getEstadoPersona().name())
-                    .generoPersona(p.getGeneroPersona() != null ? p.getGeneroPersona().name() : null)
+                    .estadoPersona(p.getEstadoPersona())
+                    .generoPersona(p.getGeneroPersona())
                     .fechaDefuncionPersona(p.getFechaDefuncionPersona())
                     .fechaInicioPension(p.getFechaInicioPension())
                     .valorInicialPension(p.getValorInicialPension())
