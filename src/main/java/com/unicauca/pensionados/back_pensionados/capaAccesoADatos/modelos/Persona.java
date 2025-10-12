@@ -2,44 +2,49 @@ package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.Table;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import java.util.List;
+
+// Importar los nuevos enumeradores
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.enumeradores.EstadoCivil;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.enumeradores.EstadoPersona;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.enumeradores.Genero;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.enumeradores.TipoIdentificacion;
+
+import jakarta.persistence.*;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table (name = "PERSONA")
-@Inheritance(strategy =InheritanceType.JOINED)
+@Table(name = "PERSONA",
+       uniqueConstraints = { // Anotación para la unicidad de tipo y número de identificación
+           @UniqueConstraint(columnNames = {"tipoIdentificacion", "numeroIdentificacion"})
+       })
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter @Setter @NoArgsConstructor
 public abstract class Persona {
-    /**
-     * Representa la información básica y esencial de un individuo dentro del sistema de pensiones.
-     * 
-     * Reglas:
-     * - tipoIdPersona, estadoPersona y generoPersona se modelan como enums y se persisten como INT (ORDINAL).
-     * - Las fechas se manejan como LocalDate y se esperan en formato ISO-8601 (yyyy-MM-dd).
-     */
     @Id
-    @Column(name = "numeroIdPersona")
-    private Long numeroIdPersona;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idPersona; // Un ID único para la persona, separado de su número de identificación
+
+    @Column(name = "numeroIdentificacion", nullable = false)
+    private Long numeroIdentificacion; // Campo renombrado
     
-    /** Tipo de identificación de la persona (almacenado como entero en BD). */
-    @Column (name =  "tipoIdPersona", nullable = false)
-    @Enumerated(EnumType.ORDINAL)
-    private TipoIdPersona tipoIdPersona;
+
+    @Enumerated(EnumType.STRING) // Indica a JPA que guarde el nombre del enum como String
+    @Column (name = "tipoIdentificacion", nullable = false, length = 50)
+    private TipoIdentificacion tipoIdentificacion; // Campo renombrado y de tipo Enum
 
     @Column (name = "nombrePersona", nullable = false, length = 50)
     private String nombrePersona;
 
     @Column (name = "apellidosPersona", nullable = false, length = 50)
     private String apellidosPersona;
+    
+    @Enumerated(EnumType.STRING)
+    @Column (name = "estadoCivil", nullable = false, length = 50)
+    private EstadoCivil estadoCivil; // Nuevo campo Estado Civil de tipo Enum
 
     @Column (name = "fechaNacimientoPersona", nullable = false)
     private LocalDate fechaNacimientoPersona;
@@ -48,19 +53,20 @@ public abstract class Persona {
     private LocalDate fechaExpedicionDocumentoIdPersona;
 
 
-    /** Estado de la persona (almacenado como entero en BD). */
-    @Column (name = "estadoPersona", nullable = false)
-    @Enumerated(EnumType.ORDINAL)
-    private EstadoPersona estadoPersona;
+    @Enumerated(EnumType.STRING)
+    @Column (name = "estadoPersona", nullable = false, length = 50)
+    private EstadoPersona estadoPersona; // Campo cambiado a tipo Enum
 
-    /** Género de la persona (almacenado como entero en BD, opcional). */
-    @Column (name = "generoPersona", nullable = true)
-    @Enumerated(EnumType.ORDINAL)
-    private GeneroPersona generoPersona;
-
+    @Enumerated(EnumType.STRING)
+    @Column (name = "generoPersona", length = 50)
+    private Genero generoPersona; // Campo cambiado a tipo Enum
 
     @Column (name = "fechaDefuncionPersona")
+    @Temporal(TemporalType.DATE)
     private LocalDate fechaDefuncionPersona;
 
+    // Relación para las dependencias (trabajos)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "persona")
+    private List<Trabajo> trabajos;
 
 }

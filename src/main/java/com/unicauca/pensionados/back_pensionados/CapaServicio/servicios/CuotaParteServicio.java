@@ -201,11 +201,12 @@ public class CuotaParteServicio implements ICuotaParteServicio {
                 continue;
             }
     
-            Long idPensionado = pensionado.getNumeroIdPersona();
+            Long idPensionado = pensionado.getIdPersona();
     
             PensionadoConCuotaParteDTO dto = mapPensionados.computeIfAbsent(idPensionado, k ->
                 new PensionadoConCuotaParteDTO(
-                    pensionado.getNumeroIdPersona().toString(),
+                    pensionado.getTipoIdentificacion().name(), // Se añade el tipo de ID
+                    pensionado.getNumeroIdentificacion(),      // Se usa el nuevo getter
                     pensionado.getNombrePersona(),
                     pensionado.getApellidosPersona(),
                     new ArrayList<>(),
@@ -288,10 +289,11 @@ public class CuotaParteServicio implements ICuotaParteServicio {
                 continue;
             }
     
-            Long idPensionado = pensionado.getNumeroIdPersona();
+            Long idPensionado = pensionado.getIdPersona();
             PensionadoConCuotaParteDTO dto = mapPensionados.computeIfAbsent(idPensionado, k ->
                 new PensionadoConCuotaParteDTO(
-                    pensionado.getNumeroIdPersona().toString(),
+                    pensionado.getTipoIdentificacion().name(), // Se añade el tipo de ID
+                    pensionado.getNumeroIdentificacion(),      // Se usa el nuevo getter
                     pensionado.getNombrePersona(),
                     pensionado.getApellidosPersona(),
                     new ArrayList<>(),
@@ -376,7 +378,7 @@ public class CuotaParteServicio implements ICuotaParteServicio {
         for (CuotaParte cuota : cuotasParte) {
             Pensionado pensionado = cuota.getTrabajo().getPensionado();
 
-            if (pensionado == null || !idPensionado.equals(pensionado.getNumeroIdPersona())
+            if (pensionado == null || !idPensionado.equals(pensionado.getIdPersona())
                     || pensionado.getEntidadJubilacion() == null
 
                     || !entidadProperties.getNombre().equalsIgnoreCase(pensionado.getEntidadJubilacion().getNombreEntidad())) {
