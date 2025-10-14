@@ -75,13 +75,16 @@ CREATE TABLE PERSONA (
 /* Table: ENTIDAD                                               */
 /*==============================================================*/
 CREATE TABLE ENTIDAD (
+   idEntidad BIGINT NOT NULL AUTO_INCREMENT,
    nitEntidad BIGINT NOT NULL,
+   tipoEntidad VARCHAR(50) NOT NULL,  -- Ej: 'PÚBLICA', 'PRIVADA', 'FONDO', 'UNIVERSIDAD'
    nombreEntidad VARCHAR(100) NOT NULL,
    direccionEntidad VARCHAR(100) NOT NULL,
    emailEntidad VARCHAR(100) NOT NULL,
    telefonoEntidad BIGINT NOT NULL,
    estadoEntidad VARCHAR(50) NOT NULL,
-   PRIMARY KEY (nitEntidad)
+   PRIMARY KEY (idEntidad),
+   UNIQUE KEY uk_nit (nitEntidad, tipoEntidad)
 );
 
 /*==============================================================*/
@@ -97,32 +100,46 @@ CREATE TABLE IPC (
 /* Table: PENSIONADO                                            */
 /*==============================================================*/
 CREATE TABLE PENSIONADO (
+   idPensionado BIGINT NOT NULL AUTO_INCREMENT,
    idPersona BIGINT NOT NULL, -- Cambiado de numeroIdPersona
-   nitEntidad BIGINT NOT NULL,
+   idEntidad BIGINT NOT NULL,
    fechaInicioPension DATE,
    valorInicialPension DECIMAL (19,0) NOT NULL,
    resolucionPension  VARCHAR(200) NOT NULL,
    totalDiasTrabajo BIGINT,
-
    aplicarIPCPrimerPeriodo BOOLEAN NOT NULL DEFAULT FALSE,
-
-   PRIMARY KEY (idPersona), -- Cambiado de numeroIdPersona
+   PRIMARY KEY (idPensionado), -- Cambiado de numeroIdPersona
    FOREIGN KEY (idPersona) REFERENCES PERSONA(idPersona), -- Apunta a la nueva llave primaria
-   FOREIGN KEY (nitEntidad) REFERENCES ENTIDAD(nitEntidad)
+   FOREIGN KEY (idEntidad) REFERENCES ENTIDAD(idEntidad)
 );
 
 
 /*==============================================================*/
-/* Table: TRABAJO                                               */
+/* Table: TRABAJO
+👉 TRABAJO No debe representar un contrato puntual, por ello se creo la tabla CONTRATOS
+Esta tabla representa una relación global entre una persona y una entidad 
+en la que haya prestado servicio, que agrupa sus contratos y resume los días totales   
+| idTrabajo | idPersona | nitEntidad | diasDeServicio | periodoInicio | periodoFin |
+| --------- | --------- | ---------- | -------------- | ------------- | ---------- |
+| 1         | 45        | 800123456  | 3200           | 1987-01-01    | 2002-12-31 |
+En ese rango, la persona puede haber tenido 10 contratos diferentes, 
+pero todos suman esos días con esa entidad. 
+Esta tabla se debe llenar por cálculo o trigger con base en los contratos 
+No se relaciona directamente con cada contrato, sino que se actualiza a partir de ellos.                                         */
 /*==============================================================*/
 CREATE TABLE TRABAJO (
    idTrabajo BIGINT NOT NULL AUTO_INCREMENT,
    idPersona BIGINT NOT NULL, -- Cambiado de numeroIdPersona
-   nitEntidad BIGINT NOT NULL,
+   idEntidad BIGINT NOT NULL,
+   fechaInicio DATE NOT NULL,
+   fechaFin DATE,
    diasDeServicio BIGINT NOT NULL,
+   ultimoCargo VARCHAR(100),
+   observaciones VARCHAR(200),
    PRIMARY KEY (idTrabajo),
    FOREIGN KEY (idPersona) REFERENCES PERSONA(idPersona), -- Apunta a la nueva llave primaria de Persona
-   FOREIGN KEY (nitEntidad) REFERENCES ENTIDAD(nitEntidad)
+   FOREIGN KEY (idEntidad) REFERENCES ENTIDAD(idEntidad),
+   UNIQUE KEY uk_trabajo_persona_entidad (idPersona, nitEntidad, fechaInicio)
 );
 
 /*==============================================================*/
@@ -144,13 +161,19 @@ CREATE TABLE SUCESOR (
 CREATE TABLE CUOTA_PARTE (
    idCuotaParte BIGINT NOT NULL AUTO_INCREMENT,
    idTrabajo BIGINT NOT NULL,
+   idEntidad BIGINT NOT NULL,
+   idPensionado BIGINT NOT NULL,
    valorCuotaParte DECIMAL (19,2) NOT NULL,
    porcentajeCuotaParte DECIMAL(5,4) NOT NULL,
-   fechaGeneracion DATE,
+   fechaGeneracion DATE NOT NULL,
    notas VARCHAR(200) NOT NULL,
+   estadoCuotaParte VARCHAR(50) DEFAULT 'PENDIENTE', -- Nuevo: estado (pendiente, pagada, anulada, etc.)
    cuotaParteTotal DECIMAL (19,2),
    PRIMARY KEY (idCuotaParte),
-   FOREIGN KEY (idTrabajo) REFERENCES TRABAJO(idTrabajo)
+   FOREIGN KEY (idTrabajo) REFERENCES TRABAJO(idTrabajo),
+   FOREIGN KEY (idEntidad) REFERENCES ENTIDAD(idEntidad),
+   FOREIGN KEY (idPensionado) REFERENCES PENSIONADO(idPensionado),
+   UNIQUE KEY uk_cuota_trabajo_entidad (idTrabajo, idEntidad)
 );
 
 /*==============================================================*/

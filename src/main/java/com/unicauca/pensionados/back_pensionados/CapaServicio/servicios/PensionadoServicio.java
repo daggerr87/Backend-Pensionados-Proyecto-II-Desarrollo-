@@ -51,6 +51,7 @@ public class PensionadoServicio implements IPensionadoServicio {
         this.cuotaParteServicio = cuotaParteServicio;
     }
 
+    
     @Transactional
     @Override
     public void registrarPensionado(RegistroPensionadoPeticion request) {
@@ -81,32 +82,15 @@ public class PensionadoServicio implements IPensionadoServicio {
         
         Pensionado pensionadoGuardado = pensionadoRepositorio.save(pensionado);
 
-        // 2. Crear y guardar la lista de trabajos (Dependencias)
-        List<Trabajo> trabajosGuardados = new ArrayList<>();
-        if (request.getTrabajos() != null && !request.getTrabajos().isEmpty()) {
-            for (RegistroTrabajoPeticion trabajoDto : request.getTrabajos()) {
-                Entidad entidadTrabajo = entidadRepositorio.findById(trabajoDto.getNitEntidad())
-                        .orElseThrow(() -> new RuntimeException("La entidad con NIT " + trabajoDto.getNitEntidad() + " no está registrada"));
-                
-                Trabajo trabajo = new Trabajo();
-                trabajo.setDiasDeServicio(trabajoDto.getDiasDeServicio());
-                trabajo.setEntidad(entidadTrabajo);
-                trabajo.setPensionado(pensionadoGuardado);
-                trabajosGuardados.add(trabajoRepositorio.save(trabajo));
-            }
-        }
-        
-        // 3. Calcular el total de días y actualizar al pensionado
-        long totalDias = trabajosGuardados.stream().mapToLong(Trabajo::getDiasDeServicio).sum();
-        pensionadoGuardado.setTotalDiasTrabajo(totalDias);
         pensionadoRepositorio.save(pensionadoGuardado);
-
-        // 4. Generar cuotas partes para cada trabajo
-        for (Trabajo trabajo : trabajosGuardados) {
-            cuotaParteServicio.registrarCuotaParte(trabajo);
-        }
     }
-
+    /*==============================================================*/
+    /* Actualizar Pensionado no es lo mismo que actualizar persona
+     * este metodo consiste en actualizar informacion administrativa
+     * fechaInicioPension, valorInicialPension, resoluciónPension,
+     * entidad que paga la pension (Cambios administrativos o legales)
+     * NO AFECTA LOS VINCULOS LABORALES NI GENERA CALCULOS ECONOMICOS*/
+    /*==============================================================*/
     @Transactional
     @Override
     public void actualizarPensionado(Long idPersona, RegistroPensionadoPeticion request) {
@@ -129,33 +113,9 @@ public class PensionadoServicio implements IPensionadoServicio {
         pensionadoExistente.setResolucionPension(request.getResolucionPension());
         pensionadoExistente.setEntidadJubilacion(entidadJubilacion);
         pensionadoExistente.setAplicarIPCPrimerPeriodo(request.isAplicarIPCPrimerPeriodo());
-
-        // Lógica de actualización de trabajos: eliminar los viejos y crear los nuevos
-        trabajoRepositorio.deleteAll(pensionadoExistente.getTrabajos());
-        pensionadoExistente.getTrabajos().clear();
-
-        List<Trabajo> trabajosActualizados = new ArrayList<>();
-        if (request.getTrabajos() != null && !request.getTrabajos().isEmpty()) {
-            for (RegistroTrabajoPeticion trabajoDto : request.getTrabajos()) {
-                Entidad entidadTrabajo = entidadRepositorio.findById(trabajoDto.getNitEntidad())
-                        .orElseThrow(() -> new RuntimeException("La entidad con NIT " + trabajoDto.getNitEntidad() + " no está registrada"));
-                
-                Trabajo trabajo = new Trabajo();
-                trabajo.setDiasDeServicio(trabajoDto.getDiasDeServicio());
-                trabajo.setEntidad(entidadTrabajo);
-                trabajo.setPensionado(pensionadoExistente);
-                trabajosActualizados.add(trabajoRepositorio.save(trabajo));
-            }
-        }
-        
-        long totalDias = trabajosActualizados.stream().mapToLong(Trabajo::getDiasDeServicio).sum();
-        pensionadoExistente.setTotalDiasTrabajo(totalDias);
         
         pensionadoRepositorio.save(pensionadoExistente);
         
-        for (Trabajo trabajo : trabajosActualizados) {
-            cuotaParteServicio.registrarCuotaParte(trabajo);
-        }
     }
 
     @Override

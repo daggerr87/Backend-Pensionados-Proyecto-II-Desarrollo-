@@ -113,12 +113,31 @@ public class EntidadServicio implements IEntidadServicio {
 
 
     /**
+     * PENDIENTE:
+     * El codigo comentado es necesario que se pase a un servicio especializado por ejemplo "actualizarTrabajosDeEntidad"
+     * Se debe crear un proceso separado para manejar la actualización masiva de trabajos y el recálculo de cuotas partes por entidad.
+     * El proceso debe:
+      *  - Permitir actualizar, agregar o mantener los trabajos asociados a los pensionados de la entidad.
+      *  - No eliminar trabajos con días de servicio igual a cero.
+      *  - Recalcular las cuotas partes asociadas a los trabajos modificados o nuevos.
+      *  - Actualizar el total de días de servicio acumulados por cada pensionado.
+      *  - Mantener la integridad referencial sin modificar los datos administrativos de la entidad.
+      * Leer los trabajos actuales de la entidad (trabajoRepositorio.findByEntidadNitEntidad(nid)).
+      * Recalcular las cuotas partes de cada trabajo o pensionado afectado.
+      * Actualizar el total de días trabajados de cada pensionado.
+      * Evitar modificar datos personales o de la entidad.
+      * Ejecutarse en bloque (transaccionalmente), pero sin depender del servicio de actualización 
+      * de entidades.
+       * Motivo:
+       * El método actual `actualizar()` de EntidadServicio debe limitarse a los datos básicos de la entidad.
      * Actualiza una entidad existente en la base de datos.
      * 
      * @param nid el NIT de la entidad a actualizar
      * @param entidad los nuevos datos de la entidad
      * @throws RuntimeException si no se encuentra la entidad
      * @throws Exception si ocurre un error al actualizar la entidad
+     * Se comenta codigo ya que la informacion que se debe actualizar es solo administrativa
+     * la informacion relacionada con trabajos o cuotas partes de una entidad, haran parte de un proceso
      */
     @Transactional
     @Override
@@ -136,7 +155,7 @@ public class EntidadServicio implements IEntidadServicio {
     entidadExistente.setTelefonoEntidad(entidad.getTelefonoEntidad());
     entidadExistente.setEmailEntidad(entidad.getEmailEntidad());
     entidadExistente.setEstadoEntidad(entidad.getEstadoEntidad());
-
+    /** Se comenta este codigo, ya que la actualizacion de una entidad no debe modificar trabajos o cuotas partes
     if (entidad.getTrabajos() != null) {
         List<Trabajo> trabajosActuales = trabajoRepositorio.findByEntidadNitEntidad(nid);
         
@@ -183,10 +202,18 @@ public class EntidadServicio implements IEntidadServicio {
             }
         }
 
+        */
         entidadRepository.save(entidadExistente);
     }
 
     /**
+     * PENDIENTE: Se debe Realizar un proceso que:
+     * Calcule o recalcule las cuotas partes asociadas a los pensionados de la entidad.
+     *  - Obtenga y actualice el total de días de servicio de cada pensionado.
+     *  - Evite eliminar trabajos o registros con días de servicio igual a cero.
+     *  - Reemplace al método actual masivo "editarPensionadosDeEntidad", el cual realiza estas tareas
+     *    pero mezcla lógica de mantenimiento institucional con lógica de cálculo.
+     * Este Sercio Permite:
      * Edita la lista de pensionados asociados a una entidad.
      * Permite agregar nuevos pensionados, eliminar pensionados existentes o modificar los días de servicio.
      *
@@ -194,6 +221,32 @@ public class EntidadServicio implements IEntidadServicio {
      * @param trabajosActualizados La lista actualizada de trabajos con los pensionados y sus días de servicio.
      * @throws RuntimeException Si la entidad no existe o si algún pensionado no está registrado.
      */
+
+    /*==============================================================*/
+    /**
+    * Este método se utiliza únicamente para procesos masivos de actualización o importación de datos
+    * (por ejemplo, lectura desde Excel o CSV).
+    * 
+    * No debe usarse desde la interfaz de usuario ni en operaciones individuales, ya que
+    * puede eliminar trabajos y cuotas partes con días de servicio igual a cero.
+    /* Actualiza los trabajos o Dias de Servicio, asociados a una entidad especifica por NIT
+    Este Metodo Solo debe usar se de manera interna, es decir no se debe acceder mediante frontend
+    Es recomendable que este metodo se invoque unicamente para realizar importacion de archivos
+    ya que no tendra en cuenta los trabajos ingresados con dias de servicio en cero
+    1️⃣ Buscar la entidad por su NIT.
+    2️⃣ Obtener todos los trabajos actuales asociados a esa entidad.
+    3️⃣ Crear un mapa (para detectar qué trabajos se eliminarán al final).
+    4️⃣ Recorrer la lista nueva de trabajos que viene en la petición.
+        - Buscar el pensionado correspondiente.
+        - Si ya tenía un trabajo en esa entidad → actualizar o eliminar.
+        - Si no lo tenía → crear uno nuevo.
+        - Actualizar el total de días de servicio del pensionado.
+        - Guardar el pensionado.
+        - (Y aquí llama a registrar o recalcular cuotas partes)
+    5️⃣ Al final, eliminar los trabajos que ya no estén en la lista actualizada.
+    6️⃣ Guardar la entidad actualizada.
+
+    /*==============================================================*/
     @Transactional
     @Override
     public void editarPensionadosDeEntidad(Long nitEntidad, List<RegistroTrabajoPeticion> trabajosActualizados) {
@@ -224,6 +277,7 @@ public class EntidadServicio implements IEntidadServicio {
 
             Trabajo trabajoModificado = null;
             if (trabajoExistenteOpt.isPresent()) {
+                // ✅ Significa que ya existe un trabajo entre ese pensionado y esa entidad
                 Trabajo trabajoExistente = trabajoExistenteOpt.get();
                 if (trabajoPeticion.getDiasDeServicio() == 0) {
                     cuotaParteRepositorio.findByTrabajoIdTrabajo(trabajoExistente.getIdTrabajo())
