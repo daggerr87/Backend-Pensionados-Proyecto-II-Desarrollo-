@@ -18,6 +18,8 @@ DROP TABLE IF EXISTS USUARIO;
 DROP TABLE IF EXISTS ROL;
 DROP TABLE IF EXISTS ROL_ACCION;
 DROP TABLE IF EXISTS LOG_CAMBIO;
+DROP TABLE IF EXISTS CONTRATO;
+
 ;
 SET FOREIGN_KEY_CHECKS=1;
 
@@ -205,3 +207,37 @@ CREATE TABLE LOG_CAMBIO (
 );
 
 
+/*==============================================================*/
+/* Table: CONTRATO                                              */
+/*==============================================================*/
+CREATE TABLE CONTRATO (
+  idContrato BIGINT NOT NULL AUTO_INCREMENT,
+  numeroIdPersona BIGINT NOT NULL,
+  nitEntidad BIGINT NOT NULL,
+  numeroIdPersonaPersona BIGINT NOT NULL,
+  fechaInicio DATE NOT NULL,
+  fechaFin DATE NOT NULL,
+  cargo VARCHAR(120) NOT NULL,
+  tipoVinculacion ENUM('PLANTA','CATEDRATICO','OCASIONAL','OPS') NOT NULL,
+  salarioBase DECIMAL(19,2) NOT NULL,
+  ultimoSalarioReportado DECIMAL(19,2) NOT NULL,
+  tiempoServicioDias INT NOT NULL,
+  estado ENUM('ACTIVO','FINALIZADO','SUSPENDIDO') NOT NULL,
+  certificado_laboral LONGBLOB NULL,
+  PRIMARY KEY (idContrato),
+  CONSTRAINT fk_contrato_pensionado
+    FOREIGN KEY (numeroIdPersona) REFERENCES PENSIONADO(numeroIdPersona)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+  CONSTRAINT fk_contrato_entidad
+    FOREIGN KEY (nitEntidad) REFERENCES ENTIDAD(nitEntidad)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+  CONSTRAINT fk_contrato_persona
+    FOREIGN KEY (numeroIdPersonaPersona) REFERENCES PERSONA(numeroIdPersona)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+
+  INDEX idx_contrato_pensionado (numeroIdPersona),
+  INDEX idx_contrato_entidad (nitEntidad),
+  INDEX idx_contrato_persona (numeroIdPersonaPersona),
+  INDEX idx_contrato_estado (estado),
+  INDEX idx_contrato_fechas (fechaInicio, fechaFin)
+)

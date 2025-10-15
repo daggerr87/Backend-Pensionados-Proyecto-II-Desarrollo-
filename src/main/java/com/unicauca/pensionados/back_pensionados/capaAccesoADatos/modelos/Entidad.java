@@ -3,12 +3,7 @@ package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -51,5 +46,9 @@ public class Entidad {
     @JsonManagedReference(value = "entidad-trabajo")
     @OneToMany(mappedBy = "entidad", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Trabajo> trabajos = new ArrayList<>();
+
+    //Una entidad puede estar ligada a varios contratos
+    @OneToMany(mappedBy = "entidad", fetch = FetchType.LAZY)
+    private List<Contrato> contratos = new ArrayList<>();
 }
 
