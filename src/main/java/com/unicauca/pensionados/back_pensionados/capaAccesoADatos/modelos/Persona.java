@@ -1,6 +1,7 @@
 package com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 // Importar los nuevos enumeradores
@@ -68,4 +69,8 @@ public abstract class Persona {
     // Relación para las dependencias (trabajos)
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "persona")
     private List<Trabajo> trabajos;
+
+    //Una persona puede estar ligada a varios contratos
+    @OneToMany(mappedBy = "persona", fetch = FetchType.LAZY)
+    private List<Contrato> contratos = new ArrayList<>();
 }
