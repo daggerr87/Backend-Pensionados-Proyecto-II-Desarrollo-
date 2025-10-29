@@ -141,7 +141,7 @@ CREATE TABLE TRABAJO (
    PRIMARY KEY (idTrabajo),
    FOREIGN KEY (idPersona) REFERENCES PERSONA(idPersona), -- Apunta a la nueva llave primaria de Persona
    FOREIGN KEY (idEntidad) REFERENCES ENTIDAD(idEntidad),
-   UNIQUE KEY uk_trabajo_persona_entidad (idPersona, nitEntidad, fechaInicio)
+   UNIQUE KEY uk_trabajo_persona_entidad (idPersona, idEntidad, fechaInicio)
 );
 
 /*==============================================================*/
