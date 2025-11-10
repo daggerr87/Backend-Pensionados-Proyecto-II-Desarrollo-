@@ -1,5 +1,6 @@
 package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
 
+import com.unicauca.pensionados.back_pensionados.CapaServicio.excepciones.BusinessValidationException;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.IPC;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.IPCRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.IPCRespuestaDTO;
@@ -74,7 +75,7 @@ public class IPCServicio implements IIPCServicio {
         // Validar primero si ya existe un IPC para el año
         Optional<IPC> existente = ipcRepositorio.findByFechaIPC(peticion.getFechaIPC());
         if (existente.isPresent()) {
-            throw new RuntimeException("Ya existe un registro de IPC para el año " + peticion.getFechaIPC());
+            throw new BusinessValidationException("Ya existe un registro de IPC para el año " + peticion.getFechaIPC());
         }
 
         // Obtener todos los IPCs registrados

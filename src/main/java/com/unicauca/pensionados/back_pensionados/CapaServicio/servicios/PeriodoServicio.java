@@ -104,7 +104,7 @@ public class PeriodoServicio implements IPeriodoServicio {
             BigDecimal cuotaParteTotalAnio = cuotaParteMensual.multiply(numeroMesadas);
 
             if(periodoRepositorio.findPeriodoByFechas(inicioPeriodo, finPeriodo).isPresent()){
-                throw new BusinessValidationException("El periodo entre " + inicioPeriodo + " y " + finPeriodo + " ya existe.");
+                throw new BusinessValidationException("Error al crear el periodo: \nEl periodo entre " + inicioPeriodo + " y " + finPeriodo + " ya existe.");
             }
             Periodo periodo = new Periodo();
             periodo.setFechaInicioPeriodo(inicioPeriodo);
