@@ -1,5 +1,6 @@
 package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
 
+import com.unicauca.pensionados.back_pensionados.CapaServicio.excepciones.BusinessValidationException;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -102,7 +103,9 @@ public class PeriodoServicio implements IPeriodoServicio {
             BigDecimal cuotaParteMensual = valorPension.multiply(porcentajeCuotaParte);
             BigDecimal cuotaParteTotalAnio = cuotaParteMensual.multiply(numeroMesadas);
 
-            // Crear y agregar el periodo
+            if(periodoRepositorio.findPeriodoByFechas(inicioPeriodo, finPeriodo).isPresent()){
+                throw new BusinessValidationException("El periodo entre " + inicioPeriodo + " y " + finPeriodo + " ya existe.");
+            }
             Periodo periodo = new Periodo();
             periodo.setFechaInicioPeriodo(inicioPeriodo);
             periodo.setFechaFinPeriodo(finPeriodo);
