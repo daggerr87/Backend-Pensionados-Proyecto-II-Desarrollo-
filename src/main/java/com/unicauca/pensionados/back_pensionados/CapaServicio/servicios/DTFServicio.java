@@ -2,6 +2,7 @@ package com.unicauca.pensionados.back_pensionados.CapaServicio.servicios;
 
 import com.unicauca.pensionados.back_pensionados.CapaServicio.excepciones.BusinessValidationException;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.DTF;
+import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.modelos.LogCambio;
 import com.unicauca.pensionados.back_pensionados.capaAccesoADatos.repositories.DTFRepositorio;
 import com.unicauca.pensionados.back_pensionados.capaPresentacion.dto.respuesta.DTFDTO;
 import org.modelmapper.ModelMapper;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +27,14 @@ public class DTFServicio implements IDTFServicio {
         try{
             DTF nuevoDTF = modelMapper.map(dtf, DTF.class);
             Optional<DTF> dtfExistente = dtfRepositorio.findByMesAndAnio(nuevoDTF.getMes(), nuevoDTF.getAnio());
-            if(dtfExistente.isPresent()) throw new BusinessValidationException("Ya existe un DTF para el mes " + nuevoDTF.getMes() + " y año " + nuevoDTF.getAnio());
+            if(dtfExistente.isPresent()) {
+                LogCambio logCambio = new LogCambio();
+                logCambio.setEntidad("DTF");
+                logCambio.setAccion(LogCambio.Accion.CREAR);
+                logCambio.setValorNuevo("Intento de crear DTF para mes " + nuevoDTF.getMes() + " y año " + nuevoDTF.getAnio() + " duplicado");
+                logCambio.setFecha(LocalDateTime.now());
+                throw new BusinessValidationException("Ya existe un DTF para el mes " + nuevoDTF.getMes() + " y año " + nuevoDTF.getAnio());
+            }
             nuevoDTF.setFechaRegistro(LocalDate.now().toString());
             dtfRepositorio.save(nuevoDTF);
             return modelMapper.map(nuevoDTF, DTFDTO.class);
